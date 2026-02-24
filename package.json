@@ -6,13 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
-  },
-  "dependencies": {
-    "next": "15.2.0",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "typescript": "^5.0.0",
-    "@types/react": "^19.0.0",
-    "@types/node": "^20.0.0"
-  }
+"dependencies": {
+  "next": "15.2.6",
+  "react": "19.0.0",
+  "react-dom": "19.0.0",
+  "typescript": "^5.0.0",
+  "@types/react": "^19.0.0",
+  "@types/node": "^20.0.0",
+  "react-server-dom-webpack": "19.0.0",
+  "react-server-dom-turbopack": "19.0.0"
 }
