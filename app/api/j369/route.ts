@@ -87,35 +87,9 @@ export async function POST(req: Request) {
       { role: 'user', content: message }
     ]
 
-    // Call OpenRouter with timeout
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 15000)
-
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${openRouterKey}`,
-        'HTTP-Referer': 'https://poitx.vercel.app',
-        'X-Title': 'POITX Galaxy'
-      },
-      body: JSON.stringify({
-        model: 'perplexity/llama-3-sonar-large',
-        messages,
-        temperature: 0.7,
-        max_tokens: 2000,
-        top_p: 0.95,
-        frequency_penalty: 0.3,
-        presence_penalty: 0.3
-      }),
-      signal: controller.signal
-    })
-
-    clearTimeout(timeoutId)
-
-    if (!response.ok) {
-      // Try fallback model
-      const fallbackResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    // Try primary model: LLaMA 3.3 70B
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -124,62 +98,116 @@ export async function POST(req: Request) {
           'X-Title': 'POITX Galaxy'
         },
         body: JSON.stringify({
-          model: 'mistralai/mixtral-8x7b-instruct',
+          model: 'meta-llama/llama-3.3-70b-instruct',
           messages,
           temperature: 0.7,
-          max_tokens: 1500
+          max_tokens: 2000,
+          top_p: 0.95,
+          frequency_penalty: 0.3,
+          presence_penalty: 0.3
         })
       })
 
-      if (!fallbackResponse.ok) {
-        throw new Error('Both models failed')
+      if (response.ok) {
+        const data = await response.json()
+        const reply = data.choices[0].message.content
+
+        // Save assistant message
+        await supabase.from('messages').insert({
+          session_id: currentSessionId,
+          role: 'assistant',
+          content: reply,
+          created_at: new Date().toISOString()
+        })
+
+        return NextResponse.json({
+          response: reply,
+          sessionId: currentSessionId,
+          model: 'llama-3.3-70b'
+        })
       }
-
-      const fallbackData = await fallbackResponse.json()
-      const fallbackReply = fallbackData.choices[0].message.content
-
-      // Save assistant message
-      await supabase.from('messages').insert({
-        session_id: currentSessionId,
-        role: 'assistant',
-        content: fallbackReply,
-        created_at: new Date().toISOString()
-      })
-
-      return NextResponse.json({
-        response: fallbackReply,
-        sessionId: currentSessionId,
-        model: 'mixtral-8x7b (fallback)'
-      })
+    } catch (error) {
+      console.log('Primary model failed, trying backup...')
     }
 
-    const data = await response.json()
-    const reply = data.choices[0].message.content
+    // Try backup model: Gemini 2.0 Flash
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${openRouterKey}`,
+          'HTTP-Referer': 'https://poitx.vercel.app',
+          'X-Title': 'POITX Galaxy'
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.0-flash-exp',
+          messages,
+          temperature: 0.7,
+          max_tokens: 2000
+        })
+      })
 
-    // Save assistant message
+      if (response.ok) {
+        const data = await response.json()
+        const reply = data.choices[0].message.content
+
+        await supabase.from('messages').insert({
+          session_id: currentSessionId,
+          role: 'assistant',
+          content: reply,
+          created_at: new Date().toISOString()
+        })
+
+        return NextResponse.json({
+          response: reply,
+          sessionId: currentSessionId,
+          model: 'gemini-2.0-flash'
+        })
+      }
+    } catch (error) {
+      console.log('Backup model failed, trying fallback...')
+    }
+
+    // Final fallback: Mixtral 8x7B
+    const fallbackResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${openRouterKey}`,
+        'HTTP-Referer': 'https://poitx.vercel.app',
+        'X-Title': 'POITX Galaxy'
+      },
+      body: JSON.stringify({
+        model: 'mistralai/mixtral-8x7b-instruct',
+        messages,
+        temperature: 0.7,
+        max_tokens: 1500
+      })
+    })
+
+    if (!fallbackResponse.ok) {
+      throw new Error('All models failed')
+    }
+
+    const fallbackData = await fallbackResponse.json()
+    const fallbackReply = fallbackData.choices[0].message.content
+
     await supabase.from('messages').insert({
       session_id: currentSessionId,
       role: 'assistant',
-      content: reply,
+      content: fallbackReply,
       created_at: new Date().toISOString()
     })
 
     return NextResponse.json({
-      response: reply,
+      response: fallbackReply,
       sessionId: currentSessionId,
-      model: data.model
+      model: 'mixtral-8x7b (fallback)'
     })
 
   } catch (error: any) {
     console.error('J_369 Error:', error)
-    
-    if (error.name === 'AbortError') {
-      return NextResponse.json(
-        { error: 'Request timeout. Please try again.' },
-        { status: 504 }
-      )
-    }
-
     return NextResponse.json(
       { error: 'An error occurred. Please try again.' },
       { status: 500 }
