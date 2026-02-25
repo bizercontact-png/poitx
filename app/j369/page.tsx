@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { faIR } from 'date-fns/locale'
+import GalacticInput from '../components/GalacticInput' // ← اینو اضافه کن
 
 type Message = {
   id: string
@@ -22,7 +23,6 @@ type Session = {
 
 export default function J369Page() {
   const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [sessions, setSessions] = useState<Session[]>([])
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
@@ -30,18 +30,12 @@ export default function J369Page() {
   const [searchQuery, setSearchQuery] = useState('')
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // اسکرول خودکار به آخر
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
-
-  // فوکوس روی ورودی
-  useEffect(() => {
-    inputRef.current?.focus()
-  }, [])
 
   // لود sessions از localStorage (بعداً از Supabase)
   useEffect(() => {
@@ -81,7 +75,7 @@ export default function J369Page() {
     }
   }
 
-  const askJ369 = async () => {
+  const askJ369 = async (input: string, files: File[]) => {
     if (!input.trim() || loading) return
 
     const userMessage: Message = {
@@ -93,7 +87,6 @@ export default function J369Page() {
     }
 
     setMessages(prev => [...prev, userMessage])
-    setInput('')
     setLoading(true)
 
     try {
@@ -103,7 +96,7 @@ export default function J369Page() {
         body: JSON.stringify({ 
           message: input,
           sessionId: currentSessionId,
-          history: messages.slice(-10) // آخرین ۱۰ پیام برای context
+          history: messages.slice(-10)
         })
       })
       
@@ -125,7 +118,6 @@ export default function J369Page() {
       
       if (data.sessionId && !currentSessionId) {
         setCurrentSessionId(data.sessionId)
-        // آپدیت عنوان session
         const updatedSessions = sessions.map(s => 
           s.id === data.sessionId 
             ? { ...s, title: input.slice(0, 30) + '...' }
@@ -144,26 +136,6 @@ export default function J369Page() {
       }])
     } finally {
       setLoading(false)
-      inputRef.current?.focus()
-    }
-  }
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      askJ369()
-    }
-  }
-
-  const handleFileUpload = () => {
-    fileInputRef.current?.click()
-  }
-
-  const onFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      // بعداً آپلود فایل رو اضافه می‌کنیم
-      console.log('File selected:', file.name)
     }
   }
 
@@ -266,31 +238,12 @@ export default function J369Page() {
                 ].map((suggestion, i) => (
                   <button
                     key={i}
-                    onClick={() => {
-                      setInput(suggestion)
-                      setTimeout(askJ369, 100)
-                    }}
+                    onClick={() => askJ369(suggestion, [])}
                     style={styles.suggestionButton}
                   >
                     {suggestion}
                   </button>
                 ))}
-              </div>
-
-              {/* File Upload */}
-              <div style={styles.uploadContainer}>
-                <button onClick={handleFileUpload} style={styles.uploadButton}>
-                  📎 Upload File
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  onChange={onFileSelected}
-                  style={{ display: 'none' }}
-                />
-                <p style={styles.uploadNote}>
-                  Supports images, PDF, Word, Excel, PPT, txt
-                </p>
               </div>
             </div>
           ) : (
@@ -344,46 +297,9 @@ export default function J369Page() {
           )}
         </main>
 
-        {/* Input Area */}
+        {/* Galactic Input - غول شده */}
         <footer style={styles.footer}>
-          <div style={styles.inputContainer}>
-            <button onClick={handleFileUpload} style={styles.attachButton}>
-              📎
-            </button>
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Message J_369..."
-              rows={1}
-              style={styles.input}
-              disabled={loading}
-            />
-            <button
-              onClick={askJ369}
-              disabled={loading || !input.trim()}
-              style={{
-                ...styles.sendButton,
-                ...(loading || !input.trim() ? styles.sendButtonDisabled : {})
-              }}
-            >
-              {loading ? (
-                <div style={styles.smallTyping}>
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-              ) : (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                </svg>
-              )}
-            </button>
-          </div>
-          <p style={styles.disclaimer}>
-            J_369 may occasionally generate incorrect information. Check important info.
-          </p>
+          <GalacticInput onSubmit={askJ369} loading={loading} />
         </footer>
       </div>
 
@@ -590,23 +506,6 @@ const styles = {
     transition: 'all 0.2s',
     textAlign: 'left' as const,
   },
-  uploadContainer: {
-    textAlign: 'center' as const,
-  },
-  uploadButton: {
-    padding: '0.8rem 2rem',
-    background: 'rgba(255,255,255,0.1)',
-    border: '1px solid rgba(255,255,255,0.2)',
-    borderRadius: '30px',
-    color: '#fff',
-    cursor: 'pointer',
-    fontSize: '1rem',
-    marginBottom: '0.5rem',
-  },
-  uploadNote: {
-    fontSize: '0.8rem',
-    opacity: 0.5,
-  },
   messagesList: {
     maxWidth: '800px',
     margin: '0 auto',
@@ -664,63 +563,6 @@ const styles = {
     borderTop: '1px solid rgba(255,255,255,0.1)',
     padding: '1rem',
   },
-  inputContainer: {
-    maxWidth: '800px',
-    margin: '0 auto',
-    display: 'flex',
-    gap: '0.5rem',
-    alignItems: 'center',
-  },
-  attachButton: {
-    width: '45px',
-    height: '45px',
-    borderRadius: '50%',
-    background: 'rgba(255,255,255,0.1)',
-    border: '1px solid rgba(255,255,255,0.2)',
-    color: '#fff',
-    cursor: 'pointer',
-    fontSize: '1.2rem',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  input: {
-    flex: 1,
-    padding: '1rem',
-    background: 'rgba(255,255,255,0.1)',
-    border: '1px solid rgba(255,255,255,0.2)',
-    borderRadius: '30px',
-    color: '#fff',
-    fontSize: '1rem',
-    resize: 'none' as const,
-    fontFamily: 'inherit',
-    outline: 'none',
-    maxHeight: '150px',
-  },
-  sendButton: {
-    width: '45px',
-    height: '45px',
-    borderRadius: '50%',
-    background: '#0066ff',
-    border: 'none',
-    color: '#fff',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'all 0.2s',
-  },
-  sendButtonDisabled: {
-    opacity: 0.5,
-    cursor: 'not-allowed',
-  },
-  disclaimer: {
-    maxWidth: '800px',
-    margin: '0.5rem auto 0',
-    fontSize: '0.7rem',
-    opacity: 0.5,
-    textAlign: 'center' as const,
-  },
   typingIndicator: {
     display: 'flex',
     gap: '0.3rem',
@@ -735,16 +577,5 @@ const styles = {
     '& span:nth-child(1)': { animationDelay: '0s' },
     '& span:nth-child(2)': { animationDelay: '0.2s' },
     '& span:nth-child(3)': { animationDelay: '0.4s' },
-  },
-  smallTyping: {
-    display: 'flex',
-    gap: '0.2rem',
-    '& span': {
-      width: '4px',
-      height: '4px',
-      background: '#fff',
-      borderRadius: '50%',
-      animation: 'bounce 1.4s infinite ease-in-out',
-    },
   },
 }
