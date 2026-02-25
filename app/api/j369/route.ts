@@ -1,12 +1,23 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.SUPABASE_URL!
-const supabaseKey = process.env.SUPABASE_ANON_KEY!
-const openRouterKey = process.env.OPENROUTER_API_KEY!
+// بررسی متغیرهای محیطی در زمان build
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_ANON_KEY
+const openRouterKey = process.env.OPENROUTER_API_KEY
 
-const supabase = createClient(supabaseUrl, supabaseKey)
+// اگر متغیرها نباشن، خطای واضح می‌ده
+if (!supabaseUrl || !supabaseKey || !openRouterKey) {
+  console.error('❌ Missing environment variables:', {
+    supabaseUrl: !!supabaseUrl,
+    supabaseKey: !!supabaseKey,
+    openRouterKey: !!openRouterKey
+  })
+}
 
+const supabase = createClient(supabaseUrl!, supabaseKey!)
+
+// سیستم پرامپت حرفه‌ای
 const SYSTEM_PROMPT = `You are J_369, the official AI of POITX Galaxy, created by the Founder of POITX.
 
 Core Identity:
@@ -37,9 +48,83 @@ Guidelines:
 
 Remember: You are the heart of POITX Galaxy.`
 
-export async function POST(req: Request) {
+// لیست مدل‌ها به ترتیب اولویت
+const MODELS = [
+  {
+    name: 'llama-3.3-70b',
+    model: 'meta-llama/llama-3.3-70b-instruct',
+    description: 'قوی و رایگان'
+  },
+  {
+    name: 'gemini-2.0-flash',
+    model: 'google/gemini-2.0-flash-exp',
+    description: 'سریع و سبک'
+  },
+  {
+    name: 'mixtral-8x7b',
+    model: 'mistralai/mixtral-8x7b-instruct',
+    description: 'پشتیبان'
+  }
+]
+
+// تابع کمکی برای فراخوانی OpenRouter
+async function callOpenRouter(model: string, messages: any[]) {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 ثانیه تایم‌اوت
+
   try {
-    const { message, sessionId, history } = await req.json()
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${openRouterKey}`,
+        'HTTP-Referer': 'https://poitx.vercel.app',
+        'X-Title': 'POITX Galaxy'
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        temperature: 0.7,
+        max_tokens: 2000,
+        top_p: 0.95,
+        frequency_penalty: 0.3,
+        presence_penalty: 0.3
+      }),
+      signal: controller.signal
+    })
+
+    clearTimeout(timeoutId)
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`❌ OpenRouter error (${model}):`, {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText
+      })
+      return null
+    }
+
+    const data = await response.json()
+    return data.choices[0].message.content
+  } catch (error: any) {
+    clearTimeout(timeoutId)
+    if (error.name === 'AbortError') {
+      console.error(`⏰ Timeout for model ${model}`)
+    } else {
+      console.error(`❌ Fetch error for model ${model}:`, error.message)
+    }
+    return null
+  }
+}
+
+export async function POST(req: Request) {
+  const startTime = Date.now()
+  
+  try {
+    // 1. دریافت و اعتبارسنجی ورودی
+    const body = await req.json()
+    const { message, sessionId, history } = body
 
     if (!message?.trim()) {
       return NextResponse.json(
@@ -48,7 +133,13 @@ export async function POST(req: Request) {
       )
     }
 
-    // Get or create session
+    console.log('📥 Received message:', { 
+      message: message.slice(0, 50), 
+      sessionId,
+      historyLength: history?.length 
+    })
+
+    // 2. مدیریت سشن
     let currentSessionId = sessionId
     if (!currentSessionId) {
       const { data: newSession, error } = await supabase
@@ -57,19 +148,33 @@ export async function POST(req: Request) {
         .select('id')
         .single()
 
-      if (error) throw error
+      if (error) {
+        console.error('❌ Session creation error:', error)
+        return NextResponse.json(
+          { error: 'Database error' },
+          { status: 500 }
+        )
+      }
+      
       currentSessionId = newSession.id
+      console.log('✅ New session created:', currentSessionId)
     }
 
-    // Save user message
-    await supabase.from('messages').insert({
-      session_id: currentSessionId,
-      role: 'user',
-      content: message,
-      created_at: new Date().toISOString()
-    })
+    // 3. ذخیره پیام کاربر
+    const { error: userMessageError } = await supabase
+      .from('messages')
+      .insert({
+        session_id: currentSessionId,
+        role: 'user',
+        content: message,
+        created_at: new Date().toISOString()
+      })
 
-    // Get last 20 messages for context
+    if (userMessageError) {
+      console.error('❌ Error saving user message:', userMessageError)
+    }
+
+    // 4. دریافت تاریخچه
     const { data: messageHistory } = await supabase
       .from('messages')
       .select('role, content')
@@ -77,7 +182,7 @@ export async function POST(req: Request) {
       .order('created_at', { ascending: true })
       .limit(20)
 
-    // Prepare messages for AI
+    // 5. آماده‌سازی messages
     const messages = [
       { role: 'system', content: SYSTEM_PROMPT },
       ...(messageHistory || []).map(m => ({
@@ -87,129 +192,64 @@ export async function POST(req: Request) {
       { role: 'user', content: message }
     ]
 
-    // Try primary model: LLaMA 3.3 70B
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${openRouterKey}`,
-          'HTTP-Referer': 'https://poitx.vercel.app',
-          'X-Title': 'POITX Galaxy'
-        },
-        body: JSON.stringify({
-          model: 'meta-llama/llama-3.3-70b-instruct',
-          messages,
-          temperature: 0.7,
-          max_tokens: 2000,
-          top_p: 0.95,
-          frequency_penalty: 0.3,
-          presence_penalty: 0.3
-        })
-      })
+    // 6. امتحان مدل‌ها به ترتیب
+    let reply = null
+    let usedModel = null
 
-      if (response.ok) {
-        const data = await response.json()
-        const reply = data.choices[0].message.content
-
-        // Save assistant message
-        await supabase.from('messages').insert({
-          session_id: currentSessionId,
-          role: 'assistant',
-          content: reply,
-          created_at: new Date().toISOString()
-        })
-
-        return NextResponse.json({
-          response: reply,
-          sessionId: currentSessionId,
-          model: 'llama-3.3-70b'
-        })
+    for (const modelInfo of MODELS) {
+      console.log(`⏳ Trying model: ${modelInfo.name}`)
+      reply = await callOpenRouter(modelInfo.model, messages)
+      
+      if (reply) {
+        usedModel = modelInfo.name
+        console.log(`✅ Success with model: ${modelInfo.name}`)
+        break
       }
-    } catch (error) {
-      console.log('Primary model failed, trying backup...')
     }
 
-    // Try backup model: Gemini 2.0 Flash
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${openRouterKey}`,
-          'HTTP-Referer': 'https://poitx.vercel.app',
-          'X-Title': 'POITX Galaxy'
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-2.0-flash-exp',
-          messages,
-          temperature: 0.7,
-          max_tokens: 2000
-        })
+    // 7. اگه هیچ مدلی جواب نداد
+    if (!reply) {
+      console.error('❌ All models failed')
+      return NextResponse.json(
+        { error: 'All AI models are currently unavailable. Please try again later.' },
+        { status: 503 }
+      )
+    }
+
+    // 8. ذخیره پاسخ
+    const { error: assistantMessageError } = await supabase
+      .from('messages')
+      .insert({
+        session_id: currentSessionId,
+        role: 'assistant',
+        content: reply,
+        created_at: new Date().toISOString()
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        const reply = data.choices[0].message.content
-
-        await supabase.from('messages').insert({
-          session_id: currentSessionId,
-          role: 'assistant',
-          content: reply,
-          created_at: new Date().toISOString()
-        })
-
-        return NextResponse.json({
-          response: reply,
-          sessionId: currentSessionId,
-          model: 'gemini-2.0-flash'
-        })
-      }
-    } catch (error) {
-      console.log('Backup model failed, trying fallback...')
+    if (assistantMessageError) {
+      console.error('❌ Error saving assistant message:', assistantMessageError)
     }
 
-    // Final fallback: Mixtral 8x7B
-    const fallbackResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${openRouterKey}`,
-        'HTTP-Referer': 'https://poitx.vercel.app',
-        'X-Title': 'POITX Galaxy'
-      },
-      body: JSON.stringify({
-        model: 'mistralai/mixtral-8x7b-instruct',
-        messages,
-        temperature: 0.7,
-        max_tokens: 1500
-      })
-    })
+    const responseTime = Date.now() - startTime
+    console.log(`✅ Response sent in ${responseTime}ms using ${usedModel}`)
 
-    if (!fallbackResponse.ok) {
-      throw new Error('All models failed')
-    }
-
-    const fallbackData = await fallbackResponse.json()
-    const fallbackReply = fallbackData.choices[0].message.content
-
-    await supabase.from('messages').insert({
-      session_id: currentSessionId,
-      role: 'assistant',
-      content: fallbackReply,
-      created_at: new Date().toISOString()
-    })
-
+    // 9. پاسخ نهایی
     return NextResponse.json({
-      response: fallbackReply,
+      response: reply,
       sessionId: currentSessionId,
-      model: 'mixtral-8x7b (fallback)'
+      model: usedModel,
+      timing: responseTime
     })
 
   } catch (error: any) {
-    console.error('J_369 Error:', error)
+    console.error('💥 Critical error:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    })
+
     return NextResponse.json(
-      { error: 'An error occurred. Please try again.' },
+      { error: 'An unexpected error occurred. Please try again.' },
       { status: 500 }
     )
   }
