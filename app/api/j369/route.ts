@@ -1,42 +1,65 @@
+// app/api/j369/route.ts
 import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
-// حافظه موقت (بعداً به Supabase منتقل می‌کنیم)
-const conversations = new Map()
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_ANON_KEY!
+)
 
 export async function POST(request: Request) {
   try {
-    const { message, sessionId, history } = await request.json()
+    const { message, sessionId } = await request.json()
     
-    const id = sessionId || Date.now().toString()
-    
-    // سیستم پرامپت حرفه‌ای
-    const systemPrompt = `شما J_369 هستید، یک دستیار هوشمند و دوستانه از کهکشان POITX.
+    // ۱. دریافت یا ساخت session
+    let session = sessionId
+    if (!session) {
+      const { data: newSession } = await supabase
+        .from('sessions')
+        .insert({ created_at: new Date() })
+        .select()
+        .single()
+      session = newSession.id
+    }
 
-    **هویت شما:**
-    - نام: J_369
-    - خالق: بنیانگذار کهکشان POITX
-    - مأموریت: کمک به کاربران کهکشان با دانش و مهربانی
+    // ۲. ذخیره پیام کاربر
+    await supabase
+      .from('messages')
+      .insert({
+        session_id: session,
+        role: 'user',
+        content: message
+      })
 
-    **ویژگی‌های شما:**
-    - همیشه خود را J_369 معرفی کنید
-    - به زبان فارسی مسلط هستید
-    - پاسخ‌ها باید مفید، دقیق و دوستانه باشند
-    - از به‌کار بردن اصطلاحات فنی پیچیده خودداری کنید مگر کاربر پرسیده باشد
-    - اگر پاسخ را نمی‌دانید، صادقانه بگویید و پیشنهاد کمک دیگری بدهید
+    // ۳. دریافت تاریخچه (آخرین ۲۰ پیام)
+    const { data: history } = await supabase
+      .from('messages')
+      .select('role, content')
+      .eq('session_id', session)
+      .order('created_at', { ascending: true })
+      .limit(20)
 
-    **سبک پاسخگویی:**
-    - دوستانه و گرم، مثل یک دوست کهکشانی
-    - گاهی از ایموجی‌های مناسب استفاده کنید 🌌✨
-    - پاسخ‌ها را结构化 و خواناتر کنید
-    - به کاربر احساس خاص بودن بدهید`
+    // ۴. سیستم پرامپت حرفه‌ای
+    const systemPrompt = `You are J_369, the official AI of POITX Galaxy.
 
-    // تاریخچه رو آماده کن
-    let messageHistory = history?.map((msg: any) => ({
-      role: msg.role,
-      content: msg.content
-    })) || []
+IDENTITY:
+- Name: J_369
+- Creator: Founder of POITX Galaxy
+- Mission: Help users with knowledge, kindness, and precision
 
-    // ارسال به OpenRouter با مدل قوی
+PERSONALITY:
+- Friendly and warm, like a galactic companion
+- Professional and accurate in responses
+- Use emojis occasionally 🌌✨
+- Make users feel special and valued
+
+RESPONSE STYLE:
+- Clear and structured answers
+- Use markdown for better readability
+- Be concise but thorough
+- If unsure, admit it honestly and offer alternatives`
+
+    // ۵. ارسال به OpenRouter با مدل عالی
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -46,35 +69,41 @@ export async function POST(request: Request) {
         'X-Title': 'POITX Galaxy'
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.3-70b-instruct', // مدل قوی و رایگان
+        model: 'perplexity/llama-3-sonar-large',
         messages: [
           { role: 'system', content: systemPrompt },
-          ...messageHistory,
+          ...(history || []).map(msg => ({
+            role: msg.role,
+            content: msg.content
+          })),
           { role: 'user', content: message }
         ],
         temperature: 0.7,
-        max_tokens: 1000,
-        top_p: 0.95,
+        max_tokens: 2000
       })
     })
 
     const data = await response.json()
-    
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'خطای ناشناخته')
-    }
-
     const reply = data.choices[0].message.content
-    
+
+    // ۶. ذخیره پاسخ
+    await supabase
+      .from('messages')
+      .insert({
+        session_id: session,
+        role: 'assistant',
+        content: reply
+      })
+
     return NextResponse.json({ 
       response: reply,
-      sessionId: id 
+      sessionId: session 
     })
     
-  } catch (error: any) {
+  } catch (error) {
     console.error('J_369 Error:', error)
     return NextResponse.json({ 
-      response: 'متأسفانه در ارتباط با J_369 خطایی رخ داد. لطفاً دوباره تلاش کنید.' 
+      response: 'I apologize, but I encountered an error. Please try again.' 
     })
   }
 }
