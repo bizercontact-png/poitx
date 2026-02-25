@@ -164,20 +164,4 @@ const styles = {
   }
 }
 
-// اضافه کردن انیمیشن‌های CSS
-const style = document.createElement('style')
-style.textContent = `
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
-  @keyframes rotate {
-    from { transform: translate(-50%, -50%) rotate(0deg); }
-    to { transform: translate(-50%, -50%) rotate(360deg); }
-  }
-  @keyframes twinkle {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
-  }
-`
-document.head.appendChild(style)
+
