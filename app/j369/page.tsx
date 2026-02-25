@@ -597,3 +597,10 @@ const styles = {
     '& span:nth-child(3)': { animationDelay: '0.4s' },
   },
 }
+import AuthStatus from '../components/AuthStatus'
+
+// ... داخل header
+<div style={styles.headerRight}>
+  <AuthStatus />
+  <span style={styles.badge}>J_369</span>
+</div>
