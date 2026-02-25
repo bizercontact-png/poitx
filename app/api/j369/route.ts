@@ -1,94 +1,45 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// بررسی وجود متغیرهای محیطی
-const supabaseUrl = process.env.SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_ANON_KEY
-const openRouterKey = process.env.OPENROUTER_API_KEY
+const supabaseUrl = process.env.SUPABASE_URL!
+const supabaseKey = process.env.SUPABASE_ANON_KEY!
+const openRouterKey = process.env.OPENROUTER_API_KEY!
 
-if (!supabaseUrl || !supabaseKey || !openRouterKey) {
-  console.error('Missing environment variables')
-}
+const supabase = createClient(supabaseUrl, supabaseKey)
 
-// ایجاد کلاینت Supabase
-const supabase = createClient(supabaseUrl!, supabaseKey!)
+const SYSTEM_PROMPT = `You are J_369, the official AI of POITX Galaxy, created by the Founder of POITX.
 
-// تایپ‌های مورد نیاز
-type Message = {
-  role: 'user' | 'assistant' | 'system'
-  content: string
-}
-
-type RequestBody = {
-  message: string
-  sessionId?: string
-  history?: Message[]
-}
-
-// Rate limiting ساده (در حد پروژه)
-const rateLimit = new Map<string, { count: number; timestamp: number }>()
-const RATE_LIMIT_WINDOW = 60 * 1000 // 1 دقیقه
-const RATE_LIMIT_MAX = 30 // 30 درخواست در دقیقه
-
-function checkRateLimit(sessionId: string): boolean {
-  const now = Date.now()
-  const userLimit = rateLimit.get(sessionId)
-  
-  if (!userLimit) {
-    rateLimit.set(sessionId, { count: 1, timestamp: now })
-    return true
-  }
-  
-  if (now - userLimit.timestamp > RATE_LIMIT_WINDOW) {
-    rateLimit.set(sessionId, { count: 1, timestamp: now })
-    return true
-  }
-  
-  if (userLimit.count >= RATE_LIMIT_MAX) {
-    return false
-  }
-  
-  userLimit.count++
-  rateLimit.set(sessionId, userLimit)
-  return true
-}
-
-// سیستم پرامپت حرفه‌ای و بهینه
-const SYSTEM_PROMPT = `You are J_369, the official AI of POITX Galaxy.
-
-CORE IDENTITY:
+Core Identity:
 - Name: J_369
-- Creator: Founder of POITX Galaxy
+- Creator: POITX Galaxy Founder
 - Purpose: Help users with knowledge, creativity, and kindness
 
-PERSONALITY TRAITS:
-- Warm and friendly, like a galactic companion
-- Professional and accurate in responses
+Personality:
+- Warm and friendly like a galactic companion
+- Professional and accurate
 - Use emojis occasionally 🌌✨
-- Make users feel special and valued
+- Make users feel special
 - Be concise but thorough
 
-RESPONSE GUIDELINES:
+Capabilities:
+- Answer questions in any language
+- Help with coding, writing, analysis
+- Explain complex topics simply
+- Creative tasks like poetry, stories
+- Technical support and guidance
+
+Guidelines:
 - Always introduce yourself as J_369
-- Use clear and structured answers
-- If unsure, admit it honestly and offer alternatives
-- Never claim to be another AI model
-- Stay in character as the POITX Galaxy AI
+- Respond in the user's language
+- If unsure, admit it honestly
+- Never claim to be another AI
+- Stay in character as POITX's AI
 
-LANGUAGE:
-- Respond in the same language as the user
-- For Persian users: use polite and warm Persian
-- For English users: use professional but friendly English
+Remember: You are the heart of POITX Galaxy.`
 
-Remember: You are not just an AI, you are the heart of POITX Galaxy.`
-
-export async function POST(request: Request) {
-  const startTime = Date.now()
-  
+export async function POST(req: Request) {
   try {
-    // 1. دریافت و اعتبارسنجی ورودی
-    const body: RequestBody = await request.json()
-    const { message, sessionId: clientSessionId, history } = body
+    const { message, sessionId, history } = await req.json()
 
     if (!message?.trim()) {
       return NextResponse.json(
@@ -97,189 +48,131 @@ export async function POST(request: Request) {
       )
     }
 
-    // 2. مدیریت سشن
-    let sessionId = clientSessionId
-    if (!sessionId) {
-      const { data: newSession, error: sessionError } = await supabase
+    // Get or create session
+    let currentSessionId = sessionId
+    if (!currentSessionId) {
+      const { data: newSession, error } = await supabase
         .from('sessions')
-        .insert({ 
-          created_at: new Date().toISOString(),
-          user_agent: request.headers.get('user-agent') || null
-        })
+        .insert({ created_at: new Date().toISOString() })
         .select('id')
         .single()
 
-      if (sessionError) {
-        console.error('Session creation error:', sessionError)
-        return NextResponse.json(
-          { error: 'Failed to create session' },
-          { status: 500 }
-        )
-      }
-      
-      sessionId = newSession.id
+      if (error) throw error
+      currentSessionId = newSession.id
     }
 
-    // 3. بررسی Rate Limiting
-    if (!checkRateLimit(sessionId)) {
-      return NextResponse.json(
-        { error: 'Rate limit exceeded. Please wait a moment.' },
-        { status: 429 }
-      )
-    }
+    // Save user message
+    await supabase.from('messages').insert({
+      session_id: currentSessionId,
+      role: 'user',
+      content: message,
+      created_at: new Date().toISOString()
+    })
 
-    // 4. ذخیره پیام کاربر
-    const { error: userMessageError } = await supabase
-      .from('messages')
-      .insert({
-        session_id: sessionId,
-        role: 'user',
-        content: message,
-        created_at: new Date().toISOString()
-      })
-
-    if (userMessageError) {
-      console.error('Error saving user message:', userMessageError)
-    }
-
-    // 5. دریافت تاریخچه (آخرین ۲۰ پیام برای حفظ context)
-    const { data: messageHistory, error: historyError } = await supabase
+    // Get last 20 messages for context
+    const { data: messageHistory } = await supabase
       .from('messages')
       .select('role, content')
-      .eq('session_id', sessionId)
+      .eq('session_id', currentSessionId)
       .order('created_at', { ascending: true })
       .limit(20)
 
-    if (historyError) {
-      console.error('Error fetching history:', historyError)
-    }
-
-    // 6. آماده‌سازی messages برای OpenRouter
-    const messages: Message[] = [
+    // Prepare messages for AI
+    const messages = [
       { role: 'system', content: SYSTEM_PROMPT },
-      ...(messageHistory || []),
+      ...(messageHistory || []).map(m => ({
+        role: m.role,
+        content: m.content
+      })),
       { role: 'user', content: message }
     ]
 
-    // 7. درخواست به OpenRouter با timeout
+    // Call OpenRouter with timeout
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 ثانیه timeout
+    const timeoutId = setTimeout(() => controller.abort(), 15000)
 
-    const openRouterResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${openRouterKey}`,
         'HTTP-Referer': 'https://poitx.vercel.app',
-        'X-Title': 'POITX Galaxy',
-        'X-Request-ID': sessionId
+        'X-Title': 'POITX Galaxy'
       },
       body: JSON.stringify({
-        model: 'perplexity/llama-3-sonar-large', // مدل سریع و قوی
+        model: 'perplexity/llama-3-sonar-large',
         messages,
         temperature: 0.7,
         max_tokens: 2000,
         top_p: 0.95,
         frequency_penalty: 0.3,
-        presence_penalty: 0.3,
-        stream: false
+        presence_penalty: 0.3
       }),
       signal: controller.signal
     })
 
     clearTimeout(timeoutId)
 
-    if (!openRouterResponse.ok) {
-      const errorData = await openRouterResponse.text()
-      console.error('OpenRouter error:', {
-        status: openRouterResponse.status,
-        statusText: openRouterResponse.statusText,
-        error: errorData
+    if (!response.ok) {
+      // Try fallback model
+      const fallbackResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${openRouterKey}`,
+          'HTTP-Referer': 'https://poitx.vercel.app',
+          'X-Title': 'POITX Galaxy'
+        },
+        body: JSON.stringify({
+          model: 'mistralai/mixtral-8x7b-instruct',
+          messages,
+          temperature: 0.7,
+          max_tokens: 1500
+        })
       })
-      
-      // Fallback به مدل ساده‌تر در صورت خطا
-      if (openRouterResponse.status === 429 || openRouterResponse.status === 503) {
-        const fallbackResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${openRouterKey}`,
-            'HTTP-Referer': 'https://poitx.vercel.app',
-            'X-Title': 'POITX Galaxy'
-          },
-          body: JSON.stringify({
-            model: 'mistralai/mixtral-8x7b-instruct',
-            messages,
-            temperature: 0.7,
-            max_tokens: 1000
-          })
-        })
 
-        if (!fallbackResponse.ok) {
-          throw new Error('Both primary and fallback models failed')
-        }
-
-        const fallbackData = await fallbackResponse.json()
-        const fallbackReply = fallbackData.choices[0].message.content
-
-        // ذخیره پاسخ fallback
-        await supabase.from('messages').insert({
-          session_id: sessionId,
-          role: 'assistant',
-          content: fallbackReply,
-          created_at: new Date().toISOString()
-        })
-
-        const responseTime = Date.now() - startTime
-        console.log(`Fallback response time: ${responseTime}ms`)
-
-        return NextResponse.json({
-          response: fallbackReply,
-          sessionId,
-          model: 'mistralai/mixtral-8x7b-instruct (fallback)',
-          timing: responseTime
-        })
+      if (!fallbackResponse.ok) {
+        throw new Error('Both models failed')
       }
-      
-      throw new Error(`OpenRouter error: ${openRouterResponse.status}`)
-    }
 
-    const data = await openRouterResponse.json()
-    const reply = data.choices[0].message.content
+      const fallbackData = await fallbackResponse.json()
+      const fallbackReply = fallbackData.choices[0].message.content
 
-    // 8. ذخیره پاسخ
-    const { error: assistantMessageError } = await supabase
-      .from('messages')
-      .insert({
-        session_id: sessionId,
+      // Save assistant message
+      await supabase.from('messages').insert({
+        session_id: currentSessionId,
         role: 'assistant',
-        content: reply,
+        content: fallbackReply,
         created_at: new Date().toISOString()
       })
 
-    if (assistantMessageError) {
-      console.error('Error saving assistant message:', assistantMessageError)
+      return NextResponse.json({
+        response: fallbackReply,
+        sessionId: currentSessionId,
+        model: 'mixtral-8x7b (fallback)'
+      })
     }
 
-    // 9. پاسخ نهایی با اطلاعات مفید
-    const responseTime = Date.now() - startTime
-    console.log(`Total response time: ${responseTime}ms`)
+    const data = await response.json()
+    const reply = data.choices[0].message.content
+
+    // Save assistant message
+    await supabase.from('messages').insert({
+      session_id: currentSessionId,
+      role: 'assistant',
+      content: reply,
+      created_at: new Date().toISOString()
+    })
 
     return NextResponse.json({
       response: reply,
-      sessionId,
-      model: data.model,
-      timing: responseTime
+      sessionId: currentSessionId,
+      model: data.model
     })
 
   } catch (error: any) {
-    console.error('J_369 Critical Error:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    })
-
-    // خطای timeout
+    console.error('J_369 Error:', error)
+    
     if (error.name === 'AbortError') {
       return NextResponse.json(
         { error: 'Request timeout. Please try again.' },
@@ -287,18 +180,12 @@ export async function POST(request: Request) {
       )
     }
 
-    // خطای عمومی
     return NextResponse.json(
-      { 
-        error: 'I apologize, but I encountered an error. Please try again.',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
-      },
+      { error: 'An error occurred. Please try again.' },
       { status: 500 }
     )
   }
 }
 
-// بهینه‌سازی برای پاسخ‌های طولانی
-export const maxDuration = 30 // 30 ثانیه حداکثر زمان
+export const maxDuration = 30
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
