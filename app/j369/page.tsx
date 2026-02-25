@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { faIR } from 'date-fns/locale'
-import GalacticInput from '../components/GalacticInput' // ← اینو اضافه کن
+import GalacticInput from '../components/GalacticInput'
 
 type Message = {
   id: string
@@ -28,16 +28,14 @@ export default function J369Page() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
   const [showSidebar, setShowSidebar] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [error, setError] = useState<string | null>(null)
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // اسکرول خودکار به آخر
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // لود sessions از localStorage (بعداً از Supabase)
   useEffect(() => {
     const saved = localStorage.getItem('j369-sessions')
     if (saved) {
@@ -58,11 +56,14 @@ export default function J369Page() {
     
     setCurrentSessionId(newSessionId)
     setMessages([])
+    setError(null)
   }
 
   const loadSession = async (sessionId: string) => {
     setCurrentSessionId(sessionId)
-    setMessages([]) // بعداً از Supabase load می‌کنیم
+    setMessages([])
+    setError(null)
+    // TODO: Load messages from Supabase
   }
 
   const deleteSession = (sessionId: string) => {
@@ -77,6 +78,8 @@ export default function J369Page() {
 
   const askJ369 = async (input: string, files: File[]) => {
     if (!input.trim() || loading) return
+
+    setError(null)
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -102,8 +105,8 @@ export default function J369Page() {
       
       const data = await res.json()
       
-      if (data.error) {
-        throw new Error(data.error)
+      if (!res.ok) {
+        throw new Error(data.error || 'Unknown error')
       }
 
       const assistantMessage: Message = {
@@ -126,8 +129,9 @@ export default function J369Page() {
         setSessions(updatedSessions)
         localStorage.setItem('j369-sessions', JSON.stringify(updatedSessions))
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('J_369 Error:', error)
+      setError(error.message || 'خطایی رخ داد')
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -226,7 +230,6 @@ export default function J369Page() {
                 هوش مصنوعی کهکشان POITX. چطور می‌تونم کمک کنم؟
               </p>
               
-              {/* Suggestions */}
               <div style={styles.suggestions}>
                 {[
                   'What is POITX Galaxy?',
@@ -297,13 +300,17 @@ export default function J369Page() {
           )}
         </main>
 
-        {/* Galactic Input - غول شده */}
+        {/* Galactic Input */}
         <footer style={styles.footer}>
           <GalacticInput onSubmit={askJ369} loading={loading} />
+          {error && (
+            <div style={styles.errorMessage}>
+              ⚠️ {error}
+            </div>
+          )}
         </footer>
       </div>
 
-      {/* انیمیشن‌های CSS */}
       <style jsx>{`
         @keyframes slideIn {
           from {
@@ -562,6 +569,17 @@ const styles = {
     backdropFilter: 'blur(10px)',
     borderTop: '1px solid rgba(255,255,255,0.1)',
     padding: '1rem',
+  },
+  errorMessage: {
+    maxWidth: '800px',
+    margin: '0.5rem auto 0',
+    padding: '0.5rem',
+    background: 'rgba(255,0,0,0.1)',
+    border: '1px solid rgba(255,0,0,0.3)',
+    borderRadius: '8px',
+    color: '#ff6666',
+    fontSize: '0.9rem',
+    textAlign: 'center' as const,
   },
   typingIndicator: {
     display: 'flex',
