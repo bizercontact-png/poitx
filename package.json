@@ -1,19 +1,71 @@
 {
   "name": "poitx",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "description": "POITX Galaxy - Official AI Platform with J_369",
+  "author": "POITX Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bizercontact-png/poitx"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "prepare": "husky install"
   },
   "dependencies": {
     "next": "15.2.6",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "typescript": "^5.0.0",
-    "@types/react": "^19.0.0",
-    "@types/node": "^20.0.0"
-  }
+    "@supabase/supabase-js": "^2.39.0",
+    "@vercel/analytics": "^1.1.1",
+    "@vercel/speed-insights": "^1.0.1",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
+    "date-fns": "^3.3.1",
+    "swr": "^2.2.4",
+    "clsx": "^2.1.0",
+    "framer-motion": "^11.0.3",
+    "zustand": "^4.5.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/react": "^18.2.48",
+    "@types/node": "^20.11.5",
+    "@types/react-dom": "^18.2.18",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "15.2.6",
+    "prettier": "^3.2.4",
+    "husky": "^9.0.10",
+    "lint-staged": "^15.2.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.json": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=18.17.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [
+    "poitx",
+    "j369",
+    "ai",
+    "galaxy",
+    "nextjs",
+    "supabase",
+    "openrouter"
+  ]
 }
-"@supabase/supabase-js": "^2.39.0"
