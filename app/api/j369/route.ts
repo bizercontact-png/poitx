@@ -19,6 +19,6 @@ export async function POST(request: Request) {
     const data = await response.json()
     return NextResponse.json({ response: data.choices[0].message.content })
   } catch (error) {
-    return NextResponse.json({ response: 'خطا در ارتباط با J_369' })
+    return NextResponse.json({ response: 'خطا: ' + error.message })
   }
 }
