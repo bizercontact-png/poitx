@@ -1,23 +1,12 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// بررسی متغیرهای محیطی در زمان build
-const supabaseUrl = process.env.SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_ANON_KEY
-const openRouterKey = process.env.OPENROUTER_API_KEY
+const supabaseUrl = process.env.SUPABASE_URL!
+const supabaseKey = process.env.SUPABASE_ANON_KEY!
+const openRouterKey = process.env.OPENROUTER_API_KEY!
 
-// اگر متغیرها نباشن، خطای واضح می‌ده
-if (!supabaseUrl || !supabaseKey || !openRouterKey) {
-  console.error('❌ Missing environment variables:', {
-    supabaseUrl: !!supabaseUrl,
-    supabaseKey: !!supabaseKey,
-    openRouterKey: !!openRouterKey
-  })
-}
+const supabase = createClient(supabaseUrl, supabaseKey)
 
-const supabase = createClient(supabaseUrl!, supabaseKey!)
-
-// سیستم پرامپت حرفه‌ای
 const SYSTEM_PROMPT = `You are J_369, the official AI of POITX Galaxy, created by the Founder of POITX.
 
 Core Identity:
@@ -48,31 +37,12 @@ Guidelines:
 
 Remember: You are the heart of POITX Galaxy.`
 
-// لیست مدل‌ها به ترتیب اولویت
-const MODELS = [
-  {
-    name: 'llama-3.3-70b',
-    model: 'meta-llama/llama-3.3-70b-instruct',
-    description: 'قوی و رایگان'
-  },
-  {
-    name: 'gemini-2.0-flash',
-    model: 'google/gemini-2.0-flash-exp',
-    description: 'سریع و سبک'
-  },
-  {
-    name: 'mixtral-8x7b',
-    model: 'mistralai/mixtral-8x7b-instruct',
-    description: 'پشتیبان'
-  }
-]
-
-// تابع کمکی برای فراخوانی OpenRouter
+// تابع کمکی برای فراخوانی OpenRouter با مدیریت خطا
 async function callOpenRouter(model: string, messages: any[]) {
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 ثانیه تایم‌اوت
-
   try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 15000)
+
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -86,60 +56,57 @@ async function callOpenRouter(model: string, messages: any[]) {
         messages,
         temperature: 0.7,
         max_tokens: 2000,
-        top_p: 0.95,
-        frequency_penalty: 0.3,
-        presence_penalty: 0.3
+        top_p: 0.95
       }),
       signal: controller.signal
     })
 
     clearTimeout(timeoutId)
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error(`❌ OpenRouter error (${model}):`, {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorText
-      })
+    // خوندن پاسخ به صورت text اول
+    const responseText = await response.text()
+    
+    // اگه خالی بود
+    if (!responseText) {
+      throw new Error('Empty response from OpenRouter')
+    }
+
+    // سعی کن JSON رو parse کنی
+    try {
+      const data = JSON.parse(responseText)
+      return data.choices?.[0]?.message?.content || null
+    } catch (parseError) {
+      // اگه JSON نبود، خود متن رو برگردون
+      console.error('Invalid JSON response:', responseText)
       return null
     }
 
-    const data = await response.json()
-    return data.choices[0].message.content
   } catch (error: any) {
-    clearTimeout(timeoutId)
     if (error.name === 'AbortError') {
-      console.error(`⏰ Timeout for model ${model}`)
+      console.error(`Timeout for model ${model}`)
     } else {
-      console.error(`❌ Fetch error for model ${model}:`, error.message)
+      console.error(`Error calling ${model}:`, error.message)
     }
     return null
   }
 }
 
+// لیست مدل‌ها
+const MODELS = [
+  { name: 'llama-3.3-70b', model: 'meta-llama/llama-3.3-70b-instruct' },
+  { name: 'gemini-2.0-flash', model: 'google/gemini-2.0-flash-exp' },
+  { name: 'mixtral-8x7b', model: 'mistralai/mixtral-8x7b-instruct' }
+]
+
 export async function POST(req: Request) {
-  const startTime = Date.now()
-  
   try {
-    // 1. دریافت و اعتبارسنجی ورودی
-    const body = await req.json()
-    const { message, sessionId, history } = body
+    const { message, sessionId, history } = await req.json()
 
     if (!message?.trim()) {
-      return NextResponse.json(
-        { error: 'Message is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Message is required' }, { status: 400 })
     }
 
-    console.log('📥 Received message:', { 
-      message: message.slice(0, 50), 
-      sessionId,
-      historyLength: history?.length 
-    })
-
-    // 2. مدیریت سشن
+    // Session management
     let currentSessionId = sessionId
     if (!currentSessionId) {
       const { data: newSession, error } = await supabase
@@ -149,32 +116,20 @@ export async function POST(req: Request) {
         .single()
 
       if (error) {
-        console.error('❌ Session creation error:', error)
-        return NextResponse.json(
-          { error: 'Database error' },
-          { status: 500 }
-        )
+        return NextResponse.json({ error: 'Database error' }, { status: 500 })
       }
-      
       currentSessionId = newSession.id
-      console.log('✅ New session created:', currentSessionId)
     }
 
-    // 3. ذخیره پیام کاربر
-    const { error: userMessageError } = await supabase
-      .from('messages')
-      .insert({
-        session_id: currentSessionId,
-        role: 'user',
-        content: message,
-        created_at: new Date().toISOString()
-      })
+    // Save user message
+    await supabase.from('messages').insert({
+      session_id: currentSessionId,
+      role: 'user',
+      content: message,
+      created_at: new Date().toISOString()
+    })
 
-    if (userMessageError) {
-      console.error('❌ Error saving user message:', userMessageError)
-    }
-
-    // 4. دریافت تاریخچه
+    // Get history
     const { data: messageHistory } = await supabase
       .from('messages')
       .select('role, content')
@@ -182,74 +137,50 @@ export async function POST(req: Request) {
       .order('created_at', { ascending: true })
       .limit(20)
 
-    // 5. آماده‌سازی messages
+    // Prepare messages
     const messages = [
       { role: 'system', content: SYSTEM_PROMPT },
-      ...(messageHistory || []).map(m => ({
-        role: m.role,
-        content: m.content
-      })),
+      ...(messageHistory || []).map(m => ({ role: m.role, content: m.content })),
       { role: 'user', content: message }
     ]
 
-    // 6. امتحان مدل‌ها به ترتیب
+    // Try models
     let reply = null
     let usedModel = null
 
-    for (const modelInfo of MODELS) {
-      console.log(`⏳ Trying model: ${modelInfo.name}`)
-      reply = await callOpenRouter(modelInfo.model, messages)
-      
+    for (const m of MODELS) {
+      reply = await callOpenRouter(m.model, messages)
       if (reply) {
-        usedModel = modelInfo.name
-        console.log(`✅ Success with model: ${modelInfo.name}`)
+        usedModel = m.name
         break
       }
     }
 
-    // 7. اگه هیچ مدلی جواب نداد
     if (!reply) {
-      console.error('❌ All models failed')
       return NextResponse.json(
-        { error: 'All AI models are currently unavailable. Please try again later.' },
+        { error: 'All AI models are currently unavailable' },
         { status: 503 }
       )
     }
 
-    // 8. ذخیره پاسخ
-    const { error: assistantMessageError } = await supabase
-      .from('messages')
-      .insert({
-        session_id: currentSessionId,
-        role: 'assistant',
-        content: reply,
-        created_at: new Date().toISOString()
-      })
+    // Save response
+    await supabase.from('messages').insert({
+      session_id: currentSessionId,
+      role: 'assistant',
+      content: reply,
+      created_at: new Date().toISOString()
+    })
 
-    if (assistantMessageError) {
-      console.error('❌ Error saving assistant message:', assistantMessageError)
-    }
-
-    const responseTime = Date.now() - startTime
-    console.log(`✅ Response sent in ${responseTime}ms using ${usedModel}`)
-
-    // 9. پاسخ نهایی
     return NextResponse.json({
       response: reply,
       sessionId: currentSessionId,
-      model: usedModel,
-      timing: responseTime
+      model: usedModel
     })
 
   } catch (error: any) {
-    console.error('💥 Critical error:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    })
-
+    console.error('Critical error:', error)
     return NextResponse.json(
-      { error: 'An unexpected error occurred. Please try again.' },
+      { error: 'An unexpected error occurred' },
       { status: 500 }
     )
   }
