@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { supabase } from '../lib/supabase'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function Login() {
+// کامپوننتی که از useSearchParams استفاده می‌کنه
+function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -38,67 +39,80 @@ export default function Login() {
   }
 
   return (
+    <div style={styles.card}>
+      <h1 style={styles.title}>ورود به کهکشان 🌌</h1>
+      <p style={styles.subtitle}>به J_369 خوش آمدید</p>
+
+      {message && (
+        <div style={styles.success}>
+          ✅ {message}
+        </div>
+      )}
+
+      {error && (
+        <div style={styles.error}>
+          ⚠️ {error}
+        </div>
+      )}
+
+      <form onSubmit={handleLogin} style={styles.form}>
+        <div style={styles.inputGroup}>
+          <label style={styles.label}>ایمیل</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={styles.input}
+            placeholder="your@email.com"
+            required
+          />
+        </div>
+
+        <div style={styles.inputGroup}>
+          <label style={styles.label}>رمز عبور</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={styles.input}
+            placeholder="••••••••"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            ...styles.button,
+            ...(loading ? styles.buttonDisabled : {})
+          }}
+        >
+          {loading ? 'در حال ورود...' : '🚀 ورود'}
+        </button>
+      </form>
+
+      <p style={styles.signupLink}>
+        عضو نیستید؟{' '}
+        <Link href="/signup" style={styles.link}>
+          ثبت‌نام کنید
+        </Link>
+      </p>
+    </div>
+  )
+}
+
+// صفحه اصلی با Suspense
+export default function LoginPage() {
+  return (
     <div style={styles.container}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>ورود به کهکشان 🌌</h1>
-        <p style={styles.subtitle}>به J_369 خوش آمدید</p>
-
-        {message && (
-          <div style={styles.success}>
-            ✅ {message}
-          </div>
-        )}
-
-        {error && (
-          <div style={styles.error}>
-            ⚠️ {error}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>ایمیل</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={styles.input}
-              placeholder="your@email.com"
-              required
-            />
-          </div>
-
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>رمز عبور</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={styles.input}
-              placeholder="••••••••"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              ...styles.button,
-              ...(loading ? styles.buttonDisabled : {})
-            }}
-          >
-            {loading ? 'در حال ورود...' : '🚀 ورود'}
-          </button>
-        </form>
-
-        <p style={styles.signupLink}>
-          عضو نیستید؟{' '}
-          <Link href="/signup" style={styles.link}>
-            ثبت‌نام کنید
-          </Link>
-        </p>
-      </div>
+      <Suspense fallback={
+        <div style={styles.card}>
+          <div style={styles.loading}>در حال بارگذاری...</div>
+        </div>
+      }>
+        <LoginForm />
+      </Suspense>
     </div>
   )
 }
@@ -198,5 +212,10 @@ const styles = {
   link: {
     color: '#38bdf8',
     textDecoration: 'none',
+  },
+  loading: {
+    color: '#fff',
+    textAlign: 'center' as const,
+    padding: '2rem',
   },
 }
