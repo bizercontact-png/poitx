@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import { faIR } from 'date-fns/locale'
 import GalacticInput from '../components/GalacticInput'
+import AuthStatus from '../components/AuthStatus'
 
 type Message = {
   id: string
@@ -208,7 +209,7 @@ export default function J369Page() {
         ...styles.main,
         marginLeft: showSidebar ? '280px' : '0'
       }}>
-        {/* Header */}
+        {/* Header با AuthStatus */}
         <header style={styles.header}>
           <button onClick={() => setShowSidebar(true)} style={styles.openSidebar}>
             ☰
@@ -217,6 +218,7 @@ export default function J369Page() {
             🌌 POITX
           </Link>
           <div style={styles.headerRight}>
+            <AuthStatus />
             <span style={styles.badge}>J_369</span>
           </div>
         </header>
@@ -461,6 +463,9 @@ const styles = {
   },
   headerRight: {
     marginLeft: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
   },
   badge: {
     background: '#0066ff',
@@ -597,10 +602,3 @@ const styles = {
     '& span:nth-child(3)': { animationDelay: '0.4s' },
   },
 }
-import AuthStatus from '../components/AuthStatus'
-
-// ... داخل header
-<div style={styles.headerRight}>
-  <AuthStatus />
-  <span style={styles.badge}>J_369</span>
-</div>
