@@ -597,8 +597,15 @@ const styles = {
       borderRadius: '50%',
       animation: 'bounce 1.4s infinite ease-in-out',
     },
-    '& span:nth-child(1)': { animationDelay: '0s' },
-    '& span:nth-child(2)': { animationDelay: '0.2s' },
-    '& span:nth-child(3)': { animationDelay: '0.4s' },
-  },
-}
+<header style={styles.header}>
+  <button onClick={() => setShowSidebar(true)} style={styles.openSidebar}>
+    ☰
+  </button>
+  <Link href="/" style={styles.logo}>
+    🌌 POITX
+  </Link>
+  <div style={styles.headerRight}>
+    <AuthStatus />                    {/* ✅ اینجا درسته */}
+    <span style={styles.badge}>J_369</span>
+  </div>
+</header>
