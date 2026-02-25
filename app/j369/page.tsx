@@ -30,7 +30,7 @@ export default function J369Page() {
   const [showSidebar, setShowSidebar] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [error, setError] = useState<string | null>(null)
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -40,7 +40,11 @@ export default function J369Page() {
   useEffect(() => {
     const saved = localStorage.getItem('j369-sessions')
     if (saved) {
-      setSessions(JSON.parse(saved))
+      try {
+        setSessions(JSON.parse(saved))
+      } catch (e) {
+        console.error('Failed to parse sessions', e)
+      }
     }
   }, [])
 
@@ -51,10 +55,11 @@ export default function J369Page() {
       title: 'Chat ' + format(new Date(), 'yyyy/MM/dd HH:mm'),
       createdAt: new Date()
     }
-    
-    setSessions(prev => [newSession, ...prev])
-    localStorage.setItem('j369-sessions', JSON.stringify([newSession, ...sessions]))
-    
+
+    const updatedSessions = [newSession, ...sessions]
+    setSessions(updatedSessions)
+    localStorage.setItem('j369-sessions', JSON.stringify(updatedSessions))
+
     setCurrentSessionId(newSessionId)
     setMessages([])
     setError(null)
@@ -64,14 +69,13 @@ export default function J369Page() {
     setCurrentSessionId(sessionId)
     setMessages([])
     setError(null)
-    // TODO: Load messages from Supabase
   }
 
   const deleteSession = (sessionId: string) => {
     const filtered = sessions.filter(s => s.id !== sessionId)
     setSessions(filtered)
     localStorage.setItem('j369-sessions', JSON.stringify(filtered))
-    
+
     if (currentSessionId === sessionId) {
       createNewChat()
     }
@@ -97,15 +101,15 @@ export default function J369Page() {
       const res = await fetch('/api/j369', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           message: input,
           sessionId: currentSessionId,
           history: messages.slice(-10)
         })
       })
-      
+
       const data = await res.json()
-      
+
       if (!res.ok) {
         throw new Error(data.error || 'Unknown error')
       }
@@ -117,13 +121,13 @@ export default function J369Page() {
         createdAt: new Date(),
         sessionId: data.sessionId
       }
-      
+
       setMessages(prev => [...prev, assistantMessage])
-      
+
       if (data.sessionId && !currentSessionId) {
         setCurrentSessionId(data.sessionId)
-        const updatedSessions = sessions.map(s => 
-          s.id === data.sessionId 
+        const updatedSessions = sessions.map(s =>
+          s.id === data.sessionId
             ? { ...s, title: input.slice(0, 30) + '...' }
             : s
         )
@@ -144,7 +148,7 @@ export default function J369Page() {
     }
   }
 
-  const filteredSessions = sessions.filter(s => 
+  const filteredSessions = sessions.filter(s =>
     s.title.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
@@ -167,7 +171,7 @@ export default function J369Page() {
         <div style={styles.searchContainer}>
           <input
             type="text"
-            placeholder="Search conversations..."
+            placeholder="جستجوی مکالمات..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={styles.searchInput}
@@ -204,12 +208,12 @@ export default function J369Page() {
         </div>
       </div>
 
-      {/* Main Chat */}
+      {/* بخش اصلی چت */}
       <div style={{
         ...styles.main,
         marginLeft: showSidebar ? '280px' : '0'
       }}>
-        {/* Header با AuthStatus */}
+        {/* هدر با وضعیت کاربر */}
         <header style={styles.header}>
           <button onClick={() => setShowSidebar(true)} style={styles.openSidebar}>
             ☰
@@ -223,7 +227,7 @@ export default function J369Page() {
           </div>
         </header>
 
-        {/* Messages */}
+        {/* ناحیه پیام‌ها */}
         <main style={styles.messagesContainer}>
           {messages.length === 0 ? (
             <div style={styles.welcomeContainer}>
@@ -231,7 +235,6 @@ export default function J369Page() {
               <p style={styles.welcomeText}>
                 هوش مصنوعی کهکشان POITX. چطور می‌تونم کمک کنم؟
               </p>
-              
               <div style={styles.suggestions}>
                 {[
                   'What is POITX Galaxy?',
@@ -286,9 +289,9 @@ export default function J369Page() {
               ))}
 
               {loading && (
-                <div style={{...styles.messageWrapper, justifyContent: 'flex-start'}}>
+                <div style={{ ...styles.messageWrapper, justifyContent: 'flex-start' }}>
                   <div style={styles.assistantAvatar}>🤖</div>
-                  <div style={{...styles.message, ...styles.assistantMessage}}>
+                  <div style={{ ...styles.message, ...styles.assistantMessage }}>
                     <div style={styles.typingIndicator}>
                       <span></span>
                       <span></span>
@@ -302,7 +305,7 @@ export default function J369Page() {
           )}
         </main>
 
-        {/* Galactic Input */}
+        {/* ورودی کهکشانی */}
         <footer style={styles.footer}>
           <GalacticInput onSubmit={askJ369} loading={loading} />
           {error && (
@@ -324,7 +327,6 @@ export default function J369Page() {
             transform: translateY(0);
           }
         }
-        
         @keyframes bounce {
           0%, 60%, 100% { transform: translateY(0); }
           30% { transform: translateY(-5px); }
@@ -597,15 +599,8 @@ const styles = {
       borderRadius: '50%',
       animation: 'bounce 1.4s infinite ease-in-out',
     },
-<header style={styles.header}>
-  <button onClick={() => setShowSidebar(true)} style={styles.openSidebar}>
-    ☰
-  </button>
-  <Link href="/" style={styles.logo}>
-    🌌 POITX
-  </Link>
-  <div style={styles.headerRight}>
-    <AuthStatus />                    {/* ✅ اینجا درسته */}
-    <span style={styles.badge}>J_369</span>
-  </div>
-</header>
+    '& span:nth-child(1)': { animationDelay: '0s' },
+    '& span:nth-child(2)': { animationDelay: '0.2s' },
+    '& span:nth-child(3)': { animationDelay: '0.4s' },
+  },
+}
