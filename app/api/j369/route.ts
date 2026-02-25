@@ -4,7 +4,6 @@ export async function POST(request: Request) {
   try {
     const { message } = await request.json()
     
-    // اینجا بعداً API Key واقعی رو می‌ذاری
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
