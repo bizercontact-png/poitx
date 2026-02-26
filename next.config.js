@@ -15,7 +15,6 @@ const nextConfig = {
   },
 
   // ========== کامپایلر SWC ==========
-  swcMinify: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error', 'warn'],
@@ -122,8 +121,6 @@ const nextConfig = {
   generateEtags: true,
   compress: true,
   productionBrowserSourceMaps: false,
-  optimizeFonts: true,
-  optimizeCss: true,
   staticPageGenerationTimeout: 120,
 }
 
