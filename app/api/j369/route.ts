@@ -37,6 +37,13 @@ Guidelines:
 
 Remember: You are the heart of POITX Galaxy.`
 
+// لیست مدل‌ها به ترتیب اولویت
+const MODELS = [
+  { name: 'llama-3.3-70b', model: 'meta-llama/llama-3.3-70b-instruct' },
+  { name: 'gemini-2.0-flash', model: 'google/gemini-2.0-flash-exp' },
+  { name: 'mixtral-8x7b', model: 'mistralai/mixtral-8x7b-instruct' }
+]
+
 // تابع کمکی برای فراخوانی OpenRouter با مدیریت خطا
 async function callOpenRouter(model: string, messages: any[]) {
   try {
@@ -63,21 +70,25 @@ async function callOpenRouter(model: string, messages: any[]) {
 
     clearTimeout(timeoutId)
 
-    // خوندن پاسخ به صورت text اول
+    // خوندن پاسخ به صورت متن
     const responseText = await response.text()
     
-    // اگه خالی بود
     if (!responseText) {
       throw new Error('Empty response from OpenRouter')
     }
 
-    // سعی کن JSON رو parse کنی
+    // تلاش برای parse JSON
     try {
       const data = JSON.parse(responseText)
+      
+      if (!response.ok) {
+        console.error(`OpenRouter error (${model}):`, data)
+        return null
+      }
+
       return data.choices?.[0]?.message?.content || null
     } catch (parseError) {
-      // اگه JSON نبود، خود متن رو برگردون
-      console.error('Invalid JSON response:', responseText)
+      console.error(`Invalid JSON from OpenRouter (${model}):`, responseText)
       return null
     }
 
@@ -91,22 +102,18 @@ async function callOpenRouter(model: string, messages: any[]) {
   }
 }
 
-// لیست مدل‌ها
-const MODELS = [
-  { name: 'llama-3.3-70b', model: 'meta-llama/llama-3.3-70b-instruct' },
-  { name: 'gemini-2.0-flash', model: 'google/gemini-2.0-flash-exp' },
-  { name: 'mixtral-8x7b', model: 'mistralai/mixtral-8x7b-instruct' }
-]
-
 export async function POST(req: Request) {
   try {
     const { message, sessionId, history } = await req.json()
 
     if (!message?.trim()) {
-      return NextResponse.json({ error: 'Message is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Message is required' },
+        { status: 400 }
+      )
     }
 
-    // Session management
+    // مدیریت سشن
     let currentSessionId = sessionId
     if (!currentSessionId) {
       const { data: newSession, error } = await supabase
@@ -116,12 +123,16 @@ export async function POST(req: Request) {
         .single()
 
       if (error) {
-        return NextResponse.json({ error: 'Database error' }, { status: 500 })
+        console.error('Session creation error:', error)
+        return NextResponse.json(
+          { error: 'Database error' },
+          { status: 500 }
+        )
       }
       currentSessionId = newSession.id
     }
 
-    // Save user message
+    // ذخیره پیام کاربر
     await supabase.from('messages').insert({
       session_id: currentSessionId,
       role: 'user',
@@ -129,7 +140,7 @@ export async function POST(req: Request) {
       created_at: new Date().toISOString()
     })
 
-    // Get history
+    // دریافت تاریخچه
     const { data: messageHistory } = await supabase
       .from('messages')
       .select('role, content')
@@ -137,14 +148,17 @@ export async function POST(req: Request) {
       .order('created_at', { ascending: true })
       .limit(20)
 
-    // Prepare messages
+    // آماده‌سازی messages
     const messages = [
       { role: 'system', content: SYSTEM_PROMPT },
-      ...(messageHistory || []).map(m => ({ role: m.role, content: m.content })),
+      ...(messageHistory || []).map(m => ({
+        role: m.role,
+        content: m.content
+      })),
       { role: 'user', content: message }
     ]
 
-    // Try models
+    // امتحان مدل‌ها
     let reply = null
     let usedModel = null
 
@@ -163,7 +177,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // Save response
+    // ذخیره پاسخ
     await supabase.from('messages').insert({
       session_id: currentSessionId,
       role: 'assistant',
