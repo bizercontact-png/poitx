@@ -775,3 +775,28 @@ const styles = {
     fontSize: '0.9rem',
   },
 }
+// ... بقیه کدها ...
+
+import GalacticInput from '../components/GalacticInput'
+
+// ... داخل Footer ...
+
+<footer style={styles.footer}>
+  <GalacticInput 
+    onSubmit={askJ369} 
+    loading={loading}
+    placeholder="برای J_369 بنویس... (فایل هم می‌تونی آپلود کنی)"
+    maxLength={4000}
+  />
+  {error && (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      style={styles.errorMessage}
+    >
+      ⚠️ {error}
+    </motion.div>
+  )}
+</footer>
+
+// ... بقیه کدها ...
