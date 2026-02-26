@@ -4,11 +4,10 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { faIR } from 'date-fns/locale'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import { motion, AnimatePresence } from 'framer-motion'
 import GalacticInput from '../components/GalacticInput'
 import AuthStatus from '../components/AuthStatus'
+import MessageList from '../components/MessageList'
 
 // ========== Types ==========
 type Message = {
@@ -56,7 +55,7 @@ export default function J369Page() {
   const [showThinking, setShowThinking] = useState(true)
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
-  // ========== Gems ==========
+  // ========== Gems (اپلیکیشن‌های کوچک) ==========
   const gems: Gem[] = [
     { 
       id: '1', 
@@ -309,7 +308,7 @@ export default function J369Page() {
 
   return (
     <div style={styles.container}>
-      {/* ========== Sidebar ========== */}
+      {/* ========== Sidebar هوشمند (ChatGPT + Gemini) ========== */}
       <AnimatePresence>
         {showSidebar && (
           <motion.div
@@ -325,6 +324,7 @@ export default function J369Page() {
               zIndex: 200,
             }}
           >
+            {/* Header سایدبار */}
             <div style={styles.sidebarHeader}>
               {isMobile && (
                 <motion.button
@@ -346,6 +346,7 @@ export default function J369Page() {
               </motion.button>
             </div>
 
+            {/* تب‌های دسته‌بندی */}
             <div style={styles.tabContainer}>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -382,6 +383,7 @@ export default function J369Page() {
               </motion.button>
             </div>
 
+            {/* جستجوی پیشرفته */}
             <div style={styles.searchContainer}>
               <span style={styles.searchIcon}>🔍</span>
               <input
@@ -403,6 +405,7 @@ export default function J369Page() {
               )}
             </div>
 
+            {/* لیست سشن‌ها */}
             <div style={styles.sessionsList}>
               <AnimatePresence>
                 {filteredSessions.map(session => (
@@ -454,6 +457,7 @@ export default function J369Page() {
               </AnimatePresence>
             </div>
 
+            {/* Gems - اپلیکیشن‌های کوچک */}
             <div style={styles.gemsSection}>
               <h3 style={styles.gemsTitle}>
                 <span style={styles.gemsIcon}>💎</span>
@@ -481,6 +485,7 @@ export default function J369Page() {
               </div>
             </div>
 
+            {/* Footer با وضعیت کاربر */}
             <div style={styles.sidebarFooter}>
               <AuthStatus />
             </div>
@@ -488,6 +493,7 @@ export default function J369Page() {
         )}
       </AnimatePresence>
 
+      {/* Resizer برای سایدبار */}
       {!isMobile && showSidebar && (
         <div
           ref={resizerRef}
@@ -496,11 +502,13 @@ export default function J369Page() {
         />
       )}
 
+      {/* ========== Main Chat Area ========== */}
       <div style={{
         ...styles.main,
         marginLeft: showSidebar && !isMobile ? `${sidebarWidth}px` : '0',
         width: showSidebar && !isMobile ? `calc(100% - ${sidebarWidth}px)` : '100%',
       }}>
+        {/* Header */}
         <header style={styles.header}>
           {(!showSidebar || isMobile) && (
             <motion.button
@@ -516,6 +524,7 @@ export default function J369Page() {
             <span style={styles.logoText}>🌌 POITX</span>
           </Link>
           <div style={styles.headerRight}>
+            {/* دکمه نمایش/مخفی کردن تفکر (Thinking) */}
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -529,8 +538,10 @@ export default function J369Page() {
           </div>
         </header>
 
+        {/* Messages Container */}
         <main style={styles.messagesContainer}>
           {messages.length === 0 ? (
+            // صفحه خوش‌آمدگویی
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -574,169 +585,23 @@ export default function J369Page() {
               </div>
             </motion.div>
           ) : (
-            <div style={styles.messagesList}>
-              <AnimatePresence>
-                {messages.map((msg, i) => (
-                  <motion.div
-                    key={msg.id}
-                    initial={{ opacity: 0, y: 20, x: msg.role === 'user' ? 20 : -20 }}
-                    animate={{ opacity: 1, y: 0, x: 0 }}
-                    transition={{ delay: i * 0.05, type: 'spring', stiffness: 100 }}
-                    style={{
-                      ...styles.messageWrapper,
-                      justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                    }}
-                  >
-                    {msg.role === 'assistant' && (
-                      <motion.div
-                        whileHover={{ rotate: 360 }}
-                        transition={{ duration: 0.5 }}
-                        style={styles.assistantAvatar}
-                      >
-                        🤖
-                      </motion.div>
-                    )}
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      style={{
-                        ...styles.message,
-                        ...(msg.role === 'user' ? styles.userMessage : styles.assistantMessage)
-                      }}
-                    >
-                      {msg.thinking && showThinking && (
-                        <div style={styles.thinkingBubble}>
-                          <strong>🧠 فرآیند تفکر:</strong>
-                          <p style={{ margin: '0.3rem 0', fontSize: '0.9rem', opacity: 0.8 }}>
-                            {msg.thinking}
-                          </p>
-                        </div>
-                      )}
-
-                      {msg.files && msg.files.length > 0 && (
-                        <div style={styles.fileList}>
-                          {msg.files.map((file, idx) => (
-                            <div key={idx} style={styles.fileItem}>
-                              <span style={styles.fileIcon}>
-                                {file.type.startsWith('image/') ? '🖼️' : '📄'}
-                              </span>
-                              <a 
-                                href={file.url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                style={styles.fileLink}
-                              >
-                                {file.name}
-                              </a>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      <div style={styles.messageContent}>
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={{
-                            code({ className, children, ...props }) {
-                              const match = /language-(\w+)/.exec(className || '')
-                              const codeId = `code-${msg.id}-${Math.random()}`
-                              return match ? (
-                                <div style={{ position: 'relative' }}>
-                                  <pre style={{
-                                    background: '#1e1e1e',
-                                    padding: '1rem',
-                                    borderRadius: '8px',
-                                    overflowX: 'auto',
-                                    margin: '0.5rem 0',
-                                    border: '1px solid #333',
-                                    fontFamily: 'monospace',
-                                    fontSize: isMobile ? '12px' : '14px'
-                                  }}>
-                                    <code className={className} {...props}>
-                                      {String(children).replace(/\n$/, '')}
-                                    </code>
-                                  </pre>
-                                  <div style={styles.codeActions}>
-                                    <motion.button
-                                      whileHover={{ scale: 1.1 }}
-                                      whileTap={{ scale: 0.9 }}
-                                      onClick={() => copyToClipboard(String(children), codeId)}
-                                      style={styles.codeButton}
-                                      title="کپی"
-                                    >
-                                      {copiedId === codeId ? '✅' : '📋'}
-                                    </motion.button>
-                                    <motion.button
-                                      whileHover={{ scale: 1.1 }}
-                                      whileTap={{ scale: 0.9 }}
-                                      onClick={() => downloadFile(String(children), `code.${match[1]}`)}
-                                      style={styles.codeButton}
-                                      title="دانلود"
-                                    >
-                                      📥
-                                    </motion.button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <code className={className} {...props}>
-                                  {children}
-                                </code>
-                              )
-                            },
-                            table({ children }) {
-                              return (
-                                <div style={styles.tableWrapper}>
-                                  <table style={styles.table}>{children}</table>
-                                </div>
-                              )
-                            }
-                          }}
-                        >
-                          {msg.content}
-                        </ReactMarkdown>
-                      </div>
-
-                      {msg.sources && msg.sources.length > 0 && (
-                        <div style={styles.sourcesContainer}>
-                          <strong>📚 منابع:</strong>
-                          <ul style={{ margin: '0.3rem 0', fontSize: '0.9rem' }}>
-                            {msg.sources.map((source, idx) => (
-                              <li key={idx}>{source}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      <div style={styles.messageFooter}>
-                        <span style={styles.messageTime}>
-                          {format(msg.createdAt, 'HH:mm')}
-                        </span>
-                      </div>
-                    </motion.div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-
-              {loading && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  style={{ ...styles.messageWrapper, justifyContent: 'flex-start' }}
-                >
-                  <div style={styles.assistantAvatar}>🤖</div>
-                  <div style={{ ...styles.message, ...styles.assistantMessage }}>
-                    <div style={styles.typingIndicator}>
-                      <span></span>
-                      <span></span>
-                      <span></span>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
+            // لیست پیام‌ها
+            <>
+              <MessageList
+                messages={messages}
+                loading={loading}
+                showThinking={showThinking}
+                isMobile={isMobile}
+                onCopy={copyToClipboard}
+                onDownload={downloadFile}
+                copiedId={copiedId}
+              />
               <div ref={messagesEndRef} />
-            </div>
+            </>
           )}
         </main>
 
+        {/* Galactic Input - ورودی کهکشانی */}
         <footer style={styles.footer}>
           <GalacticInput 
             onSubmit={askJ369} 
@@ -756,6 +621,7 @@ export default function J369Page() {
         </footer>
       </div>
 
+      {/* ========== Global Styles ========== */}
       <style jsx global>{`
         @keyframes bounce {
           0%, 60%, 100% { transform: translateY(0); }
@@ -1119,126 +985,6 @@ const styles = {
     cursor: 'pointer',
     fontSize: '0.9rem',
   },
-  messagesList: {
-    maxWidth: '800px',
-    margin: '0 auto',
-  },
-  messageWrapper: {
-    display: 'flex',
-    marginBottom: '1.5rem',
-    gap: '1rem',
-  },
-  assistantAvatar: {
-    width: '36px',
-    height: '36px',
-    borderRadius: '50%',
-    background: 'linear-gradient(135deg, #0066ff, #00aaff)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '1.2rem',
-    flexShrink: 0,
-    boxShadow: '0 4px 10px rgba(0,102,255,0.3)',
-    cursor: 'pointer',
-  },
-  message: {
-    maxWidth: '70%',
-    padding: '1rem 1.5rem',
-    borderRadius: '20px',
-    position: 'relative' as const,
-    boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-  },
-  userMessage: {
-    background: '#0066ff',
-    borderBottomRightRadius: '5px',
-  },
-  assistantMessage: {
-    background: 'rgba(255,255,255,0.1)',
-    borderBottomLeftRadius: '5px',
-  },
-  messageContent: {
-    lineHeight: 1.6,
-    fontSize: '1rem',
-  },
-  thinkingBubble: {
-    background: 'rgba(0,0,0,0.3)',
-    padding: '0.5rem',
-    borderRadius: '8px',
-    marginBottom: '0.5rem',
-    borderLeft: '3px solid #ffaa00',
-  },
-  fileList: {
-    marginBottom: '0.5rem',
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: '0.3rem',
-  },
-  fileItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    padding: '0.3rem 0.5rem',
-    background: 'rgba(255,255,255,0.05)',
-    borderRadius: '6px',
-  },
-  fileIcon: {
-    fontSize: '1rem',
-  },
-  fileLink: {
-    color: '#aaddff',
-    textDecoration: 'none',
-    fontSize: '0.9rem',
-  },
-  tableWrapper: {
-    overflowX: 'auto' as const,
-    margin: '1rem 0',
-  },
-  table: {
-    borderCollapse: 'collapse' as const,
-    width: '100%',
-    fontSize: '0.9rem',
-    '& th, & td': {
-      border: '1px solid rgba(255,255,255,0.2)',
-      padding: '0.5rem',
-      textAlign: 'left' as const,
-    },
-    '& th': {
-      background: 'rgba(255,255,255,0.1)',
-      fontWeight: 600,
-    },
-  },
-  codeActions: {
-    position: 'absolute' as const,
-    top: '0.5rem',
-    right: '0.5rem',
-    display: 'flex',
-    gap: '0.3rem',
-  },
-  codeButton: {
-    padding: '0.2rem 0.5rem',
-    background: 'rgba(255,255,255,0.2)',
-    border: 'none',
-    borderRadius: '4px',
-    color: '#fff',
-    cursor: 'pointer',
-    fontSize: '0.8rem',
-  },
-  sourcesContainer: {
-    marginTop: '0.5rem',
-    paddingTop: '0.5rem',
-    borderTop: '1px solid rgba(255,255,255,0.1)',
-    fontSize: '0.9rem',
-    opacity: 0.8,
-  },
-  messageFooter: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    marginTop: '0.5rem',
-  },
-  messageTime: {
-    fontSize: '0.7rem',
-    opacity: 0.6,
-  },
   footer: {
     background: 'rgba(10,15,30,0.8)',
     backdropFilter: 'blur(10px)',
@@ -1255,20 +1001,5 @@ const styles = {
     color: '#ff6666',
     fontSize: '0.9rem',
     textAlign: 'center' as const,
-  },
-  typingIndicator: {
-    display: 'flex',
-    gap: '0.3rem',
-    padding: '0.5rem 0',
-    '& span': {
-      width: '8px',
-      height: '8px',
-      background: '#fff',
-      borderRadius: '50%',
-      animation: 'bounce 1.4s infinite ease-in-out',
-    },
-    '& span:nth-child(1)': { animationDelay: '0s' },
-    '& span:nth-child(2)': { animationDelay: '0.2s' },
-    '& span:nth-child(3)': { animationDelay: '0.4s' },
   },
 }
