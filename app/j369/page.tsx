@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { motion, AnimatePresence } from 'framer-motion'
 import GalacticInput from '../components/GalacticInput'
 import AuthStatus from '../components/AuthStatus'
 
@@ -34,13 +35,30 @@ export default function J369Page() {
   const [showSidebar, setShowSidebar] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const sidebarRef = useRef<HTMLDivElement>(null)
 
+  // تشخیص موبایل
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+      if (window.innerWidth < 768) {
+        setShowSidebar(false)
+      }
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // اسکرول خودکار
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // لود سشن‌ها
   useEffect(() => {
     const saved = localStorage.getItem('j369-sessions')
     if (saved) {
@@ -51,6 +69,17 @@ export default function J369Page() {
       }
     }
   }, [])
+
+  // کلیک خارج از سایدبار برای بستن (موبایل)
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isMobile && showSidebar && sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+        setShowSidebar(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isMobile, showSidebar])
 
   const createNewChat = () => {
     const newSessionId = Date.now().toString()
@@ -73,7 +102,9 @@ export default function J369Page() {
     setCurrentSessionId(sessionId)
     setMessages([])
     setError(null)
-    // TODO: Load messages from Supabase
+    if (isMobile) {
+      setShowSidebar(false)
+    }
   }
 
   const deleteSession = (sessionId: string) => {
@@ -157,7 +188,6 @@ export default function J369Page() {
     s.title.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  // تابع برای ذخیره فایل
   const downloadFile = (content: string, filename: string) => {
     const blob = new Blob([content], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
@@ -170,68 +200,94 @@ export default function J369Page() {
 
   return (
     <div style={styles.container}>
-      {/* سایدبار */}
-      <div style={{
-        ...styles.sidebar,
-        transform: showSidebar ? 'translateX(0)' : 'translateX(-100%)'
-      }}>
-        <div style={styles.sidebarHeader}>
-          <button onClick={() => setShowSidebar(false)} style={styles.closeSidebar}>
-            ←
-          </button>
-          <button onClick={createNewChat} style={styles.newChatButton}>
-            + New Chat
-          </button>
-        </div>
-
-        <div style={styles.searchContainer}>
-          <input
-            type="text"
-            placeholder="جستجوی مکالمات..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={styles.searchInput}
-          />
-        </div>
-
-        <div style={styles.sessionsList}>
-          {filteredSessions.map(session => (
-            <div
-              key={session.id}
-              onClick={() => loadSession(session.id)}
-              style={{
-                ...styles.sessionItem,
-                ...(session.id === currentSessionId ? styles.activeSession : {})
-              }}
-            >
-              <div style={styles.sessionInfo}>
-                <div style={styles.sessionTitle}>{session.title}</div>
-                <div style={styles.sessionDate}>
-                  {format(session.createdAt, 'yyyy/MM/dd HH:mm', { locale: faIR })}
-                </div>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  deleteSession(session.id)
-                }}
-                style={styles.deleteSession}
-              >
-                ×
+      {/* سایدبار با انیمیشن */}
+      <AnimatePresence>
+        {showSidebar && (
+          <motion.div
+            ref={sidebarRef}
+            initial={{ x: -300 }}
+            animate={{ x: 0 }}
+            exit={{ x: -300 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            style={{
+              ...styles.sidebar,
+              position: isMobile ? 'fixed' : 'relative',
+              zIndex: 200,
+            }}
+          >
+            <div style={styles.sidebarHeader}>
+              <button onClick={() => setShowSidebar(false)} style={styles.closeSidebar}>
+                ←
+              </button>
+              <button onClick={createNewChat} style={styles.newChatButton}>
+                + New Chat
               </button>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* بخش اصلی چت */}
+            <div style={styles.searchContainer}>
+              <input
+                type="text"
+                placeholder="جستجوی مکالمات..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={styles.searchInput}
+              />
+            </div>
+
+            <div style={styles.sessionsList}>
+              <AnimatePresence>
+                {filteredSessions.map(session => (
+                  <motion.div
+                    key={session.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={() => loadSession(session.id)}
+                    style={{
+                      ...styles.sessionItem,
+                      ...(session.id === currentSessionId ? styles.activeSession : {})
+                    }}
+                  >
+                    <div style={styles.sessionInfo}>
+                      <div style={styles.sessionTitle}>{session.title}</div>
+                      <div style={styles.sessionDate}>
+                        {format(session.createdAt, 'yyyy/MM/dd HH:mm', { locale: faIR })}
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        deleteSession(session.id)
+                      }}
+                      style={styles.deleteSession}
+                    >
+                      ×
+                    </button>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Main Chat */}
       <div style={{
         ...styles.main,
-        marginLeft: showSidebar ? '280px' : '0'
+        marginLeft: showSidebar && !isMobile ? '280px' : '0',
+        width: showSidebar && !isMobile ? 'calc(100% - 280px)' : '100%',
       }}>
-        {/* هدر با وضعیت کاربر */}
+        {/* Header */}
         <header style={styles.header}>
-          <button onClick={() => setShowSidebar(true)} style={styles.openSidebar}>
+          <button
+            onClick={() => setShowSidebar(true)}
+            style={{
+              ...styles.openSidebar,
+              opacity: showSidebar ? 0 : 1,
+              pointerEvents: showSidebar ? 'none' : 'auto',
+            }}
+          >
             ☰
           </button>
           <Link href="/" style={styles.logo}>
@@ -243,10 +299,14 @@ export default function J369Page() {
           </div>
         </header>
 
-        {/* ناحیه پیام‌ها */}
+        {/* Messages */}
         <main style={styles.messagesContainer}>
           {messages.length === 0 ? (
-            <div style={styles.welcomeContainer}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={styles.welcomeContainer}
+            >
               <h1 style={styles.welcomeTitle}>🤖 J_369</h1>
               <p style={styles.welcomeText}>
                 هوش مصنوعی کهکشان POITX. چطور می‌تونم کمک کنم؟
@@ -260,99 +320,110 @@ export default function J369Page() {
                   'Generate a CSS grid layout',
                   'Create a to-do list app in React'
                 ].map((suggestion, i) => (
-                  <button
+                  <motion.button
                     key={i}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => askJ369(suggestion, [])}
                     style={styles.suggestionButton}
                   >
                     {suggestion}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
-            </div>
+            </motion.div>
           ) : (
             <div style={styles.messagesList}>
-              {messages.map((msg, i) => (
-                <div
-                  key={msg.id}
-                  style={{
-                    ...styles.messageWrapper,
-                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                    animation: `slideIn 0.3s ease-out ${i * 0.05}s both`
-                  }}
-                >
-                  {msg.role === 'assistant' && (
-                    <div style={styles.assistantAvatar}>🤖</div>
-                  )}
-                  <div
+              <AnimatePresence>
+                {messages.map((msg, i) => (
+                  <motion.div
+                    key={msg.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
                     style={{
-                      ...styles.message,
-                      ...(msg.role === 'user' ? styles.userMessage : styles.assistantMessage)
+                      ...styles.messageWrapper,
+                      justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
                     }}
                   >
-                    <div style={styles.messageContent}>
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          code({ node, inline, className, children, ...props }) {
-                            const match = /language-(\w+)/.exec(className || '')
-                            return !inline && match ? (
-                              <div style={{ position: 'relative' }}>
-                                <SyntaxHighlighter
-                                  style={vscDarkPlus}
-                                  language={match[1]}
-                                  PreTag="div"
-                                  {...props}
-                                >
-                                  {String(children).replace(/\n$/, '')}
-                                </SyntaxHighlighter>
-                                <button
-                                  onClick={() => downloadFile(String(children), `code.${match[1]}`)}
-                                  style={{
-                                    position: 'absolute',
-                                    top: '0.5rem',
-                                    right: '0.5rem',
-                                    padding: '0.2rem 0.5rem',
-                                    background: 'rgba(255,255,255,0.2)',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    color: '#fff',
-                                    cursor: 'pointer',
-                                    fontSize: '0.8rem',
-                                  }}
-                                >
-                                  📥 دانلود
-                                </button>
-                              </div>
-                            ) : (
-                              <code className={className} {...props}>
-                                {children}
-                              </code>
-                            )
-                          },
-                          table({ children }) {
-                            return (
-                              <div style={{ overflowX: 'auto' }}>
-                                <table style={styles.table}>{children}</table>
-                              </div>
-                            )
-                          },
-                        }}
-                      >
-                        {msg.content}
-                      </ReactMarkdown>
+                    {msg.role === 'assistant' && (
+                      <div style={styles.assistantAvatar}>🤖</div>
+                    )}
+                    <div
+                      style={{
+                        ...styles.message,
+                        ...(msg.role === 'user' ? styles.userMessage : styles.assistantMessage)
+                      }}
+                    >
+                      <div style={styles.messageContent}>
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            code({ className, children, ...props }) {
+                              const match = /language-(\w+)/.exec(className || '')
+                              const isInline = !match
+                              return !isInline && match ? (
+                                <div style={{ position: 'relative' }}>
+                                  <SyntaxHighlighter
+                                    style={vscDarkPlus}
+                                    language={match[1]}
+                                    PreTag="div"
+                                    {...props}
+                                  >
+                                    {String(children).replace(/\n$/, '')}
+                                  </SyntaxHighlighter>
+                                  <button
+                                    onClick={() => downloadFile(String(children), `code.${match[1]}`)}
+                                    style={{
+                                      position: 'absolute',
+                                      top: '0.5rem',
+                                      right: '0.5rem',
+                                      padding: '0.2rem 0.5rem',
+                                      background: 'rgba(255,255,255,0.2)',
+                                      border: 'none',
+                                      borderRadius: '4px',
+                                      color: '#fff',
+                                      cursor: 'pointer',
+                                      fontSize: '0.8rem',
+                                    }}
+                                  >
+                                    📥 دانلود
+                                  </button>
+                                </div>
+                              ) : (
+                                <code className={className} {...props}>
+                                  {children}
+                                </code>
+                              )
+                            },
+                            table({ children }) {
+                              return (
+                                <div style={{ overflowX: 'auto' }}>
+                                  <table style={styles.table}>{children}</table>
+                                </div>
+                              )
+                            },
+                          }}
+                        >
+                          {msg.content}
+                        </ReactMarkdown>
+                      </div>
+                      <div style={styles.messageFooter}>
+                        <span style={styles.messageTime}>
+                          {format(msg.createdAt, 'HH:mm')}
+                        </span>
+                      </div>
                     </div>
-                    <div style={styles.messageFooter}>
-                      <span style={styles.messageTime}>
-                        {format(msg.createdAt, 'HH:mm')}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
 
               {loading && (
-                <div style={{ ...styles.messageWrapper, justifyContent: 'flex-start' }}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{ ...styles.messageWrapper, justifyContent: 'flex-start' }}
+                >
                   <div style={styles.assistantAvatar}>🤖</div>
                   <div style={{ ...styles.message, ...styles.assistantMessage }}>
                     <div style={styles.typingIndicator}>
@@ -361,38 +432,51 @@ export default function J369Page() {
                       <span></span>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               )}
               <div ref={messagesEndRef} />
             </div>
           )}
         </main>
 
-        {/* ورودی کهکشانی */}
+        {/* Galactic Input */}
         <footer style={styles.footer}>
           <GalacticInput onSubmit={askJ369} loading={loading} />
           {error && (
-            <div style={styles.errorMessage}>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={styles.errorMessage}
+            >
               ⚠️ {error}
-            </div>
+            </motion.div>
           )}
         </footer>
       </div>
 
-      <style jsx>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
+      {/* استایل‌های گلوبال انیمیشن */}
+      <style jsx global>{`
         @keyframes bounce {
           0%, 60%, 100% { transform: translateY(0); }
           30% { transform: translateY(-5px); }
+        }
+        
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: #0066ff rgba(255,255,255,0.1);
+        }
+        
+        *::-webkit-scrollbar {
+          width: 8px;
+        }
+        
+        *::-webkit-scrollbar-track {
+          background: rgba(255,255,255,0.1);
+        }
+        
+        *::-webkit-scrollbar-thumb {
+          background: #0066ff;
+          border-radius: 4px;
         }
       `}</style>
     </div>
@@ -406,6 +490,7 @@ const styles = {
     background: '#0a0f1e',
     color: '#fff',
     overflow: 'hidden',
+    position: 'relative' as const,
   },
   sidebar: {
     width: '280px',
@@ -413,11 +498,8 @@ const styles = {
     background: 'rgba(20, 25, 40, 0.95)',
     backdropFilter: 'blur(10px)',
     borderRight: '1px solid rgba(255,255,255,0.1)',
-    position: 'fixed' as const,
     left: 0,
     top: 0,
-    transition: 'transform 0.3s ease',
-    zIndex: 200,
     display: 'flex',
     flexDirection: 'column' as const,
   },
@@ -434,6 +516,11 @@ const styles = {
     color: '#fff',
     cursor: 'pointer',
     fontSize: '1.2rem',
+    borderRadius: '8px',
+    transition: 'background 0.2s',
+    ':hover': {
+      background: 'rgba(255,255,255,0.1)',
+    },
   },
   newChatButton: {
     flex: 1,
@@ -445,6 +532,11 @@ const styles = {
     cursor: 'pointer',
     fontSize: '0.9rem',
     fontWeight: 500,
+    transition: 'all 0.2s',
+    ':hover': {
+      background: '#0055cc',
+      transform: 'scale(1.02)',
+    },
   },
   searchContainer: {
     padding: '1rem',
@@ -457,6 +549,12 @@ const styles = {
     borderRadius: '8px',
     color: '#fff',
     fontSize: '0.9rem',
+    outline: 'none',
+    transition: 'all 0.2s',
+    ':focus': {
+      borderColor: '#0066ff',
+      boxShadow: '0 0 0 2px rgba(0,102,255,0.2)',
+    },
   },
   sessionsList: {
     flex: 1,
@@ -472,10 +570,14 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    transition: 'background 0.2s',
+    transition: 'all 0.2s',
+    ':hover': {
+      background: 'rgba(255,255,255,0.1)',
+    },
   },
   activeSession: {
     background: 'rgba(0,102,255,0.2)',
+    borderLeft: '3px solid #0066ff',
   },
   sessionInfo: {
     flex: 1,
@@ -495,13 +597,18 @@ const styles = {
     fontSize: '1.2rem',
     cursor: 'pointer',
     padding: '0 0.5rem',
+    borderRadius: '4px',
+    transition: 'all 0.2s',
+    ':hover': {
+      background: 'rgba(255,68,68,0.2)',
+    },
   },
   main: {
     flex: 1,
     height: '100vh',
     display: 'flex',
     flexDirection: 'column' as const,
-    transition: 'margin-left 0.3s ease',
+    transition: 'margin-left 0.3s ease, width 0.3s ease',
   },
   header: {
     padding: '1rem',
@@ -511,6 +618,9 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '1rem',
+    position: 'sticky' as const,
+    top: 0,
+    zIndex: 100,
   },
   openSidebar: {
     background: 'transparent',
@@ -518,6 +628,12 @@ const styles = {
     color: '#fff',
     fontSize: '1.5rem',
     cursor: 'pointer',
+    transition: 'opacity 0.3s',
+    padding: '0.5rem',
+    borderRadius: '8px',
+    ':hover': {
+      background: 'rgba(255,255,255,0.1)',
+    },
   },
   logo: {
     fontSize: '1.5rem',
@@ -525,6 +641,10 @@ const styles = {
     color: '#fff',
     textDecoration: 'none',
     textShadow: '0 0 10px #0066ff',
+    transition: 'text-shadow 0.3s',
+    ':hover': {
+      textShadow: '0 0 20px #0066ff',
+    },
   },
   headerRight: {
     marginLeft: 'auto',
@@ -537,6 +657,7 @@ const styles = {
     padding: '0.2rem 0.6rem',
     borderRadius: '20px',
     fontSize: '0.8rem',
+    fontWeight: 500,
   },
   messagesContainer: {
     flex: 1,
@@ -582,6 +703,10 @@ const styles = {
     fontSize: '0.9rem',
     transition: 'all 0.2s',
     textAlign: 'left' as const,
+    ':hover': {
+      background: 'rgba(0,102,255,0.2)',
+      borderColor: '#0066ff',
+    },
   },
   messagesList: {
     maxWidth: '800px',
@@ -591,27 +716,28 @@ const styles = {
     display: 'flex',
     marginBottom: '1.5rem',
     gap: '1rem',
-    opacity: 0,
   },
   assistantAvatar: {
     width: '36px',
     height: '36px',
     borderRadius: '50%',
-    background: '#0066ff',
+    background: 'linear-gradient(135deg, #0066ff, #00aaff)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '1.2rem',
     flexShrink: 0,
+    boxShadow: '0 4px 10px rgba(0,102,255,0.3)',
   },
   message: {
     maxWidth: '70%',
     padding: '1rem 1.5rem',
     borderRadius: '20px',
     position: 'relative' as const,
+    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
   },
   userMessage: {
-    background: '#0066ff',
+    background: 'linear-gradient(135deg, #0066ff, #00aaff)',
     borderBottomRightRadius: '5px',
   },
   assistantMessage: {
@@ -620,30 +746,17 @@ const styles = {
   },
   messageContent: {
     marginBottom: '0.3rem',
+    lineHeight: 1.6,
+    '& p': {
+      margin: '0.5rem 0',
+    },
     '& pre': {
       background: '#1e1e1e',
       padding: '1rem',
       borderRadius: '8px',
       overflowX: 'auto' as const,
+      margin: '0.5rem 0',
     },
-    '& table': {
-      borderCollapse: 'collapse' as const,
-      width: '100%',
-      margin: '1rem 0',
-    },
-    '& th, & td': {
-      border: '1px solid rgba(255,255,255,0.2)',
-      padding: '0.5rem',
-      textAlign: 'left' as const,
-    },
-    '& th': {
-      background: 'rgba(255,255,255,0.1)',
-    },
-  },
-  messageText: {
-    margin: '0.3rem 0',
-    lineHeight: 1.6,
-    fontSize: '1rem',
   },
   messageFooter: {
     display: 'flex',
@@ -696,6 +809,10 @@ const styles = {
     },
     '& th': {
       background: 'rgba(255,255,255,0.1)',
+      fontWeight: 600,
+    },
+    '& tr:nth-child(even)': {
+      background: 'rgba(255,255,255,0.05)',
     },
   },
 }
