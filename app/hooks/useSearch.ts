@@ -49,6 +49,6 @@ export function useSearch() {
     loading,
     error,
     search,
-    clearResults
+    clearResults  // اسم تابع اینه
   }
 }
