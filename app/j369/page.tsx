@@ -6,8 +6,6 @@ import { format } from 'date-fns'
 import { faIR } from 'date-fns/locale'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { motion, AnimatePresence } from 'framer-motion'
 import GalacticInput from '../components/GalacticInput'
 import AuthStatus from '../components/AuthStatus'
@@ -357,20 +355,21 @@ export default function J369Page() {
                           components={{
                             code({ className, children, ...props }) {
                               const match = /language-(\w+)/.exec(className || '')
-                              const isInline = !match
-                              return !isInline && match ? (
+                              return (
                                 <div style={{ position: 'relative' }}>
-                                  <SyntaxHighlighter
-                                    style={vscDarkPlus}
-                                    language={match[1]}
-                                    PreTag="div"
-                                    {...props}
-                                    ref={null}
-                                  >
-                                    {String(children).replace(/\n$/, '')}
-                                  </SyntaxHighlighter>
+                                  <pre style={{
+                                    background: '#1e1e1e',
+                                    padding: '1rem',
+                                    borderRadius: '8px',
+                                    overflowX: 'auto',
+                                    margin: '0.5rem 0',
+                                  }}>
+                                    <code className={className} {...props}>
+                                      {children}
+                                    </code>
+                                  </pre>
                                   <button
-                                    onClick={() => downloadFile(String(children), `code.${match[1]}`)}
+                                    onClick={() => downloadFile(String(children), `code.${match ? match[1] : 'txt'}`)}
                                     style={{
                                       position: 'absolute',
                                       top: '0.5rem',
@@ -387,10 +386,6 @@ export default function J369Page() {
                                     📥 دانلود
                                   </button>
                                 </div>
-                              ) : (
-                                <code className={className} {...props}>
-                                  {children}
-                                </code>
                               )
                             },
                             table({ children }) {
