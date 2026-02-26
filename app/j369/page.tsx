@@ -355,6 +355,7 @@ export default function J369Page() {
                           components={{
                             code({ className, children, ...props }) {
                               const match = /language-(\w+)/.exec(className || '')
+                              const language = match ? match[1] : 'plaintext'
                               return (
                                 <div style={{ position: 'relative' }}>
                                   <pre style={{
@@ -363,13 +364,14 @@ export default function J369Page() {
                                     borderRadius: '8px',
                                     overflowX: 'auto',
                                     margin: '0.5rem 0',
+                                    border: '1px solid #333',
                                   }}>
-                                    <code className={className} {...props}>
-                                      {children}
+                                    <code className={`language-${language}`} {...props}>
+                                      {String(children).replace(/\n$/, '')}
                                     </code>
                                   </pre>
                                   <button
-                                    onClick={() => downloadFile(String(children), `code.${match ? match[1] : 'txt'}`)}
+                                    onClick={() => downloadFile(String(children), `code.${language}`)}
                                     style={{
                                       position: 'absolute',
                                       top: '0.5rem',
@@ -450,6 +452,26 @@ export default function J369Page() {
         @keyframes bounce {
           0%, 60%, 100% { transform: translateY(0); }
           30% { transform: translateY(-5px); }
+        }
+        pre {
+          margin: 0.5rem 0 !important;
+        }
+        code {
+          font-family: 'Fira Code', 'Courier New', monospace !important;
+          font-size: 0.9rem !important;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 1rem 0;
+        }
+        th, td {
+          border: 1px solid #444;
+          padding: 0.5rem;
+          text-align: left;
+        }
+        th {
+          background: #2a2a2a;
         }
       `}</style>
     </div>
@@ -725,22 +747,5 @@ const styles = {
     '& span:nth-child(1)': { animationDelay: '0s' },
     '& span:nth-child(2)': { animationDelay: '0.2s' },
     '& span:nth-child(3)': { animationDelay: '0.4s' },
-  },
-  table: {
-    borderCollapse: 'collapse' as const,
-    width: '100%',
-    margin: '1rem 0',
-    '& th, & td': {
-      border: '1px solid rgba(255,255,255,0.2)',
-      padding: '0.5rem',
-      textAlign: 'left' as const,
-    },
-    '& th': {
-      background: 'rgba(255,255,255,0.1)',
-      fontWeight: 600,
-    },
-    '& tr:nth-child(even)': {
-      background: 'rgba(255,255,255,0.05)',
-    },
   },
 }
