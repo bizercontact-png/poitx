@@ -6,11 +6,12 @@ import { faIR } from 'date-fns/locale'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
+// این تایپ باید با types/index.ts هماهنگ باشه
 type Message = {
   id: string
   role: 'user' | 'assistant'
   content: string
-  created_at: Date           // تغییر از createdAt به created_at
+  created_at: Date        // اینجا created_at هست (نه createdAt)
   sources?: string[]
   thinking?: string
   files?: { name: string; url: string; type: string }[]
