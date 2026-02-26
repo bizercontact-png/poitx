@@ -361,7 +361,7 @@ export default function J369Page() {
                               return !isInline && match ? (
                                 <div style={{ position: 'relative' }}>
                                   <SyntaxHighlighter
-                                    style={vscDarkPlus}
+                                    style={vscDarkPlus as any}
                                     language={match[1]}
                                     PreTag="div"
                                     {...props}
@@ -711,6 +711,24 @@ const styles = {
     background: 'rgba(255,0,0,0.1)',
     border: '1px solid rgba(255,0,0,0.3)',
     borderRadius: '8px',
+    color: '#ff6666',
+    fontSize: '0.9rem',
+    textAlign: 'center' as const,
+  },
+  typingIndicator: {
+    display: 'flex',
+    gap: '0.3rem',
+    padding: '0.5rem 0',
+    '& span': {
+      width: '8px',
+      height: '8px',
+      background: '#fff',
+      borderRadius: '50%',
+      animation: 'bounce 1.4s infinite ease-in-out',
+    },
+    '& span:nth-child(1)': { animationDelay: '0s' },
+    '& span:nth-child(2)': { animationDelay: '0.2s' },
+    '& span:nth-child(3)': {: '8px',
     color: '#ff6666',
     fontSize: '0.9rem',
     textAlign: 'center' as const,
