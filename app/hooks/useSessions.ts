@@ -76,10 +76,22 @@ export function useSessions() {
     }
   }, [currentSessionId])
 
-  const addMessage = useCallback(async (message: Omit<Message, 'id' | 'created_at'>) => {
+  const addMessage = useCallback(async (message: {
+    role: 'user' | 'assistant'
+    content: string
+    sources?: string[]
+    thinking?: string
+  }) => {
     if (!currentSessionId) return
 
-    await saveMessage(message)
+    // ذخیره در دیتابیس
+    await saveMessage({
+      sessionId: currentSessionId,
+      role: message.role,
+      content: message.content,
+      sources: message.sources,
+      thinking: message.thinking
+    })
     
     // آپدیت عنوان سشن با اولین پیام کاربر
     if (message.role === 'user' && messages.length === 0) {
@@ -92,11 +104,15 @@ export function useSessions() {
     }
 
     // آپدیت لیست پیام‌ها
-    const newMessage = {
-      ...message,
+    const newMessage: Message = {
       id: Date.now().toString(),
+      session_id: currentSessionId,
+      role: message.role,
+      content: message.content,
+      sources: message.sources,
+      thinking: message.thinking,
       created_at: new Date()
-    } as Message
+    }
 
     setMessages(prev => [...prev, newMessage])
   }, [currentSessionId, messages.length])
