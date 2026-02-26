@@ -361,10 +361,11 @@ export default function J369Page() {
                               return !isInline && match ? (
                                 <div style={{ position: 'relative' }}>
                                   <SyntaxHighlighter
-                                    style={vscDarkPlus as any}
+                                    style={vscDarkPlus}
                                     language={match[1]}
                                     PreTag="div"
                                     {...props}
+                                    ref={null}
                                   >
                                     {String(children).replace(/\n$/, '')}
                                   </SyntaxHighlighter>
