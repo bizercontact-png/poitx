@@ -393,7 +393,13 @@ export default function J369Page() {
                             table({ children }) {
                               return (
                                 <div style={{ overflowX: 'auto' }}>
-                                  <table style={styles.table}>{children}</table>
+                                  <table style={{
+                                    borderCollapse: 'collapse',
+                                    width: '100%',
+                                    margin: '1rem 0',
+                                  }}>
+                                    {children}
+                                  </table>
                                 </div>
                               )
                             },
