@@ -16,8 +16,8 @@ type Message = {
   content: string
   createdAt: Date
   sessionId?: string
-  sources?: string[]  // برای نمایش منابع (مثل Perplexity)
-  thinking?: string   // برای نمایش فرآیند تفکر (مثل Grok)
+  sources?: string[]
+  thinking?: string
 }
 
 type Agent = {
@@ -93,7 +93,6 @@ export default function J369Page() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
 
-  // تشخیص موبایل
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
@@ -106,12 +105,10 @@ export default function J369Page() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // اسکرول خودکار
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // لود سشن‌ها
   useEffect(() => {
     const saved = localStorage.getItem('j369-sessions')
     if (saved) {
@@ -123,7 +120,6 @@ export default function J369Page() {
     }
   }, [])
 
-  // کلیک خارج از سایدبار
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isMobile && showSidebar && sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
@@ -172,11 +168,9 @@ export default function J369Page() {
     }
   }
 
-  // شبیه‌سازی فرآیند تفکر عوامل (مثل Grok)
   const simulateAgentThinking = async () => {
     setAgents(prev => prev.map(agent => ({ ...agent, status: 'thinking' })))
 
-    // کاپیتان تحلیل می‌کنه
     setTimeout(() => {
       setAgents(prev => prev.map(agent => 
         agent.name === 'کاپیتان' 
@@ -185,7 +179,6 @@ export default function J369Page() {
       ))
     }, 1000)
 
-    // هارپر جستجو می‌کنه
     setTimeout(() => {
       setAgents(prev => prev.map(agent => 
         agent.name === 'هارپر' 
@@ -194,7 +187,6 @@ export default function J369Page() {
       ))
     }, 2000)
 
-    // بنجامین محاسبه می‌کنه
     setTimeout(() => {
       setAgents(prev => prev.map(agent => 
         agent.name === 'بنجامین' 
@@ -203,7 +195,6 @@ export default function J369Page() {
       ))
     }, 1500)
 
-    // لوکاس خلاقیت به خرج می‌ده
     setTimeout(() => {
       setAgents(prev => prev.map(agent => 
         agent.name === 'لوکاس' 
@@ -212,7 +203,6 @@ export default function J369Page() {
       ))
     }, 2500)
 
-    // بحث گروهی (مثل Grok)
     setTimeout(() => {
       setAgents(prev => prev.map(agent => 
         agent.name === 'کاپیتان' 
@@ -221,15 +211,12 @@ export default function J369Page() {
       ))
     }, 3000)
 
-    // پایان بحث
     setTimeout(() => {
       setAgents(prev => prev.map(agent => ({ ...agent, status: 'done' })))
     }, 4000)
   }
 
-  // شبیه‌سازی Visual Layout (مثل Gemini)
   const generateVisualLayout = (response: string) => {
-    // تشخیص نوع پاسخ و ایجاد عناصر بصری
     if (response.includes('جدول') || response.includes('table')) {
       setVisualElements([
         {
@@ -293,7 +280,6 @@ export default function J369Page() {
         throw new Error(data.error || 'Unknown error')
       }
 
-      // ایجاد عناصر بصری (مثل Gemini)
       generateVisualLayout(data.response)
 
       const assistantMessage: Message = {
@@ -302,8 +288,8 @@ export default function J369Page() {
         content: data.response,
         createdAt: new Date(),
         sessionId: data.sessionId,
-        sources: data.sources || ['منبع ۱', 'منبع ۲'], // مثل Perplexity
-        thinking: data.thinking // مثل Grok
+        sources: data.sources || ['منبع ۱', 'منبع ۲'],
+        thinking: data.thinking
       }
 
       setMessages(prev => [...prev, assistantMessage])
@@ -348,7 +334,7 @@ export default function J369Page() {
 
   return (
     <div style={styles.container}>
-      {/* سایدبار پیشرفته (مثل ChatGPT + Gemini) */}
+      {/* سایدبار */}
       <AnimatePresence>
         {showSidebar && (
           <motion.div
@@ -372,7 +358,6 @@ export default function J369Page() {
               </button>
             </div>
 
-            {/* جستجوی پیشرفته در تاریخچه (مثل Gemini) */}
             <div style={styles.searchContainer}>
               <input
                 type="text"
@@ -383,7 +368,6 @@ export default function J369Page() {
               />
             </div>
 
-            {/* لیست سشن‌ها با انیمیشن */}
             <div style={styles.sessionsList}>
               <AnimatePresence>
                 {filteredSessions.map(session => (
@@ -419,7 +403,6 @@ export default function J369Page() {
               </AnimatePresence>
             </div>
 
-            {/* بخش Gems (اپلیکیشن‌های کوچک - مثل Gemini) */}
             <div style={styles.gemsSection}>
               <h3 style={styles.gemsTitle}>💎 Gems</h3>
               <div style={styles.gemsList}>
@@ -462,7 +445,7 @@ export default function J369Page() {
         marginLeft: showSidebar && !isMobile ? '280px' : '0',
         width: showSidebar && !isMobile ? 'calc(100% - 280px)' : '100%',
       }}>
-        {/* Header با وضعیت کاربر و Temporary Chat toggle (مثل Gemini) */}
+        {/* Header */}
         <header style={styles.header}>
           <button
             onClick={() => setShowSidebar(true)}
@@ -490,7 +473,7 @@ export default function J369Page() {
           </div>
         </header>
 
-        {/* نمایش زنده عوامل (مثل Grok) - فقط اگه showThinking فعال باشه */}
+        {/* نمایش عوامل */}
         {showThinking && loading && (
           <div style={styles.agentsContainer}>
             <AnimatePresence>
@@ -620,7 +603,6 @@ export default function J369Page() {
                       }}
                     >
                       <div style={styles.messageContent}>
-                        {/* نمایش فرآیند تفکر (مثل Grok) - اگه وجود داشت */}
                         {msg.thinking && showThinking && (
                           <div style={styles.thinkingBubble}>
                             <strong>🧠 فرآیند تفکر:</strong>
@@ -630,7 +612,6 @@ export default function J369Page() {
                           </div>
                         )}
 
-                        {/* محتوای اصلی با Markdown */}
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={{
@@ -675,7 +656,7 @@ export default function J369Page() {
                               return (
                                 <div style={{ overflowX: 'auto' }}>
                                   <table style={{
-                                    borderCollapse: 'collapse',
+                                    borderCollapse: 'collapse' as const,
                                     width: '100%',
                                     margin: '1rem 0',
                                   }}>
@@ -689,17 +670,23 @@ export default function J369Page() {
                           {msg.content}
                         </ReactMarkdown>
 
-                        {/* عناصر بصری (مثل Gemini) */}
                         {msg.role === 'assistant' && visualElements.length > 0 && (
                           <div style={styles.visualContainer}>
                             {visualElements.map((element, idx) => (
                               <div key={idx} style={styles.visualElement}>
                                 {element.type === 'table' && (
-                                  <table style={styles.table}>
+                                  <table style={{
+                                    borderCollapse: 'collapse' as const,
+                                    width: '100%',
+                                  }}>
                                     <thead>
                                       <tr>
                                         {element.data.headers.map((h: string, i: number) => (
-                                          <th key={i}>{h}</th>
+                                          <th key={i} style={{
+                                            border: '1px solid #444',
+                                            padding: '0.5rem',
+                                            background: '#2a2a2a',
+                                          }}>{h}</th>
                                         ))}
                                       </tr>
                                     </thead>
@@ -707,7 +694,10 @@ export default function J369Page() {
                                       {element.data.rows.map((row: any[], i: number) => (
                                         <tr key={i}>
                                           {row.map((cell, j) => (
-                                            <td key={j}>{cell}</td>
+                                            <td key={j} style={{
+                                              border: '1px solid #444',
+                                              padding: '0.5rem',
+                                            }}>{cell}</td>
                                           ))}
                                         </tr>
                                       ))}
@@ -730,7 +720,6 @@ export default function J369Page() {
                           </div>
                         )}
 
-                        {/* منابع (مثل Perplexity) */}
                         {msg.sources && msg.sources.length > 0 && (
                           <div style={styles.sourcesContainer}>
                             <strong>📚 منابع:</strong>
@@ -788,7 +777,6 @@ export default function J369Page() {
         </footer>
       </div>
 
-      {/* استایل‌های گلوبال */}
       <style jsx global>{`
         @keyframes bounce {
           0%, 60%, 100% { transform: translateY(0); }
@@ -881,10 +869,6 @@ const styles = {
     cursor: 'pointer',
     fontSize: '1.2rem',
     borderRadius: '8px',
-    transition: 'all 0.2s',
-    ':hover': {
-      background: 'rgba(255,255,255,0.1)',
-    },
   },
   newChatButton: {
     flex: 1,
@@ -896,11 +880,6 @@ const styles = {
     cursor: 'pointer',
     fontSize: '0.9rem',
     fontWeight: 500,
-    transition: 'all 0.2s',
-    ':hover': {
-      background: '#0055cc',
-      transform: 'scale(1.02)',
-    },
   },
   searchContainer: {
     padding: '1rem',
@@ -914,11 +893,6 @@ const styles = {
     color: '#fff',
     fontSize: '0.9rem',
     outline: 'none',
-    transition: 'all 0.2s',
-    ':focus': {
-      borderColor: '#0066ff',
-      boxShadow: '0 0 0 2px rgba(0,102,255,0.2)',
-    },
   },
   sessionsList: {
     flex: 1,
@@ -934,10 +908,6 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    transition: 'all 0.2s',
-    ':hover': {
-      background: 'rgba(255,255,255,0.1)',
-    },
   },
   activeSession: {
     background: 'rgba(0,102,255,0.2)',
@@ -962,10 +932,6 @@ const styles = {
     cursor: 'pointer',
     padding: '0 0.5rem',
     borderRadius: '4px',
-    transition: 'all 0.2s',
-    ':hover': {
-      background: 'rgba(255,68,68,0.2)',
-    },
   },
   gemsSection: {
     padding: '1rem',
@@ -990,11 +956,6 @@ const styles = {
     cursor: 'pointer',
     fontSize: '0.8rem',
     textAlign: 'left' as const,
-    transition: 'all 0.2s',
-    ':hover': {
-      background: 'rgba(0,102,255,0.2)',
-      borderColor: '#0066ff',
-    },
   },
   activeGem: {
     background: 'rgba(0,102,255,0.3)',
@@ -1028,9 +989,6 @@ const styles = {
     transition: 'opacity 0.3s',
     padding: '0.5rem',
     borderRadius: '8px',
-    ':hover': {
-      background: 'rgba(255,255,255,0.1)',
-    },
   },
   logo: {
     fontSize: '1.5rem',
@@ -1038,10 +996,6 @@ const styles = {
     color: '#fff',
     textDecoration: 'none',
     textShadow: '0 0 10px #0066ff',
-    transition: 'text-shadow 0.3s',
-    ':hover': {
-      textShadow: '0 0 20px #0066ff',
-    },
   },
   headerRight: {
     marginLeft: 'auto',
@@ -1057,18 +1011,12 @@ const styles = {
     cursor: 'pointer',
     padding: '0.3rem 0.8rem',
     fontSize: '0.9rem',
-    transition: 'all 0.2s',
-    ':hover': {
-      background: '#0066ff',
-      borderColor: '#0066ff',
-    },
   },
   badge: {
     background: '#0066ff',
     padding: '0.2rem 0.6rem',
     borderRadius: '20px',
     fontSize: '0.8rem',
-    fontWeight: 500,
   },
   agentsContainer: {
     padding: '1rem',
@@ -1135,12 +1083,7 @@ const styles = {
     color: '#fff',
     cursor: 'pointer',
     fontSize: '0.9rem',
-    transition: 'all 0.2s',
     textAlign: 'left' as const,
-    ':hover': {
-      background: 'rgba(0,102,255,0.2)',
-      borderColor: '#0066ff',
-    },
   },
   messagesList: {
     maxWidth: '800px',
@@ -1246,20 +1189,5 @@ const styles = {
     '& span:nth-child(1)': { animationDelay: '0s' },
     '& span:nth-child(2)': { animationDelay: '0.2s' },
     '& span:nth-child(3)': { animationDelay: '0.4s' },
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    '& th, & td': {
-      border: '1px solid #444',
-      padding: '0.5rem',
-      textAlign: 'left' as const,
-    },
-    '& th': {
-      background: '#2a2a2a',
-    },
-    '& tr:nth-child(even)': {
-      background: 'rgba(255,255,255,0.05)',
-    },
   },
 }
