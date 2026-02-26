@@ -69,3 +69,7 @@
     "openrouter"
   ]
 }
+"react-markdown": "^9.0.1",
+"remark-gfm": "^4.0.0",
+"react-syntax-highlighter": "^15.5.0",
+"@types/react-syntax-highlighter": "^15.5.13"
