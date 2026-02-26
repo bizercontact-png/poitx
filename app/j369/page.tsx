@@ -40,7 +40,6 @@ export default function J369Page() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
 
-  // تشخیص موبایل
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
@@ -53,12 +52,10 @@ export default function J369Page() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // اسکرول خودکار
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // لود سشن‌ها
   useEffect(() => {
     const saved = localStorage.getItem('j369-sessions')
     if (saved) {
@@ -70,7 +67,6 @@ export default function J369Page() {
     }
   }, [])
 
-  // کلیک خارج از سایدبار برای بستن (موبایل)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isMobile && showSidebar && sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
@@ -200,7 +196,7 @@ export default function J369Page() {
 
   return (
     <div style={styles.container}>
-      {/* سایدبار با انیمیشن */}
+      {/* سایدبار */}
       <AnimatePresence>
         {showSidebar && (
           <motion.div
@@ -454,29 +450,10 @@ export default function J369Page() {
         </footer>
       </div>
 
-      {/* استایل‌های گلوبال انیمیشن */}
       <style jsx global>{`
         @keyframes bounce {
           0%, 60%, 100% { transform: translateY(0); }
           30% { transform: translateY(-5px); }
-        }
-        
-        * {
-          scrollbar-width: thin;
-          scrollbar-color: #0066ff rgba(255,255,255,0.1);
-        }
-        
-        *::-webkit-scrollbar {
-          width: 8px;
-        }
-        
-        *::-webkit-scrollbar-track {
-          background: rgba(255,255,255,0.1);
-        }
-        
-        *::-webkit-scrollbar-thumb {
-          background: #0066ff;
-          border-radius: 4px;
         }
       `}</style>
     </div>
@@ -517,10 +494,6 @@ const styles = {
     cursor: 'pointer',
     fontSize: '1.2rem',
     borderRadius: '8px',
-    transition: 'background 0.2s',
-    ':hover': {
-      background: 'rgba(255,255,255,0.1)',
-    },
   },
   newChatButton: {
     flex: 1,
@@ -532,11 +505,6 @@ const styles = {
     cursor: 'pointer',
     fontSize: '0.9rem',
     fontWeight: 500,
-    transition: 'all 0.2s',
-    ':hover': {
-      background: '#0055cc',
-      transform: 'scale(1.02)',
-    },
   },
   searchContainer: {
     padding: '1rem',
@@ -550,11 +518,6 @@ const styles = {
     color: '#fff',
     fontSize: '0.9rem',
     outline: 'none',
-    transition: 'all 0.2s',
-    ':focus': {
-      borderColor: '#0066ff',
-      boxShadow: '0 0 0 2px rgba(0,102,255,0.2)',
-    },
   },
   sessionsList: {
     flex: 1,
@@ -570,10 +533,6 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    transition: 'all 0.2s',
-    ':hover': {
-      background: 'rgba(255,255,255,0.1)',
-    },
   },
   activeSession: {
     background: 'rgba(0,102,255,0.2)',
@@ -598,10 +557,6 @@ const styles = {
     cursor: 'pointer',
     padding: '0 0.5rem',
     borderRadius: '4px',
-    transition: 'all 0.2s',
-    ':hover': {
-      background: 'rgba(255,68,68,0.2)',
-    },
   },
   main: {
     flex: 1,
@@ -631,9 +586,6 @@ const styles = {
     transition: 'opacity 0.3s',
     padding: '0.5rem',
     borderRadius: '8px',
-    ':hover': {
-      background: 'rgba(255,255,255,0.1)',
-    },
   },
   logo: {
     fontSize: '1.5rem',
@@ -641,10 +593,6 @@ const styles = {
     color: '#fff',
     textDecoration: 'none',
     textShadow: '0 0 10px #0066ff',
-    transition: 'text-shadow 0.3s',
-    ':hover': {
-      textShadow: '0 0 20px #0066ff',
-    },
   },
   headerRight: {
     marginLeft: 'auto',
@@ -657,7 +605,6 @@ const styles = {
     padding: '0.2rem 0.6rem',
     borderRadius: '20px',
     fontSize: '0.8rem',
-    fontWeight: 500,
   },
   messagesContainer: {
     flex: 1,
@@ -701,12 +648,7 @@ const styles = {
     color: '#fff',
     cursor: 'pointer',
     fontSize: '0.9rem',
-    transition: 'all 0.2s',
     textAlign: 'left' as const,
-    ':hover': {
-      background: 'rgba(0,102,255,0.2)',
-      borderColor: '#0066ff',
-    },
   },
   messagesList: {
     maxWidth: '800px',
@@ -747,16 +689,6 @@ const styles = {
   messageContent: {
     marginBottom: '0.3rem',
     lineHeight: 1.6,
-    '& p': {
-      margin: '0.5rem 0',
-    },
-    '& pre': {
-      background: '#1e1e1e',
-      padding: '1rem',
-      borderRadius: '8px',
-      overflowX: 'auto' as const,
-      margin: '0.5rem 0',
-    },
   },
   messageFooter: {
     display: 'flex',
