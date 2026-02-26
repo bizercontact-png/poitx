@@ -4,6 +4,10 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { faIR } from 'date-fns/locale'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import GalacticInput from '../components/GalacticInput'
 import AuthStatus from '../components/AuthStatus'
 
@@ -69,6 +73,7 @@ export default function J369Page() {
     setCurrentSessionId(sessionId)
     setMessages([])
     setError(null)
+    // TODO: Load messages from Supabase
   }
 
   const deleteSession = (sessionId: string) => {
@@ -151,6 +156,17 @@ export default function J369Page() {
   const filteredSessions = sessions.filter(s =>
     s.title.toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  // تابع برای ذخیره فایل
+  const downloadFile = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <div style={styles.container}>
@@ -237,12 +253,12 @@ export default function J369Page() {
               </p>
               <div style={styles.suggestions}>
                 {[
-                  'What is POITX Galaxy?',
-                  'Tell me about J_369',
-                  'Help me with coding',
-                  'Write a poem',
-                  'Explain quantum computing',
-                  'Give me a recipe'
+                  'Write a Python function to calculate Fibonacci',
+                  'Create a markdown table with 3 rows',
+                  'Explain quantum computing in simple terms',
+                  'Write a poem about stars',
+                  'Generate a CSS grid layout',
+                  'Create a to-do list app in React'
                 ].map((suggestion, i) => (
                   <button
                     key={i}
@@ -275,9 +291,56 @@ export default function J369Page() {
                     }}
                   >
                     <div style={styles.messageContent}>
-                      {msg.content.split('\n').map((line, j) => (
-                        <p key={j} style={styles.messageText}>{line}</p>
-                      ))}
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          code({ node, inline, className, children, ...props }) {
+                            const match = /language-(\w+)/.exec(className || '')
+                            return !inline && match ? (
+                              <div style={{ position: 'relative' }}>
+                                <SyntaxHighlighter
+                                  style={vscDarkPlus}
+                                  language={match[1]}
+                                  PreTag="div"
+                                  {...props}
+                                >
+                                  {String(children).replace(/\n$/, '')}
+                                </SyntaxHighlighter>
+                                <button
+                                  onClick={() => downloadFile(String(children), `code.${match[1]}`)}
+                                  style={{
+                                    position: 'absolute',
+                                    top: '0.5rem',
+                                    right: '0.5rem',
+                                    padding: '0.2rem 0.5rem',
+                                    background: 'rgba(255,255,255,0.2)',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    color: '#fff',
+                                    cursor: 'pointer',
+                                    fontSize: '0.8rem',
+                                  }}
+                                >
+                                  📥 دانلود
+                                </button>
+                              </div>
+                            ) : (
+                              <code className={className} {...props}>
+                                {children}
+                              </code>
+                            )
+                          },
+                          table({ children }) {
+                            return (
+                              <div style={{ overflowX: 'auto' }}>
+                                <table style={styles.table}>{children}</table>
+                              </div>
+                            )
+                          },
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
                     </div>
                     <div style={styles.messageFooter}>
                       <span style={styles.messageTime}>
@@ -557,6 +620,25 @@ const styles = {
   },
   messageContent: {
     marginBottom: '0.3rem',
+    '& pre': {
+      background: '#1e1e1e',
+      padding: '1rem',
+      borderRadius: '8px',
+      overflowX: 'auto' as const,
+    },
+    '& table': {
+      borderCollapse: 'collapse' as const,
+      width: '100%',
+      margin: '1rem 0',
+    },
+    '& th, & td': {
+      border: '1px solid rgba(255,255,255,0.2)',
+      padding: '0.5rem',
+      textAlign: 'left' as const,
+    },
+    '& th': {
+      background: 'rgba(255,255,255,0.1)',
+    },
   },
   messageText: {
     margin: '0.3rem 0',
@@ -602,5 +684,18 @@ const styles = {
     '& span:nth-child(1)': { animationDelay: '0s' },
     '& span:nth-child(2)': { animationDelay: '0.2s' },
     '& span:nth-child(3)': { animationDelay: '0.4s' },
+  },
+  table: {
+    borderCollapse: 'collapse' as const,
+    width: '100%',
+    margin: '1rem 0',
+    '& th, & td': {
+      border: '1px solid rgba(255,255,255,0.2)',
+      padding: '0.5rem',
+      textAlign: 'left' as const,
+    },
+    '& th': {
+      background: 'rgba(255,255,255,0.1)',
+    },
   },
 }
