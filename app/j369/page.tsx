@@ -199,7 +199,6 @@ export default function J369Page() {
   // ========== Load Session ==========
   const loadSession = (sessionId: string) => {
     setCurrentSessionId(sessionId)
-    // TODO: Load messages from Supabase
     setMessages([])
     if (isMobile) setShowSidebar(false)
   }
@@ -220,7 +219,6 @@ export default function J369Page() {
 
     setError(null)
 
-    // Create file previews for messages
     const filePreviews = files.map(f => ({
       name: f.name,
       url: URL.createObjectURL(f),
@@ -329,7 +327,6 @@ export default function J369Page() {
               zIndex: 200,
             }}
           >
-            {/* Sidebar Header */}
             <div style={styles.sidebarHeader}>
               {isMobile && (
                 <motion.button
@@ -351,7 +348,6 @@ export default function J369Page() {
               </motion.button>
             </div>
 
-            {/* Tabs */}
             <div style={styles.tabContainer}>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -388,7 +384,6 @@ export default function J369Page() {
               </motion.button>
             </div>
 
-            {/* Search */}
             <div style={styles.searchContainer}>
               <span style={styles.searchIcon}>🔍</span>
               <input
@@ -410,7 +405,6 @@ export default function J369Page() {
               )}
             </div>
 
-            {/* Sessions List */}
             <div style={styles.sessionsList}>
               <AnimatePresence>
                 {filteredSessions.map(session => (
@@ -462,7 +456,6 @@ export default function J369Page() {
               </AnimatePresence>
             </div>
 
-            {/* Gems */}
             <div style={styles.gemsSection}>
               <h3 style={styles.gemsTitle}>
                 <span style={styles.gemsIcon}>💎</span>
@@ -490,7 +483,6 @@ export default function J369Page() {
               </div>
             </div>
 
-            {/* Sidebar Footer */}
             <div style={styles.sidebarFooter}>
               <AuthStatus />
             </div>
@@ -498,7 +490,6 @@ export default function J369Page() {
         )}
       </AnimatePresence>
 
-      {/* Resizer */}
       {!isMobile && showSidebar && (
         <div
           ref={resizerRef}
@@ -507,13 +498,11 @@ export default function J369Page() {
         />
       )}
 
-      {/* ========== Main Chat Area ========== */}
       <div style={{
         ...styles.main,
         marginLeft: showSidebar && !isMobile ? `${sidebarWidth}px` : '0',
         width: showSidebar && !isMobile ? `calc(100% - ${sidebarWidth}px)` : '100%',
       }}>
-        {/* Header */}
         <header style={styles.header}>
           {(!showSidebar || isMobile) && (
             <motion.button
@@ -542,7 +531,6 @@ export default function J369Page() {
           </div>
         </header>
 
-        {/* Messages */}
         <main style={styles.messagesContainer}>
           {messages.length === 0 ? (
             <motion.div
@@ -617,7 +605,6 @@ export default function J369Page() {
                         ...(msg.role === 'user' ? styles.userMessage : styles.assistantMessage)
                       }}
                     >
-                      {/* Thinking Process */}
                       {msg.thinking && showThinking && (
                         <div style={styles.thinkingBubble}>
                           <strong>🧠 فرآیند تفکر:</strong>
@@ -627,7 +614,6 @@ export default function J369Page() {
                         </div>
                       )}
 
-                      {/* Files */}
                       {msg.files && msg.files.length > 0 && (
                         <div style={styles.fileList}>
                           {msg.files.map((file, idx) => (
@@ -648,15 +634,14 @@ export default function J369Page() {
                         </div>
                       )}
 
-                      {/* Message Content */}
                       <div style={styles.messageContent}>
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={{
-                            code({ node, inline, className, children, ...props }) {
+                            code({ className, children, ...props }) {
                               const match = /language-(\w+)/.exec(className || '')
                               const codeId = `code-${msg.id}-${Math.random()}`
-                              return !inline && match ? (
+                              return match ? (
                                 <div style={{ position: 'relative' }}>
                                   <SyntaxHighlighter
                                     style={oneDark}
@@ -704,21 +689,6 @@ export default function J369Page() {
                                   <table style={styles.table}>{children}</table>
                                 </div>
                               )
-                            },
-                            p({ children }) {
-                              return <p style={styles.paragraph}>{children}</p>
-                            },
-                            h1({ children }) {
-                              return <h1 style={styles.heading1}>{children}</h1>
-                            },
-                            h2({ children }) {
-                              return <h2 style={styles.heading2}>{children}</h2>
-                            },
-                            ul({ children }) {
-                              return <ul style={styles.list}>{children}</ul>
-                            },
-                            li({ children }) {
-                              return <li style={styles.listItem}>{children}</li>
                             }
                           }}
                         >
@@ -726,7 +696,6 @@ export default function J369Page() {
                         </ReactMarkdown>
                       </div>
 
-                      {/* Sources */}
                       {msg.sources && msg.sources.length > 0 && (
                         <div style={styles.sourcesContainer}>
                           <strong>📚 منابع:</strong>
@@ -738,7 +707,6 @@ export default function J369Page() {
                         </div>
                       )}
 
-                      {/* Message Footer */}
                       <div style={styles.messageFooter}>
                         <span style={styles.messageTime}>
                           {format(msg.createdAt, 'HH:mm')}
@@ -749,7 +717,6 @@ export default function J369Page() {
                 ))}
               </AnimatePresence>
 
-              {/* Loading Indicator */}
               {loading && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -771,7 +738,6 @@ export default function J369Page() {
           )}
         </main>
 
-        {/* Galactic Input */}
         <footer style={styles.footer}>
           <GalacticInput 
             onSubmit={askJ369} 
@@ -791,7 +757,6 @@ export default function J369Page() {
         </footer>
       </div>
 
-      {/* ========== Global Styles ========== */}
       <style jsx global>{`
         @keyframes bounce {
           0%, 60%, 100% { transform: translateY(0); }
@@ -1224,27 +1189,6 @@ const styles = {
     color: '#aaddff',
     textDecoration: 'none',
     fontSize: '0.9rem',
-    ':hover': {
-      textDecoration: 'underline',
-    },
-  },
-  paragraph: {
-    margin: '0.5rem 0',
-  },
-  heading1: {
-    fontSize: '1.8rem',
-    margin: '1rem 0 0.5rem',
-  },
-  heading2: {
-    fontSize: '1.4rem',
-    margin: '0.8rem 0 0.4rem',
-  },
-  list: {
-    margin: '0.5rem 0',
-    paddingLeft: '1.5rem',
-  },
-  listItem: {
-    margin: '0.3rem 0',
   },
   tableWrapper: {
     overflowX: 'auto' as const,
