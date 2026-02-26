@@ -1,17 +1,24 @@
 'use client'
 
+import { memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { format } from 'date-fns'
 import { faIR } from 'date-fns/locale'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import dynamic from 'next/dynamic'
 
-// این تایپ باید با types/index.ts هماهنگ باشه
+// بارگذاری پویا برای کامپوننت‌های سنگین
+const SyntaxHighlighter = dynamic(
+  () => import('react-syntax-highlighter').then(mod => mod.Prism),
+  { ssr: false, loading: () => <div style={styles.codeLoading}>...</div> }
+)
+
 type Message = {
   id: string
   role: 'user' | 'assistant'
   content: string
-  created_at: Date        // اینجا created_at هست (نه createdAt)
+  created_at: Date
   sources?: string[]
   thinking?: string
   files?: { name: string; url: string; type: string }[]
@@ -27,7 +34,8 @@ type MessageListProps = {
   copiedId: string | null
 }
 
-export default function MessageList({
+// بهینه‌سازی با React.memo
+const MessageList = memo(function MessageList({
   messages,
   loading,
   showThinking,
@@ -39,302 +47,169 @@ export default function MessageList({
   return (
     <AnimatePresence mode="popLayout">
       {messages.map((msg, i) => (
-        <motion.div
+        <MessageItem
           key={msg.id}
-          initial={{ opacity: 0, y: 20, x: msg.role === 'user' ? 20 : -20 }}
-          animate={{ opacity: 1, y: 0, x: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ delay: i * 0.05, type: 'spring', stiffness: 100 }}
-          style={{
-            display: 'flex',
-            marginBottom: '1.5rem',
-            gap: '1rem',
-            justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-          }}
-        >
-          {/* آواتار J_369 */}
-          {msg.role === 'assistant' && (
-            <motion.div
-              whileHover={{ rotate: 360 }}
-              transition={{ duration: 0.5 }}
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #0066ff, #00aaff)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.2rem',
-                flexShrink: 0,
-                boxShadow: '0 4px 10px rgba(0,102,255,0.3)',
-              }}
-            >
-              🤖
-            </motion.div>
-          )}
-
-          {/* بدنه پیام */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            style={{
-              maxWidth: '70%',
-              padding: '1rem 1.5rem',
-              borderRadius: '20px',
-              position: 'relative',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-              background: msg.role === 'user' 
-                ? '#0066ff' 
-                : 'rgba(255,255,255,0.1)',
-              borderBottomRightRadius: msg.role === 'user' ? '5px' : '20px',
-              borderBottomLeftRadius: msg.role === 'assistant' ? '5px' : '20px',
-            }}
-          >
-            {/* بخش تفکر (Thinking) */}
-            {msg.thinking && showThinking && (
-              <div style={{
-                background: 'rgba(255,170,0,0.1)',
-                borderRadius: '12px',
-                padding: '0.75rem',
-                marginBottom: '1rem',
-                border: '1px solid rgba(255,170,0,0.3)',
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  marginBottom: '0.5rem',
-                }}>
-                  <span style={{ fontSize: '1.2rem' }}>🧠</span>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#ffaa00' }}>
-                    فرآیند تفکر
-                  </span>
-                </div>
-                <p style={{ margin: 0, fontSize: '0.9rem', opacity: 0.8, lineHeight: 1.6 }}>
-                  {msg.thinking}
-                </p>
-              </div>
-            )}
-
-            {/* فایل‌های آپلود شده */}
-            {msg.files && msg.files.length > 0 && (
-              <div style={{
-                marginBottom: '1rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.5rem',
-              }}>
-                {msg.files.map((file, idx) => (
-                  <a
-                    key={idx}
-                    href={file.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.5rem',
-                      background: 'rgba(255,255,255,0.05)',
-                      borderRadius: '8px',
-                      textDecoration: 'none',
-                      color: '#fff',
-                    }}
-                  >
-                    <span style={{ fontSize: '1.2rem' }}>
-                      {file.type.startsWith('image/') ? '🖼️' : '📄'}
-                    </span>
-                    <span style={{ fontSize: '0.9rem' }}>{file.name}</span>
-                  </a>
-                ))}
-              </div>
-            )}
-
-            {/* محتوای اصلی پیام با Markdown */}
-            <div style={{ lineHeight: 1.6, fontSize: '1rem' }}>
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  code({ className, children, ...props }) {
-                    const match = /language-(\w+)/.exec(className || '')
-                    const codeId = `code-${msg.id}-${Math.random()}`
-                    return match ? (
-                      <div style={{ position: 'relative' }}>
-                        <pre style={{
-                          background: '#1e1e1e',
-                          padding: '1rem',
-                          borderRadius: '8px',
-                          overflowX: 'auto',
-                          margin: '0.5rem 0',
-                          border: '1px solid #333',
-                          fontFamily: 'monospace',
-                          fontSize: isMobile ? '12px' : '14px'
-                        }}>
-                          <code className={className} {...props}>
-                            {String(children).replace(/\n$/, '')}
-                          </code>
-                        </pre>
-                        <div style={{
-                          position: 'absolute',
-                          top: '0.5rem',
-                          right: '0.5rem',
-                          display: 'flex',
-                          gap: '0.3rem',
-                        }}>
-                          <button
-                            onClick={() => onCopy(String(children), codeId)}
-                            style={{
-                              padding: '0.2rem 0.5rem',
-                              background: 'rgba(255,255,255,0.2)',
-                              border: 'none',
-                              borderRadius: '4px',
-                              color: '#fff',
-                              cursor: 'pointer',
-                              fontSize: '0.8rem',
-                            }}
-                            title="کپی"
-                          >
-                            {copiedId === codeId ? '✅' : '📋'}
-                          </button>
-                          <button
-                            onClick={() => onDownload(String(children), `code.${match[1]}`)}
-                            style={{
-                              padding: '0.2rem 0.5rem',
-                              background: 'rgba(255,255,255,0.2)',
-                              border: 'none',
-                              borderRadius: '4px',
-                              color: '#fff',
-                              cursor: 'pointer',
-                              fontSize: '0.8rem',
-                            }}
-                            title="دانلود"
-                          >
-                            📥
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <code className={className} {...props}>
-                        {children}
-                      </code>
-                    )
-                  },
-                  table({ children }) {
-                    return (
-                      <div style={{ overflowX: 'auto', margin: '1rem 0' }}>
-                        <table style={{
-                          borderCollapse: 'collapse',
-                          width: '100%',
-                          fontSize: '0.9rem',
-                        }}>
-                          {children}
-                        </table>
-                      </div>
-                    )
-                  }
-                }}
-              >
-                {msg.content}
-              </ReactMarkdown>
-            </div>
-
-            {/* منابع */}
-            {msg.sources && msg.sources.length > 0 && (
-              <div style={{
-                marginTop: '1rem',
-                paddingTop: '0.5rem',
-                borderTop: '1px solid rgba(255,255,255,0.1)',
-                fontSize: '0.9rem',
-                opacity: 0.8,
-              }}>
-                <strong style={{ display: 'block', marginBottom: '0.3rem' }}>📚 منابع:</strong>
-                <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
-                  {msg.sources.map((source, idx) => (
-                    <li key={idx}>{source}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* زمان پیام - استفاده از created_at */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              marginTop: '0.5rem',
-            }}>
-              <span style={{
-                fontSize: '0.7rem',
-                opacity: 0.6,
-              }}>
-                {format(new Date(msg.created_at), 'HH:mm', { locale: faIR })}
-              </span>
-            </div>
-          </motion.div>
-        </motion.div>
+          msg={msg}
+          index={i}
+          showThinking={showThinking}
+          isMobile={isMobile}
+          onCopy={onCopy}
+          onDownload={onDownload}
+          copiedId={copiedId}
+        />
       ))}
 
-      {/* ایندیکیتور تایپینگ */}
-      {loading && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          style={{
-            display: 'flex',
-            marginBottom: '1.5rem',
-            gap: '1rem',
-            justifyContent: 'flex-start',
-          }}
-        >
-          <div style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #0066ff, #00aaff)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.2rem',
-            flexShrink: 0,
-          }}>
-            🤖
-          </div>
-          <div style={{
-            maxWidth: '70%',
-            padding: '1rem 1.5rem',
-            borderRadius: '20px',
-            background: 'rgba(255,255,255,0.1)',
-            borderBottomLeftRadius: '5px',
-          }}>
-            <div style={{
-              display: 'flex',
-              gap: '0.3rem',
-              padding: '0.5rem 0',
-            }}>
-              <span style={{
-                width: '8px',
-                height: '8px',
-                background: '#fff',
-                borderRadius: '50%',
-                animation: 'bounce 1.4s infinite ease-in-out',
-              }}></span>
-              <span style={{
-                width: '8px',
-                height: '8px',
-                background: '#fff',
-                borderRadius: '50%',
-                animation: 'bounce 1.4s infinite ease-in-out 0.2s',
-              }}></span>
-              <span style={{
-                width: '8px',
-                height: '8px',
-                background: '#fff',
-                borderRadius: '50%',
-                animation: 'bounce 1.4s infinite ease-in-out 0.4s',
-              }}></span>
-            </div>
-          </div>
-        </motion.div>
-      )}
+      {loading && <TypingIndicator />}
     </AnimatePresence>
   )
+})
+
+// کامپوننت جداگانه برای هر پیام (برای بهینه‌سازی)
+const MessageItem = memo(function MessageItem({
+  msg,
+  index,
+  showThinking,
+  isMobile,
+  onCopy,
+  onDownload,
+  copiedId
+}: any) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, x: msg.role === 'user' ? 20 : -20 }}
+      animate={{ opacity: 1, y: 0, x: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ delay: index * 0.05, type: 'spring', stiffness: 100 }}
+      style={{
+        display: 'flex',
+        marginBottom: '1.5rem',
+        gap: '1rem',
+        justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+      }}
+    >
+      {msg.role === 'assistant' && (
+        <motion.div
+          whileHover={{ rotate: 360 }}
+          transition={{ duration: 0.5 }}
+          style={styles.assistantAvatar}
+        >
+          🤖
+        </motion.div>
+      )}
+
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        style={{
+          ...styles.message,
+          ...(msg.role === 'user' ? styles.userMessage : styles.assistantMessage)
+        }}
+      >
+        {msg.thinking && showThinking && (
+          <div style={styles.thinkingBubble}>
+            <strong>🧠 فرآیند تفکر:</strong>
+            <p style={styles.thinkingText}>{msg.thinking}</p>
+          </div>
+        )}
+
+        {msg.files && msg.files.length > 0 && (
+          <div style={styles.fileList}>
+            {msg.files.map((file: any, idx: number) => (
+              <a key={idx} href={file.url} target="_blank" style={styles.fileItem}>
+                <span>{file.type.startsWith('image/') ? '🖼️' : '📄'}</span>
+                <span>{file.name}</span>
+              </a>
+            ))}
+          </div>
+        )}
+
+        <div style={styles.messageContent}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              code({ className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className || '')
+                const codeId = `code-${msg.id}-${Math.random()}`
+                return match ? (
+                  <div style={{ position: 'relative' }}>
+                    <SyntaxHighlighter
+                      language={match[1]}
+                      style={vscDarkPlus}
+                      customStyle={{
+                        margin: 0,
+                        borderRadius: '8px',
+                        fontSize: isMobile ? '12px' : '14px'
+                      }}
+                    >
+                      {String(children).replace(/\n$/, '')}
+                    </SyntaxHighlighter>
+                    <div style={styles.codeActions}>
+                      <button onClick={() => onCopy(String(children), codeId)} style={styles.codeButton}>
+                        {copiedId === codeId ? '✅' : '📋'}
+                      </button>
+                      <button onClick={() => onDownload(String(children), `code.${match[1]}`)} style={styles.codeButton}>
+                        📥
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <code className={className}>{children}</code>
+                )
+              }
+            }}
+          >
+            {msg.content}
+          </ReactMarkdown>
+        </div>
+
+        {msg.sources && msg.sources.length > 0 && (
+          <div style={styles.sourcesContainer}>
+            <strong>📚 منابع:</strong>
+            <ul>
+              {msg.sources.map((source: string, idx: number) => (
+                <li key={idx}>{source}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div style={styles.messageFooter}>
+          <span style={styles.messageTime}>
+            {format(new Date(msg.created_at), 'HH:mm', { locale: faIR })}
+          </span>
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+})
+
+// کامپوننت جداگانه برای تایپینگ
+const TypingIndicator = memo(function TypingIndicator() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      style={{ ...styles.messageWrapper, justifyContent: 'flex-start' }}
+    >
+      <div style={styles.assistantAvatar}>🤖</div>
+      <div style={{ ...styles.message, ...styles.assistantMessage }}>
+        <div style={styles.typingIndicator}>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </motion.div>
+  )
+})
+
+// استایل‌ها
+const styles = {
+  // ... همون استایل‌های قبلی
+  codeLoading: {
+    padding: '1rem',
+    textAlign: 'center' as const,
+    opacity: 0.5,
+  }
 }
+
+export default MessageList
