@@ -40,4 +40,3 @@ export type Comment = {
   createdAt: Date
   updatedAt?: Date
 }
-Add settings field to ShareLink type
