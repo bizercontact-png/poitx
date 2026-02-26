@@ -6,8 +6,6 @@ import { format } from 'date-fns'
 import { faIR } from 'date-fns/locale'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { motion, AnimatePresence } from 'framer-motion'
 import GalacticInput from '../components/GalacticInput'
 import AuthStatus from '../components/AuthStatus'
@@ -643,19 +641,20 @@ export default function J369Page() {
                               const codeId = `code-${msg.id}-${Math.random()}`
                               return match ? (
                                 <div style={{ position: 'relative' }}>
-                                  <SyntaxHighlighter
-                                    style={oneDark as any}
-                                    language={match[1]}
-                                    PreTag="div"
-                                    customStyle={{
-                                      margin: 0,
-                                      borderRadius: '8px',
-                                      fontSize: isMobile ? '12px' : '14px'
-                                    }}
-                                    {...props}
-                                  >
-                                    {String(children).replace(/\n$/, '')}
-                                  </SyntaxHighlighter>
+                                  <pre style={{
+                                    background: '#1e1e1e',
+                                    padding: '1rem',
+                                    borderRadius: '8px',
+                                    overflowX: 'auto',
+                                    margin: '0.5rem 0',
+                                    border: '1px solid #333',
+                                    fontFamily: 'monospace',
+                                    fontSize: isMobile ? '12px' : '14px'
+                                  }}>
+                                    <code className={className} {...props}>
+                                      {String(children).replace(/\n$/, '')}
+                                    </code>
+                                  </pre>
                                   <div style={styles.codeActions}>
                                     <motion.button
                                       whileHover={{ scale: 1.1 }}
@@ -1198,6 +1197,15 @@ const styles = {
     borderCollapse: 'collapse' as const,
     width: '100%',
     fontSize: '0.9rem',
+    '& th, & td': {
+      border: '1px solid rgba(255,255,255,0.2)',
+      padding: '0.5rem',
+      textAlign: 'left' as const,
+    },
+    '& th': {
+      background: 'rgba(255,255,255,0.1)',
+      fontWeight: 600,
+    },
   },
   codeActions: {
     position: 'absolute' as const,
