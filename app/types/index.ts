@@ -22,7 +22,7 @@ export type Session = {
 
 export type Message = {
   id: string
-  session_id: string
+  session_id: string        // توجه: اینجا session_id هست نه sessionId
   role: 'user' | 'assistant'
   content: string
   sources?: string[]
