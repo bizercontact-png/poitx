@@ -17,7 +17,7 @@ export type ShareLink = {
   expiresAt?: Date
   password?: string
   views: number
-  settings: ShareSettings  // اینجا اضافه شد
+  settings: ShareSettings  // این فیلد رو حتماً اضافه کن
   createdAt: Date
 }
 
@@ -40,3 +40,4 @@ export type Comment = {
   createdAt: Date
   updatedAt?: Date
 }
+Add settings field to ShareLink type
