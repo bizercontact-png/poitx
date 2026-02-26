@@ -16,6 +16,18 @@ type Message = {
   content: string
   createdAt: Date
   sessionId?: string
+  sources?: string[]  // برای نمایش منابع (مثل Perplexity)
+  thinking?: string   // برای نمایش فرآیند تفکر (مثل Grok)
+}
+
+type Agent = {
+  name: string
+  role: string
+  status: 'thinking' | 'searching' | 'calculating' | 'creating' | 'done' | 'debating'
+  message?: string
+  color: string
+  icon: string
+  confidence?: number
 }
 
 type Session = {
@@ -23,6 +35,12 @@ type Session = {
   title: string
   createdAt: Date
   lastMessage?: string
+}
+
+type VisualElement = {
+  type: 'chart' | 'timeline' | 'gallery' | 'code' | 'table'
+  data: any
+  layout?: 'grid' | 'list' | 'card'
 }
 
 export default function J369Page() {
@@ -34,10 +52,48 @@ export default function J369Page() {
   const [searchQuery, setSearchQuery] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isMobile, setIsMobile] = useState(false)
+  const [agents, setAgents] = useState<Agent[]>([
+    { 
+      name: 'کاپیتان', 
+      role: 'هماهنگ‌کننده', 
+      status: 'thinking', 
+      color: '#0066ff', 
+      icon: '👨‍✈️',
+      message: 'تحلیل سوال و تقسیم وظایف...'
+    },
+    { 
+      name: 'هارپر', 
+      role: 'محقق', 
+      status: 'searching', 
+      color: '#00aaff', 
+      icon: '🔍',
+      message: 'جستجو در منابع لحظه‌ای...'
+    },
+    { 
+      name: 'بنجامین', 
+      role: 'منطق‌دان', 
+      status: 'calculating', 
+      color: '#aa00ff', 
+      icon: '🧮',
+      message: 'بررسی محاسبات و استدلال...'
+    },
+    { 
+      name: 'لوکاس', 
+      role: 'خلاق', 
+      status: 'creating', 
+      color: '#ffaa00', 
+      icon: '🎨',
+      message: 'ایده‌پردازی خلاقانه...'
+    },
+  ])
+  const [visualElements, setVisualElements] = useState<VisualElement[]>([])
+  const [showThinking, setShowThinking] = useState(true)
+  const [activeTool, setActiveTool] = useState<string | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
 
+  // تشخیص موبایل
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
@@ -50,10 +106,12 @@ export default function J369Page() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  // اسکرول خودکار
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // لود سشن‌ها
   useEffect(() => {
     const saved = localStorage.getItem('j369-sessions')
     if (saved) {
@@ -65,6 +123,7 @@ export default function J369Page() {
     }
   }, [])
 
+  // کلیک خارج از سایدبار
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isMobile && showSidebar && sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
@@ -90,11 +149,13 @@ export default function J369Page() {
     setCurrentSessionId(newSessionId)
     setMessages([])
     setError(null)
+    setVisualElements([])
   }
 
   const loadSession = async (sessionId: string) => {
     setCurrentSessionId(sessionId)
     setMessages([])
+    setVisualElements([])
     setError(null)
     if (isMobile) {
       setShowSidebar(false)
@@ -111,10 +172,98 @@ export default function J369Page() {
     }
   }
 
+  // شبیه‌سازی فرآیند تفکر عوامل (مثل Grok)
+  const simulateAgentThinking = async () => {
+    setAgents(prev => prev.map(agent => ({ ...agent, status: 'thinking' })))
+
+    // کاپیتان تحلیل می‌کنه
+    setTimeout(() => {
+      setAgents(prev => prev.map(agent => 
+        agent.name === 'کاپیتان' 
+          ? { ...agent, status: 'done', message: 'تحلیل کامل شد. وظایف به عوامل دیگر ارسال شد.' }
+          : agent
+      ))
+    }, 1000)
+
+    // هارپر جستجو می‌کنه
+    setTimeout(() => {
+      setAgents(prev => prev.map(agent => 
+        agent.name === 'هارپر' 
+          ? { ...agent, status: 'done', message: '۳ منبع معتبر پیدا شد.' }
+          : agent
+      ))
+    }, 2000)
+
+    // بنجامین محاسبه می‌کنه
+    setTimeout(() => {
+      setAgents(prev => prev.map(agent => 
+        agent.name === 'بنجامین' 
+          ? { ...agent, status: 'done', message: 'محاسبات با دقت ۹۸٪ انجام شد.' }
+          : agent
+      ))
+    }, 1500)
+
+    // لوکاس خلاقیت به خرج می‌ده
+    setTimeout(() => {
+      setAgents(prev => prev.map(agent => 
+        agent.name === 'لوکاس' 
+          ? { ...agent, status: 'done', message: '۲ ایده خلاقانه ارائه شد.' }
+          : agent
+      ))
+    }, 2500)
+
+    // بحث گروهی (مثل Grok)
+    setTimeout(() => {
+      setAgents(prev => prev.map(agent => 
+        agent.name === 'کاپیتان' 
+          ? { ...agent, status: 'debating', message: 'بحث گروهی بین عوامل در حال انجام...' }
+          : { ...agent, status: 'debating', message: 'در حال بحث با سایر عوامل...' }
+      ))
+    }, 3000)
+
+    // پایان بحث
+    setTimeout(() => {
+      setAgents(prev => prev.map(agent => ({ ...agent, status: 'done' })))
+    }, 4000)
+  }
+
+  // شبیه‌سازی Visual Layout (مثل Gemini)
+  const generateVisualLayout = (response: string) => {
+    // تشخیص نوع پاسخ و ایجاد عناصر بصری
+    if (response.includes('جدول') || response.includes('table')) {
+      setVisualElements([
+        {
+          type: 'table',
+          data: {
+            headers: ['ستون ۱', 'ستون ۲', 'ستون ۳'],
+            rows: [
+              ['ردیف ۱', 'داده ۱', 'داده ۲'],
+              ['ردیف ۲', 'داده ۳', 'داده ۴'],
+            ]
+          },
+          layout: 'grid'
+        }
+      ])
+    } else if (response.includes('نمودار') || response.includes('chart')) {
+      setVisualElements([
+        {
+          type: 'chart',
+          data: {
+            labels: ['فروردین', 'اردیبهشت', 'خرداد'],
+            values: [30, 45, 60]
+          },
+          layout: 'card'
+        }
+      ])
+    }
+  }
+
   const askJ369 = async (input: string, files: File[]) => {
     if (!input.trim() || loading) return
 
     setError(null)
+    setVisualElements([])
+    await simulateAgentThinking()
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -144,12 +293,17 @@ export default function J369Page() {
         throw new Error(data.error || 'Unknown error')
       }
 
+      // ایجاد عناصر بصری (مثل Gemini)
+      generateVisualLayout(data.response)
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.response,
         createdAt: new Date(),
-        sessionId: data.sessionId
+        sessionId: data.sessionId,
+        sources: data.sources || ['منبع ۱', 'منبع ۲'], // مثل Perplexity
+        thinking: data.thinking // مثل Grok
       }
 
       setMessages(prev => [...prev, assistantMessage])
@@ -194,7 +348,7 @@ export default function J369Page() {
 
   return (
     <div style={styles.container}>
-      {/* سایدبار */}
+      {/* سایدبار پیشرفته (مثل ChatGPT + Gemini) */}
       <AnimatePresence>
         {showSidebar && (
           <motion.div
@@ -218,6 +372,7 @@ export default function J369Page() {
               </button>
             </div>
 
+            {/* جستجوی پیشرفته در تاریخچه (مثل Gemini) */}
             <div style={styles.searchContainer}>
               <input
                 type="text"
@@ -228,6 +383,7 @@ export default function J369Page() {
               />
             </div>
 
+            {/* لیست سشن‌ها با انیمیشن */}
             <div style={styles.sessionsList}>
               <AnimatePresence>
                 {filteredSessions.map(session => (
@@ -262,6 +418,40 @@ export default function J369Page() {
                 ))}
               </AnimatePresence>
             </div>
+
+            {/* بخش Gems (اپلیکیشن‌های کوچک - مثل Gemini) */}
+            <div style={styles.gemsSection}>
+              <h3 style={styles.gemsTitle}>💎 Gems</h3>
+              <div style={styles.gemsList}>
+                <button 
+                  onClick={() => setActiveTool('recipe')}
+                  style={{
+                    ...styles.gemButton,
+                    ...(activeTool === 'recipe' ? styles.activeGem : {})
+                  }}
+                >
+                  🍳 Recipe Genie
+                </button>
+                <button 
+                  onClick={() => setActiveTool('travel')}
+                  style={{
+                    ...styles.gemButton,
+                    ...(activeTool === 'travel' ? styles.activeGem : {})
+                  }}
+                >
+                  ✈️ Travel Planner
+                </button>
+                <button 
+                  onClick={() => setActiveTool('code')}
+                  style={{
+                    ...styles.gemButton,
+                    ...(activeTool === 'code' ? styles.activeGem : {})
+                  }}
+                >
+                  💻 Code Assistant
+                </button>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -272,7 +462,7 @@ export default function J369Page() {
         marginLeft: showSidebar && !isMobile ? '280px' : '0',
         width: showSidebar && !isMobile ? 'calc(100% - 280px)' : '100%',
       }}>
-        {/* Header */}
+        {/* Header با وضعیت کاربر و Temporary Chat toggle (مثل Gemini) */}
         <header style={styles.header}>
           <button
             onClick={() => setShowSidebar(true)}
@@ -288,10 +478,90 @@ export default function J369Page() {
             🌌 POITX
           </Link>
           <div style={styles.headerRight}>
+            <button 
+              onClick={() => setShowThinking(!showThinking)}
+              style={styles.thinkingToggle}
+              title={showThinking ? 'مخفی کردن تفکر عوامل' : 'نمایش تفکر عوامل'}
+            >
+              🧠
+            </button>
             <AuthStatus />
             <span style={styles.badge}>J_369</span>
           </div>
         </header>
+
+        {/* نمایش زنده عوامل (مثل Grok) - فقط اگه showThinking فعال باشه */}
+        {showThinking && loading && (
+          <div style={styles.agentsContainer}>
+            <AnimatePresence>
+              {agents.map((agent, i) => (
+                <motion.div
+                  key={agent.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ delay: i * 0.1 }}
+                  style={{
+                    ...styles.agentItem,
+                    borderLeft: `3px solid ${agent.color}`,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%' }}>
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      background: agent.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1rem',
+                    }}>
+                      {agent.icon}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <strong>{agent.name}</strong>
+                        <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>
+                          {agent.status === 'done' && '✅'}
+                          {agent.status === 'thinking' && '🤔'}
+                          {agent.status === 'searching' && '🔍'}
+                          {agent.status === 'calculating' && '🧮'}
+                          {agent.status === 'creating' && '🎨'}
+                          {agent.status === 'debating' && '💬'}
+                        </span>
+                      </div>
+                      {agent.message && (
+                        <p style={{ margin: '0.1rem 0 0', fontSize: '0.8rem', opacity: 0.8 }}>
+                          {agent.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  {agent.status !== 'done' && agent.status !== 'debating' && (
+                    <div style={styles.agentProgress}>
+                      <motion.div
+                        animate={{
+                          width: ['0%', '100%'],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: 'linear'
+                        }}
+                        style={{
+                          height: '2px',
+                          background: agent.color,
+                          borderRadius: '1px',
+                        }}
+                      />
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
 
         {/* Messages */}
         <main style={styles.messagesContainer}>
@@ -303,16 +573,16 @@ export default function J369Page() {
             >
               <h1 style={styles.welcomeTitle}>🤖 J_369</h1>
               <p style={styles.welcomeText}>
-                هوش مصنوعی کهکشان POITX. چطور می‌تونم کمک کنم؟
+                هوش مصنوعی کهکشان POITX با معماری چندعاملی. چطور می‌تونم کمک کنم؟
               </p>
               <div style={styles.suggestions}>
                 {[
-                  'Write a Python function to calculate Fibonacci',
-                  'Create a markdown table with 3 rows',
-                  'Explain quantum computing in simple terms',
-                  'Write a poem about stars',
-                  'Generate a CSS grid layout',
-                  'Create a to-do list app in React'
+                  'تحقیق عمیق درباره هوش مصنوعی',
+                  'برنامه‌نویسی یک اپ React',
+                  'تحلیل داده‌های فروش',
+                  'شعر کهکشانی',
+                  'برنامه سفر به مریخ',
+                  'جدول مقایسه غول‌های AI'
                 ].map((suggestion, i) => (
                   <motion.button
                     key={i}
@@ -350,6 +620,17 @@ export default function J369Page() {
                       }}
                     >
                       <div style={styles.messageContent}>
+                        {/* نمایش فرآیند تفکر (مثل Grok) - اگه وجود داشت */}
+                        {msg.thinking && showThinking && (
+                          <div style={styles.thinkingBubble}>
+                            <strong>🧠 فرآیند تفکر:</strong>
+                            <p style={{ margin: '0.3rem 0', fontSize: '0.9rem', opacity: 0.8 }}>
+                              {msg.thinking}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* محتوای اصلی با Markdown */}
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={{
@@ -407,6 +688,59 @@ export default function J369Page() {
                         >
                           {msg.content}
                         </ReactMarkdown>
+
+                        {/* عناصر بصری (مثل Gemini) */}
+                        {msg.role === 'assistant' && visualElements.length > 0 && (
+                          <div style={styles.visualContainer}>
+                            {visualElements.map((element, idx) => (
+                              <div key={idx} style={styles.visualElement}>
+                                {element.type === 'table' && (
+                                  <table style={styles.table}>
+                                    <thead>
+                                      <tr>
+                                        {element.data.headers.map((h: string, i: number) => (
+                                          <th key={i}>{h}</th>
+                                        ))}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {element.data.rows.map((row: any[], i: number) => (
+                                        <tr key={i}>
+                                          {row.map((cell, j) => (
+                                            <td key={j}>{cell}</td>
+                                          ))}
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                )}
+                                {element.type === 'chart' && (
+                                  <div style={{
+                                    background: 'rgba(0,0,0,0.2)',
+                                    padding: '1rem',
+                                    borderRadius: '8px',
+                                  }}>
+                                    <p style={{ textAlign: 'center' }}>
+                                      📊 {element.data.labels.join(' - ')}: {element.data.values.join(', ')}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* منابع (مثل Perplexity) */}
+                        {msg.sources && msg.sources.length > 0 && (
+                          <div style={styles.sourcesContainer}>
+                            <strong>📚 منابع:</strong>
+                            <ul style={{ margin: '0.3rem 0', fontSize: '0.9rem' }}>
+                              {msg.sources.map((source, idx) => (
+                                <li key={idx}>{source}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
                       <div style={styles.messageFooter}>
                         <span style={styles.messageTime}>
@@ -454,30 +788,59 @@ export default function J369Page() {
         </footer>
       </div>
 
+      {/* استایل‌های گلوبال */}
       <style jsx global>{`
         @keyframes bounce {
           0%, 60%, 100% { transform: translateY(0); }
           30% { transform: translateY(-5px); }
         }
+        
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
         pre {
           margin: 0.5rem 0 !important;
         }
+        
         code {
           font-family: 'Fira Code', 'Courier New', monospace !important;
           font-size: 0.9rem !important;
         }
+        
         table {
           width: 100%;
           border-collapse: collapse;
           margin: 1rem 0;
         }
+        
         th, td {
           border: 1px solid #444;
           padding: 0.5rem;
           text-align: left;
         }
+        
         th {
           background: #2a2a2a;
+        }
+
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: #0066ff rgba(255,255,255,0.1);
+        }
+        
+        *::-webkit-scrollbar {
+          width: 8px;
+        }
+        
+        *::-webkit-scrollbar-track {
+          background: rgba(255,255,255,0.1);
+        }
+        
+        *::-webkit-scrollbar-thumb {
+          background: #0066ff;
+          border-radius: 4px;
         }
       `}</style>
     </div>
@@ -518,6 +881,10 @@ const styles = {
     cursor: 'pointer',
     fontSize: '1.2rem',
     borderRadius: '8px',
+    transition: 'all 0.2s',
+    ':hover': {
+      background: 'rgba(255,255,255,0.1)',
+    },
   },
   newChatButton: {
     flex: 1,
@@ -529,6 +896,11 @@ const styles = {
     cursor: 'pointer',
     fontSize: '0.9rem',
     fontWeight: 500,
+    transition: 'all 0.2s',
+    ':hover': {
+      background: '#0055cc',
+      transform: 'scale(1.02)',
+    },
   },
   searchContainer: {
     padding: '1rem',
@@ -542,6 +914,11 @@ const styles = {
     color: '#fff',
     fontSize: '0.9rem',
     outline: 'none',
+    transition: 'all 0.2s',
+    ':focus': {
+      borderColor: '#0066ff',
+      boxShadow: '0 0 0 2px rgba(0,102,255,0.2)',
+    },
   },
   sessionsList: {
     flex: 1,
@@ -557,6 +934,10 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    transition: 'all 0.2s',
+    ':hover': {
+      background: 'rgba(255,255,255,0.1)',
+    },
   },
   activeSession: {
     background: 'rgba(0,102,255,0.2)',
@@ -581,6 +962,43 @@ const styles = {
     cursor: 'pointer',
     padding: '0 0.5rem',
     borderRadius: '4px',
+    transition: 'all 0.2s',
+    ':hover': {
+      background: 'rgba(255,68,68,0.2)',
+    },
+  },
+  gemsSection: {
+    padding: '1rem',
+    borderTop: '1px solid rgba(255,255,255,0.1)',
+  },
+  gemsTitle: {
+    fontSize: '0.9rem',
+    margin: '0 0 0.5rem',
+    color: '#aaddff',
+  },
+  gemsList: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '0.3rem',
+  },
+  gemButton: {
+    padding: '0.5rem',
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '6px',
+    color: '#fff',
+    cursor: 'pointer',
+    fontSize: '0.8rem',
+    textAlign: 'left' as const,
+    transition: 'all 0.2s',
+    ':hover': {
+      background: 'rgba(0,102,255,0.2)',
+      borderColor: '#0066ff',
+    },
+  },
+  activeGem: {
+    background: 'rgba(0,102,255,0.3)',
+    borderColor: '#0066ff',
   },
   main: {
     flex: 1,
@@ -610,6 +1028,9 @@ const styles = {
     transition: 'opacity 0.3s',
     padding: '0.5rem',
     borderRadius: '8px',
+    ':hover': {
+      background: 'rgba(255,255,255,0.1)',
+    },
   },
   logo: {
     fontSize: '1.5rem',
@@ -617,6 +1038,10 @@ const styles = {
     color: '#fff',
     textDecoration: 'none',
     textShadow: '0 0 10px #0066ff',
+    transition: 'text-shadow 0.3s',
+    ':hover': {
+      textShadow: '0 0 20px #0066ff',
+    },
   },
   headerRight: {
     marginLeft: 'auto',
@@ -624,11 +1049,49 @@ const styles = {
     alignItems: 'center',
     gap: '1rem',
   },
+  thinkingToggle: {
+    background: 'rgba(255,255,255,0.1)',
+    border: '1px solid rgba(255,255,255,0.2)',
+    borderRadius: '20px',
+    color: '#fff',
+    cursor: 'pointer',
+    padding: '0.3rem 0.8rem',
+    fontSize: '0.9rem',
+    transition: 'all 0.2s',
+    ':hover': {
+      background: '#0066ff',
+      borderColor: '#0066ff',
+    },
+  },
   badge: {
     background: '#0066ff',
     padding: '0.2rem 0.6rem',
     borderRadius: '20px',
     fontSize: '0.8rem',
+    fontWeight: 500,
+  },
+  agentsContainer: {
+    padding: '1rem',
+    background: 'rgba(0,0,0,0.3)',
+    borderBottom: '1px solid rgba(255,255,255,0.1)',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '0.5rem',
+  },
+  agentItem: {
+    padding: '0.75rem',
+    background: 'rgba(255,255,255,0.05)',
+    borderRadius: '8px',
+    position: 'relative' as const,
+  },
+  agentProgress: {
+    position: 'absolute' as const,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '2px',
+    background: 'rgba(255,255,255,0.1)',
+    overflow: 'hidden',
   },
   messagesContainer: {
     flex: 1,
@@ -672,7 +1135,12 @@ const styles = {
     color: '#fff',
     cursor: 'pointer',
     fontSize: '0.9rem',
+    transition: 'all 0.2s',
     textAlign: 'left' as const,
+    ':hover': {
+      background: 'rgba(0,102,255,0.2)',
+      borderColor: '#0066ff',
+    },
   },
   messagesList: {
     maxWidth: '800px',
@@ -714,6 +1182,31 @@ const styles = {
     marginBottom: '0.3rem',
     lineHeight: 1.6,
   },
+  thinkingBubble: {
+    background: 'rgba(0,0,0,0.3)',
+    padding: '0.5rem',
+    borderRadius: '8px',
+    marginBottom: '0.5rem',
+    borderLeft: '3px solid #ffaa00',
+  },
+  visualContainer: {
+    marginTop: '1rem',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '1rem',
+  },
+  visualElement: {
+    background: 'rgba(0,0,0,0.2)',
+    borderRadius: '8px',
+    overflow: 'hidden',
+  },
+  sourcesContainer: {
+    marginTop: '0.5rem',
+    paddingTop: '0.5rem',
+    borderTop: '1px solid rgba(255,255,255,0.1)',
+    fontSize: '0.9rem',
+    opacity: 0.8,
+  },
   messageFooter: {
     display: 'flex',
     justifyContent: 'flex-end',
@@ -753,5 +1246,20 @@ const styles = {
     '& span:nth-child(1)': { animationDelay: '0s' },
     '& span:nth-child(2)': { animationDelay: '0.2s' },
     '& span:nth-child(3)': { animationDelay: '0.4s' },
+  },
+  table: {
+    width: '100%',
+    borderCollapse: 'collapse',
+    '& th, & td': {
+      border: '1px solid #444',
+      padding: '0.5rem',
+      textAlign: 'left' as const,
+    },
+    '& th': {
+      background: '#2a2a2a',
+    },
+    '& tr:nth-child(even)': {
+      background: 'rgba(255,255,255,0.05)',
+    },
   },
 }
