@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { Message, Session, UserProfile } from '../types'
+import { Message, Session, UserProfile, FileAttachment } from '../types'
 
 // ========== مدیریت پروفایل کاربر ==========
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
@@ -62,7 +62,7 @@ export async function getUserSessions(userId: string): Promise<Session[]> {
     return []
   }
 
-  return data
+  return data || []
 }
 
 export async function getSessionMessages(sessionId: string): Promise<Message[]> {
@@ -77,10 +77,16 @@ export async function getSessionMessages(sessionId: string): Promise<Message[]> 
     return []
   }
 
-  return data
+  return data || []
 }
 
-export async function saveMessage(message: Omit<Message, 'id' | 'created_at'>) {
+export async function saveMessage(message: {
+  sessionId: string
+  role: 'user' | 'assistant'
+  content: string
+  sources?: string[]
+  thinking?: string
+}) {
   const { error } = await supabase
     .from('messages')
     .insert({
@@ -120,4 +126,44 @@ export async function updateSessionTitle(sessionId: string, title: string) {
     console.error('Error updating session title:', error)
     throw error
   }
+}
+
+// ========== مدیریت فایل‌ها ==========
+export async function saveFileAttachment(file: {
+  messageId: string
+  name: string
+  url: string
+  type: string
+  size: number
+}) {
+  const { error } = await supabase
+    .from('files')
+    .insert({
+      message_id: file.messageId,
+      name: file.name,
+      url: file.url,
+      type: file.type,
+      size: file.size,
+      created_at: new Date().toISOString()
+    })
+
+  if (error) {
+    console.error('Error saving file:', error)
+    throw error
+  }
+}
+
+export async function getMessageFiles(messageId: string): Promise<FileAttachment[]> {
+  const { data, error } = await supabase
+    .from('files')
+    .select('*')
+    .eq('message_id', messageId)
+    .order('created_at', { ascending: true })
+
+  if (error) {
+    console.error('Error fetching files:', error)
+    return []
+  }
+
+  return data || []
 }
