@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { faIR } from 'date-fns/locale'
@@ -8,45 +8,29 @@ import { motion, AnimatePresence } from 'framer-motion'
 import GalacticInput from '../components/GalacticInput'
 import AuthStatus from '../components/AuthStatus'
 import MessageList from '../components/MessageList'
-
-// ========== Types ==========
-type Message = {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  createdAt: Date
-  sources?: string[]
-  thinking?: string
-  files?: { name: string; url: string; type: string }[]
-}
-
-type Session = {
-  id: string
-  title: string
-  createdAt: Date
-  type: 'chat' | 'project'
-  tags?: string[]
-  messages?: Message[]
-}
-
-type Gem = {
-  id: string
-  name: string
-  icon: string
-  description: string
-  color: string
-  prompt: string
-}
+import { useSessions } from '../hooks/useSessions'
+import { useAuth } from '../hooks/useAuth'
+import { Gem } from '../types'
 
 export default function J369Page() {
-  // ========== State ==========
-  const [messages, setMessages] = useState<Message[]>([])
-  const [loading, setLoading] = useState(false)
-  const [sessions, setSessions] = useState<Session[]>([])
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
+  // ========== Hooks ==========
+  const { user } = useAuth()
+  const {
+    sessions,
+    currentSessionId,
+    messages,
+    loading: sessionsLoading,
+    createNewSession,
+    loadSession,
+    deleteSession,
+    addMessage
+  } = useSessions()
+
+  // ========== Local State ==========
+  const [aiLoading, setAiLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [showSidebar, setShowSidebar] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [error, setError] = useState<string | null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [isTablet, setIsTablet] = useState(false)
   const [sidebarWidth, setSidebarWidth] = useState(280)
@@ -55,7 +39,7 @@ export default function J369Page() {
   const [showThinking, setShowThinking] = useState(true)
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
-  // ========== Gems (اپلیکیشن‌های کوچک) ==========
+  // ========== Gems ==========
   const gems: Gem[] = [
     { 
       id: '1', 
@@ -155,83 +139,22 @@ export default function J369Page() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [isMobile, showSidebar])
 
-  // ========== Load Sessions ==========
-  useEffect(() => {
-    const saved = localStorage.getItem('j369-sessions')
-    if (saved) {
-      try {
-        setSessions(JSON.parse(saved))
-      } catch (e) {
-        console.error('Failed to parse sessions', e)
-      }
-    } else {
-      const demoSessions: Session[] = [
-        { id: '1', title: 'تحقیق درباره سیاه‌چاله‌ها', createdAt: new Date(), type: 'project', tags: ['فضا', 'فیزیک'] },
-        { id: '2', title: 'برنامه React', createdAt: new Date(Date.now() - 3600000), type: 'project', tags: ['کدنویسی', 'React'] },
-        { id: '3', title: 'سفر به مریخ', createdAt: new Date(Date.now() - 7200000), type: 'chat', tags: ['سفر', 'فضا'] },
-      ]
-      setSessions(demoSessions)
-      localStorage.setItem('j369-sessions', JSON.stringify(demoSessions))
-    }
-  }, [])
-
-  // ========== Create New Chat ==========
-  const createNewChat = useCallback(() => {
-    const newSessionId = Date.now().toString()
-    const newSession: Session = {
-      id: newSessionId,
-      title: 'چت جدید ' + format(new Date(), 'yyyy/MM/dd HH:mm'),
-      createdAt: new Date(),
-      type: 'chat',
-      messages: []
-    }
-
-    setSessions(prev => [newSession, ...prev])
-    localStorage.setItem('j369-sessions', JSON.stringify([newSession, ...sessions]))
-    setCurrentSessionId(newSessionId)
-    setMessages([])
-    if (isMobile) setShowSidebar(false)
-  }, [sessions, isMobile])
-
-  // ========== Load Session ==========
-  const loadSession = (sessionId: string) => {
-    setCurrentSessionId(sessionId)
-    setMessages([])
-    if (isMobile) setShowSidebar(false)
-  }
-
-  // ========== Delete Session ==========
-  const deleteSession = (sessionId: string) => {
-    const filtered = sessions.filter(s => s.id !== sessionId)
-    setSessions(filtered)
-    localStorage.setItem('j369-sessions', JSON.stringify(filtered))
-    if (currentSessionId === sessionId) {
-      createNewChat()
-    }
-  }
-
   // ========== Ask J_369 ==========
   const askJ369 = async (input: string, files: File[]) => {
-    if (!input.trim() || loading) return
+    if (!input.trim() || aiLoading) return
 
     setError(null)
 
-    const filePreviews = files.map(f => ({
-      name: f.name,
-      url: URL.createObjectURL(f),
-      type: f.type
-    }))
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: input,
-      createdAt: new Date(),
-      files: filePreviews
+    // اگر سشن نداریم، ایجاد کن
+    if (!currentSessionId) {
+      const newSession = await createNewSession('chat')
+      if (!newSession) return
     }
 
-    setMessages(prev => [...prev, userMessage])
-    setLoading(true)
+    // ذخیره پیام کاربر
+    await addMessage('user', input)
+
+    setAiLoading(true)
 
     try {
       const res = await fetch('/api/j369', {
@@ -248,25 +171,18 @@ export default function J369Page() {
 
       if (!res.ok) throw new Error(data.error)
 
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: data.response,
-        createdAt: new Date(),
-        sources: data.sources,
-        thinking: data.thinking
-      }
-
-      setMessages(prev => [...prev, assistantMessage])
-
-      if (!currentSessionId) {
-        createNewChat()
-      }
+      // ذخیره پاسخ J_369
+      await addMessage(
+        'assistant',
+        data.response,
+        data.sources,
+        data.thinking
+      )
 
     } catch (error) {
       setError('خطا در ارتباط با J_369')
     } finally {
-      setLoading(false)
+      setAiLoading(false)
     }
   }
 
@@ -308,7 +224,7 @@ export default function J369Page() {
 
   return (
     <div style={styles.container}>
-      {/* ========== Sidebar هوشمند (ChatGPT + Gemini) ========== */}
+      {/* ========== Sidebar ========== */}
       <AnimatePresence>
         {showSidebar && (
           <motion.div
@@ -324,7 +240,6 @@ export default function J369Page() {
               zIndex: 200,
             }}
           >
-            {/* Header سایدبار */}
             <div style={styles.sidebarHeader}>
               {isMobile && (
                 <motion.button
@@ -339,14 +254,13 @@ export default function J369Page() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={createNewChat}
+                onClick={() => createNewSession('chat')}
                 style={styles.newChatButton}
               >
                 + New Chat
               </motion.button>
             </div>
 
-            {/* تب‌های دسته‌بندی */}
             <div style={styles.tabContainer}>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -383,7 +297,6 @@ export default function J369Page() {
               </motion.button>
             </div>
 
-            {/* جستجوی پیشرفته */}
             <div style={styles.searchContainer}>
               <span style={styles.searchIcon}>🔍</span>
               <input
@@ -405,7 +318,6 @@ export default function J369Page() {
               )}
             </div>
 
-            {/* لیست سشن‌ها */}
             <div style={styles.sessionsList}>
               <AnimatePresence>
                 {filteredSessions.map(session => (
@@ -428,7 +340,7 @@ export default function J369Page() {
                       </div>
                       <div style={styles.sessionMeta}>
                         <span style={styles.sessionDate}>
-                          {format(session.createdAt, 'HH:mm')}
+                          {format(new Date(session.created_at), 'HH:mm')}
                         </span>
                         {session.tags && session.tags.length > 0 && (
                           <div style={styles.tagContainer}>
@@ -457,7 +369,6 @@ export default function J369Page() {
               </AnimatePresence>
             </div>
 
-            {/* Gems - اپلیکیشن‌های کوچک */}
             <div style={styles.gemsSection}>
               <h3 style={styles.gemsTitle}>
                 <span style={styles.gemsIcon}>💎</span>
@@ -485,7 +396,6 @@ export default function J369Page() {
               </div>
             </div>
 
-            {/* Footer با وضعیت کاربر */}
             <div style={styles.sidebarFooter}>
               <AuthStatus />
             </div>
@@ -493,7 +403,6 @@ export default function J369Page() {
         )}
       </AnimatePresence>
 
-      {/* Resizer برای سایدبار */}
       {!isMobile && showSidebar && (
         <div
           ref={resizerRef}
@@ -502,13 +411,11 @@ export default function J369Page() {
         />
       )}
 
-      {/* ========== Main Chat Area ========== */}
       <div style={{
         ...styles.main,
         marginLeft: showSidebar && !isMobile ? `${sidebarWidth}px` : '0',
         width: showSidebar && !isMobile ? `calc(100% - ${sidebarWidth}px)` : '100%',
       }}>
-        {/* Header */}
         <header style={styles.header}>
           {(!showSidebar || isMobile) && (
             <motion.button
@@ -524,7 +431,6 @@ export default function J369Page() {
             <span style={styles.logoText}>🌌 POITX</span>
           </Link>
           <div style={styles.headerRight}>
-            {/* دکمه نمایش/مخفی کردن تفکر (Thinking) */}
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -538,10 +444,16 @@ export default function J369Page() {
           </div>
         </header>
 
-        {/* Messages Container */}
         <main style={styles.messagesContainer}>
-          {messages.length === 0 ? (
-            // صفحه خوش‌آمدگویی
+          {!user ? (
+            <div style={styles.loginPrompt}>
+              <h2 style={styles.loginTitle}>به کهکشان POITX خوش آمدید</h2>
+              <p style={styles.loginText}>برای شروع گفتگو با J_369 وارد شوید</p>
+              <Link href="/login" style={styles.loginButton}>
+                ورود / عضویت
+              </Link>
+            </div>
+          ) : messages.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -585,11 +497,10 @@ export default function J369Page() {
               </div>
             </motion.div>
           ) : (
-            // لیست پیام‌ها
             <>
               <MessageList
                 messages={messages}
-                loading={loading}
+                loading={aiLoading}
                 showThinking={showThinking}
                 isMobile={isMobile}
                 onCopy={copyToClipboard}
@@ -601,27 +512,27 @@ export default function J369Page() {
           )}
         </main>
 
-        {/* Galactic Input - ورودی کهکشانی */}
-        <footer style={styles.footer}>
-          <GalacticInput 
-            onSubmit={askJ369} 
-            loading={loading}
-            placeholder="برای J_369 بنویس... (فایل هم می‌تونی آپلود کنی)"
-            maxLength={4000}
-          />
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              style={styles.errorMessage}
-            >
-              ⚠️ {error}
-            </motion.div>
-          )}
-        </footer>
+        {user && (
+          <footer style={styles.footer}>
+            <GalacticInput 
+              onSubmit={askJ369} 
+              loading={aiLoading}
+              placeholder="برای J_369 بنویس... (فایل هم می‌تونی آپلود کنی)"
+              maxLength={4000}
+            />
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={styles.errorMessage}
+              >
+                ⚠️ {error}
+              </motion.div>
+            )}
+          </footer>
+        )}
       </div>
 
-      {/* ========== Global Styles ========== */}
       <style jsx global>{`
         @keyframes bounce {
           0%, 60%, 100% { transform: translateY(0); }
@@ -940,6 +851,37 @@ const styles = {
     flex: 1,
     overflowY: 'auto' as const,
     padding: '2rem',
+  },
+  loginPrompt: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '1rem',
+    textAlign: 'center' as const,
+  },
+  loginTitle: {
+    fontSize: '2rem',
+    margin: 0,
+    background: 'linear-gradient(135deg, #fff, #aaddff)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+  },
+  loginText: {
+    fontSize: '1.1rem',
+    color: 'rgba(255,255,255,0.7)',
+  },
+  loginButton: {
+    padding: '0.8rem 2rem',
+    background: '#0066ff',
+    border: 'none',
+    borderRadius: '30px',
+    color: '#fff',
+    textDecoration: 'none',
+    fontSize: '1rem',
+    fontWeight: 500,
+    marginTop: '1rem',
   },
   welcomeContainer: {
     height: '100%',
