@@ -10,6 +10,7 @@ function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -38,6 +39,25 @@ function LoginForm() {
     }
   }
 
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true)
+    setError(null)
+
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/j369',
+        }
+      })
+
+      if (error) throw error
+    } catch (error: any) {
+      setError(error.message)
+      setGoogleLoading(false)
+    }
+  }
+
   return (
     <div style={styles.card}>
       <h1 style={styles.title}>ورود به کهکشان 🌌</h1>
@@ -54,6 +74,30 @@ function LoginForm() {
           ⚠️ {error}
         </div>
       )}
+
+      {/* دکمه ورود با گوگل */}
+      <button
+        onClick={handleGoogleLogin}
+        disabled={googleLoading}
+        style={styles.googleButton}
+      >
+        {googleLoading ? (
+          'در حال اتصال...'
+        ) : (
+          <>
+            <img 
+              src="https://www.google.com/favicon.ico" 
+              alt="Google" 
+              style={{ width: '20px', height: '20px', marginLeft: '8px' }}
+            />
+            ورود با گوگل
+          </>
+        )}
+      </button>
+
+      <div style={styles.divider}>
+        <span style={styles.dividerText}>یا</span>
+      </div>
 
       <form onSubmit={handleLogin} style={styles.form}>
         <div style={styles.inputGroup}>
@@ -88,7 +132,7 @@ function LoginForm() {
             ...(loading ? styles.buttonDisabled : {})
           }}
         >
-          {loading ? 'در حال ورود...' : '🚀 ورود'}
+          {loading ? 'در حال ورود...' : '🚀 ورود با ایمیل'}
         </button>
       </form>
 
@@ -148,6 +192,34 @@ const styles = {
     color: 'rgba(255,255,255,0.7)',
     marginBottom: '2rem',
   },
+  googleButton: {
+    width: '100%',
+    padding: '0.8rem',
+    borderRadius: '8px',
+    border: '1px solid rgba(255,255,255,0.2)',
+    background: 'rgba(255,255,255,0.1)',
+    color: '#fff',
+    fontSize: '1rem',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    marginBottom: '1rem',
+    transition: 'all 0.2s',
+  },
+  divider: {
+    position: 'relative' as const,
+    textAlign: 'center' as const,
+    margin: '1rem 0',
+  },
+  dividerText: {
+    background: '#0a0f1e',
+    padding: '0 1rem',
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: '0.9rem',
+  },
   form: {
     display: 'flex',
     flexDirection: 'column' as const,
@@ -198,7 +270,7 @@ const styles = {
   success: {
     padding: '0.8rem',
     background: 'rgba(0,255,0,0.1)',
-    border: '1px solid rgba(0,255,0,0.3)',
+    border: '1px solid rgba(255,0,255,0.3)',
     borderRadius: '8px',
     color: '#66ff66',
     marginBottom: '1rem',
