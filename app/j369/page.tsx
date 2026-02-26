@@ -644,7 +644,7 @@ export default function J369Page() {
                               return match ? (
                                 <div style={{ position: 'relative' }}>
                                   <SyntaxHighlighter
-                                    style={oneDark}
+                                    style={oneDark as any}
                                     language={match[1]}
                                     PreTag="div"
                                     customStyle={{
