@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 
-type SearchResult = {
+export type SearchResult = {
   title: string
   link: string
   snippet: string
@@ -49,6 +49,6 @@ export function useSearch() {
     loading,
     error,
     search,
-    clearResults  // اسم تابع اینه
+    clearResults  // اینجا clearResults هست، نه clearSearch
   }
 }
