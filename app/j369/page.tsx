@@ -27,7 +27,14 @@ export default function J369Page() {
     deleteSession,
     addMessage
   } = useSessions()
-  const { results: searchResults, loading: searchLoading, search: performSearch, clearSearch } = useSearch()
+  
+  // اصلاح شده: clearResults رو به clearSearch alias کردیم
+  const { 
+    results: searchResults, 
+    loading: searchLoading, 
+    search: performSearch, 
+    clearResults: clearSearch  // اینجا alias کردیم
+  } = useSearch()
 
   // ========== Local State ==========
   const [aiLoading, setAiLoading] = useState(false)
@@ -207,7 +214,7 @@ export default function J369Page() {
     const prompt = `بر اساس این منبع: ${result.title}\n${result.link}\n${result.snippet}\n\nلطفاً خلاصه‌ای از این مطلب ارائه بده.`
     await addMessage('user', prompt)
     setShowSearch(false)
-    clearSearch()
+    clearSearch()  // اینجا از clearSearch استفاده می‌کنیم که alias شده
   }
 
   // ========== Handle Gem Click ==========
