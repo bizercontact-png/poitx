@@ -3,49 +3,47 @@ import Link from 'next/link'
 export default function Home() {
   return (
     <main style={styles.main}>
-      {/* پس‌زمینه ستاره‌ای */}
-      <div style={styles.stars}></div>
-      
-      {/* محتوای اصلی */}
       <div style={styles.container}>
-        {/* لوگو و نام کهکشان */}
-        <div style={styles.logoContainer}>
-          <h1 style={styles.logo}>🌌 POITX</h1>
-          <div style={styles.logoGlow}></div>
-        </div>
+        {/* لوگو - بدون شعار */}
+        <h1 style={styles.logo}>POITX</h1>
         
-        {/* شعار کهکشانی */}
-        <h2 style={styles.title}>
-          کهکشان هوش مصنوعی
-        </h2>
-        <p style={styles.subtitle}>
-          با J_369، هوشمندترین دستیار کهکشانی
+        {/* توضیح کوتاه - دقیقاً مثل Alphabet */}
+        <p style={styles.description}>
+          POITX is a collection of companies building the future of artificial intelligence.
         </p>
         
-        {/* دکمه‌های اصلی */}
-        <div style={styles.buttonContainer}>
-          <Link href="/j369" style={{ ...styles.button, ...styles.primaryButton }}>
-            🚀 شروع کن
-          </Link>
-          <Link href="/about" style={{ ...styles.button, ...styles.secondaryButton }}>
-            ⚡ درباره کهکشان
-          </Link>
+        {/* خط جداکننده */}
+        <hr style={styles.divider} />
+        
+        {/* لیست شرکت‌ها - مثل Alphabet */}
+        <div style={styles.companies}>
+          <h2 style={styles.sectionTitle}>Companies</h2>
+          
+          <div style={styles.companyList}>
+            {/* J_369 - برجسته‌ترین */}
+            <Link href="/j369" style={styles.companyCard}>
+              <div style={styles.companyName}>J_369</div>
+              <div style={styles.companyDesc}>Artificial Intelligence</div>
+            </Link>
+            
+            {/* نمونه بقیه (برای آینده) */}
+            <div style={{...styles.companyCard, opacity: 0.5}}>
+              <div style={styles.companyName}>POITX Cloud</div>
+              <div style={styles.companyDesc}>Cloud Computing</div>
+            </div>
+            
+            <div style={{...styles.companyCard, opacity: 0.5}}>
+              <div style={styles.companyName}>POITX Ventures</div>
+              <div style={styles.companyDesc}>Investments</div>
+            </div>
+          </div>
         </div>
         
-        {/* آمار کهکشانی */}
-        <div style={styles.statsContainer}>
-          <div style={styles.stat}>
-            <span style={styles.statNumber}>∞</span>
-            <span style={styles.statLabel}>امکانات</span>
-          </div>
-          <div style={styles.stat}>
-            <span style={styles.statNumber}>J_369</span>
-            <span style={styles.statLabel}>هوش مصنوعی</span>
-          </div>
-          <div style={styles.stat}>
-            <span style={styles.statNumber}>۷B+</span>
-            <span style={styles.statLabel}>کاربران هدف</span>
-          </div>
+        {/* زیرنویس ساده - لینک به Alphabet */}
+        <div style={styles.footer}>
+          <Link href="https://abc.xyz" style={styles.footerLink}>
+            Inspired by Alphabet
+          </Link>
         </div>
       </div>
     </main>
@@ -55,113 +53,86 @@ export default function Home() {
 const styles = {
   main: {
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #0a0f1e 0%, #1a1f35 50%, #0a0f1e 100%)',
-    position: 'relative' as const,
-    overflow: 'hidden',
-  },
-  stars: {
-    position: 'absolute' as const,
-    width: '100%',
-    height: '100%',
-    background: 'radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(100,150,255,0.1) 0%, transparent 50%)',
-    animation: 'twinkle 4s ease-in-out infinite',
+    background: '#ffffff',
+    color: '#1f2a44',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   },
   container: {
-    position: 'relative' as const,
-    zIndex: 2,
-    maxWidth: '1200px',
+    maxWidth: '800px',
     margin: '0 auto',
-    padding: '2rem',
-    display: 'flex',
-    flexDirection: 'column' as const,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '100vh',
-    textAlign: 'center' as const,
-  },
-  logoContainer: {
-    position: 'relative' as const,
-    marginBottom: '2rem',
+    padding: '4rem 2rem',
   },
   logo: {
-    fontSize: '5rem',
-    margin: 0,
-    color: '#fff',
-    textShadow: '0 0 20px rgba(0,150,255,0.8)',
-    animation: 'pulse 3s ease-in-out infinite',
-  },
-  logoGlow: {
-    position: 'absolute' as const,
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '150%',
-    height: '150%',
-    background: 'radial-gradient(circle, rgba(0,150,255,0.2) 0%, transparent 70%)',
-    zIndex: -1,
-    animation: 'rotate 10s linear infinite',
-  },
-  title: {
-    fontSize: '3rem',
+    fontSize: '2.5rem',
+    fontWeight: 500,
     margin: '0 0 1rem',
-    background: 'linear-gradient(135deg, #fff 0%, #aaddff 50%, #fff 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    fontWeight: 900,
+    letterSpacing: '-0.02em',
+    color: '#1f2a44',
   },
-  subtitle: {
-    fontSize: '1.5rem',
-    color: '#aaddff',
+  description: {
+    fontSize: '1.1rem',
+    lineHeight: 1.6,
+    color: '#5f6b7a',
     marginBottom: '3rem',
-    opacity: 0.9,
+    maxWidth: '600px',
   },
-  buttonContainer: {
-    display: 'flex',
-    gap: '1rem',
-    marginBottom: '4rem',
-    flexWrap: 'wrap' as const,
-    justifyContent: 'center',
+  divider: {
+    border: 'none',
+    borderTop: '1px solid #e5e9f0',
+    margin: '2rem 0',
   },
-  button: {
-    padding: '1rem 2.5rem',
+  sectionTitle: {
     fontSize: '1.2rem',
-    borderRadius: '50px',
-    textDecoration: 'none',
-    transition: 'all 0.3s ease',
-    fontWeight: 700,
+    fontWeight: 500,
+    margin: '0 0 1.5rem',
+    color: '#1f2a44',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.05em',
   },
-  primaryButton: {
-    background: 'linear-gradient(135deg, #0066ff 0%, #00aaff 100%)',
-    color: 'white',
-    boxShadow: '0 4px 15px rgba(0,102,255,0.4)',
+  companies: {
+    marginBottom: '4rem',
   },
-  secondaryButton: {
-    background: 'transparent',
-    color: 'white',
-    border: '2px solid rgba(255,255,255,0.3)',
-  },
-  statsContainer: {
-    display: 'flex',
-    gap: '3rem',
-    flexWrap: 'wrap' as const,
-    justifyContent: 'center',
-  },
-  stat: {
+  companyList: {
     display: 'flex',
     flexDirection: 'column' as const,
-    alignItems: 'center',
+    gap: '0.75rem',
   },
-  statNumber: {
-    fontSize: '2.5rem',
-    fontWeight: 900,
-    color: '#fff',
-    textShadow: '0 0 10px #0066ff',
+  companyCard: {
+    display: 'block',
+    padding: '1rem',
+    border: '1px solid #e5e9f0',
+    borderRadius: '6px',
+    textDecoration: 'none',
+    color: 'inherit',
+    transition: 'all 0.2s ease',
+    cursor: 'pointer',
+    ':hover': {
+      borderColor: '#0066ff',
+      boxShadow: '0 2px 8px rgba(0,102,255,0.1)',
+    },
   },
-  statLabel: {
-    fontSize: '1rem',
-    color: '#aaddff',
-    marginTop: '0.5rem',
-  }
+  companyName: {
+    fontSize: '1.1rem',
+    fontWeight: 500,
+    marginBottom: '0.25rem',
+    color: '#1f2a44',
+  },
+  companyDesc: {
+    fontSize: '0.9rem',
+    color: '#5f6b7a',
+  },
+  footer: {
+    marginTop: '4rem',
+    textAlign: 'center' as const,
+    borderTop: '1px solid #e5e9f0',
+    paddingTop: '2rem',
+  },
+  footerLink: {
+    color: '#5f6b7a',
+    textDecoration: 'none',
+    fontSize: '0.85rem',
+    ':hover': {
+      color: '#0066ff',
+    },
+  },
 }
-
-
