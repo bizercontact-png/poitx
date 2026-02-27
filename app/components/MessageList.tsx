@@ -28,6 +28,7 @@ type Message = {
 type MessageListProps = {
   messages: Message[]
   loading: boolean
+  searchLoading?: boolean
   showThinking: boolean
   isMobile: boolean
   onCopy: (text: string, id: string) => void
@@ -39,6 +40,7 @@ type MessageListProps = {
 const MessageList = memo(function MessageList({
   messages,
   loading,
+  searchLoading,
   showThinking,
   isMobile,
   onCopy,
@@ -47,6 +49,20 @@ const MessageList = memo(function MessageList({
 }: MessageListProps) {
   return (
     <AnimatePresence mode="popLayout">
+      {/* پیام جستجو */}
+      {searchLoading && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          style={styles.searchMessage}
+        >
+          <span style={styles.searchIcon}>🔍</span>
+          <span>در حال جستجو در وب...</span>
+        </motion.div>
+      )}
+
+      {/* پیام‌ها */}
       {messages.map((msg, i) => (
         <MessageItem
           key={msg.id}
@@ -60,12 +76,13 @@ const MessageList = memo(function MessageList({
         />
       ))}
 
+      {/* ایندیکیتور تایپینگ */}
       {loading && <TypingIndicator />}
     </AnimatePresence>
   )
 })
 
-// کامپوننت جداگانه برای هر پیام (برای بهینه‌سازی)
+// کامپوننت جداگانه برای هر پیام
 const MessageItem = memo(function MessageItem({
   msg,
   index,
@@ -105,6 +122,7 @@ const MessageItem = memo(function MessageItem({
           ...(msg.role === 'user' ? styles.userMessage : styles.assistantMessage)
         }}
       >
+        {/* فرآیند تفکر */}
         {msg.thinking && showThinking && (
           <div style={styles.thinkingBubble}>
             <strong>🧠 فرآیند تفکر:</strong>
@@ -112,6 +130,7 @@ const MessageItem = memo(function MessageItem({
           </div>
         )}
 
+        {/* فایل‌ها */}
         {msg.files && msg.files.length > 0 && (
           <div style={styles.fileList}>
             {msg.files.map((file: any, idx: number) => (
@@ -123,6 +142,7 @@ const MessageItem = memo(function MessageItem({
           </div>
         )}
 
+        {/* محتوای اصلی */}
         <div style={styles.messageContent}>
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
@@ -164,17 +184,23 @@ const MessageItem = memo(function MessageItem({
           </ReactMarkdown>
         </div>
 
+        {/* منابع */}
         {msg.sources && msg.sources.length > 0 && (
           <div style={styles.sourcesContainer}>
             <strong>📚 منابع:</strong>
-            <ul>
+            <ul style={styles.sourcesList}>
               {msg.sources.map((source: string, idx: number) => (
-                <li key={idx}>{source}</li>
+                <li key={idx}>
+                  <a href={source} target="_blank" style={styles.sourceLink}>
+                    {source}
+                  </a>
+                </li>
               ))}
             </ul>
           </div>
         )}
 
+        {/* زمان */}
         <div style={styles.messageFooter}>
           <span style={styles.messageTime}>
             {format(new Date(msg.created_at), 'HH:mm', { locale: faIR })}
@@ -185,7 +211,7 @@ const MessageItem = memo(function MessageItem({
   )
 })
 
-// کامپوننت جداگانه برای تایپینگ
+// کامپوننت تایپینگ
 const TypingIndicator = memo(function TypingIndicator() {
   return (
     <motion.div
@@ -205,7 +231,7 @@ const TypingIndicator = memo(function TypingIndicator() {
   )
 })
 
-// ========== استایل‌های کامل ==========
+// ========== استایل‌ها ==========
 const styles = {
   assistantAvatar: {
     width: '36px',
@@ -237,6 +263,20 @@ const styles = {
   messageWrapper: {
     display: 'flex',
     gap: '1rem',
+  },
+  searchMessage: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.5rem 1rem',
+    background: 'rgba(0,102,255,0.2)',
+    borderRadius: '30px',
+    marginBottom: '1rem',
+    fontSize: '0.9rem',
+    color: '#aaddff',
+  },
+  searchIcon: {
+    fontSize: '1rem',
   },
   thinkingBubble: {
     background: 'rgba(255,170,0,0.1)',
@@ -291,6 +331,19 @@ const styles = {
     paddingTop: '0.5rem',
     borderTop: '1px solid rgba(255,255,255,0.1)',
     fontSize: '0.9rem',
+  },
+  sourcesList: {
+    margin: '0.3rem 0 0',
+    paddingLeft: '1.2rem',
+  },
+  sourceLink: {
+    color: '#aaddff',
+    textDecoration: 'none',
+    fontSize: '0.8rem',
+    wordBreak: 'break-all' as const,
+    ':hover': {
+      textDecoration: 'underline',
+    },
   },
   messageFooter: {
     display: 'flex',
