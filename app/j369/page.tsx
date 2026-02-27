@@ -8,10 +8,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import GalacticInput from '../components/GalacticInput'
 import AuthStatus from '../components/AuthStatus'
 import MessageList from '../components/MessageList'
-import SearchResults from '../components/SearchResults'
 import { useSessions } from '../hooks/useSessions'
 import { useAuth } from '../hooks/useAuth'
-import { useSearch } from '../hooks/useSearch'
+import { needsSearch, extractSearchQuery } from '../lib/search-detector'
 import { Gem } from '../types'
 
 export default function J369Page() {
@@ -27,17 +26,10 @@ export default function J369Page() {
     deleteSession,
     addMessage
   } = useSessions()
-  
-  // اصلاح شده: clearResults رو به clearSearch alias کردیم
-  const { 
-    results: searchResults, 
-    loading: searchLoading, 
-    search: performSearch, 
-    clearResults: clearSearch  // اینجا alias کردیم
-  } = useSearch()
 
   // ========== Local State ==========
   const [aiLoading, setAiLoading] = useState(false)
+  const [searchLoading, setSearchLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showSidebar, setShowSidebar] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -48,8 +40,6 @@ export default function J369Page() {
   const [isDragging, setIsDragging] = useState(false)
   const [showThinking, setShowThinking] = useState(true)
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [showSearch, setShowSearch] = useState(false)
-  const [searchMode, setSearchMode] = useState<'quick' | 'deep'>('quick')
 
   // ========== Gems ==========
   const gems: Gem[] = [
@@ -156,7 +146,30 @@ export default function J369Page() {
     if (!input.trim() || aiLoading) return
 
     setError(null)
-    setShowSearch(false)
+    
+    // تشخیص نیاز به جستجو
+    const shouldSearch = needsSearch(input)
+    let searchResults = null
+
+    // اگر نیاز به جستجو بود
+    if (shouldSearch) {
+      setSearchLoading(true)
+      const searchQuery = extractSearchQuery(input)
+      
+      try {
+        const res = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: searchQuery, mode: 'quick' })
+        })
+        const data = await res.json()
+        searchResults = data.results || []
+      } catch (error) {
+        console.error('Search error:', error)
+      } finally {
+        setSearchLoading(false)
+      }
+    }
 
     // اگر سشن نداریم، ایجاد کن
     if (!currentSessionId) {
@@ -176,7 +189,9 @@ export default function J369Page() {
         body: JSON.stringify({
           message: input,
           sessionId: currentSessionId,
-          history: messages.slice(-10)
+          history: messages.slice(-5),
+          searchResults,
+          needsSearch: shouldSearch
         })
       })
 
@@ -188,8 +203,8 @@ export default function J369Page() {
       await addMessage(
         'assistant',
         data.response,
-        data.sources,
-        data.thinking
+        searchResults?.map((r: any) => r.link),
+        shouldSearch ? `جستجو برای "${extractSearchQuery(input)}" انجام شد.` : undefined
       )
 
     } catch (error) {
@@ -197,24 +212,6 @@ export default function J369Page() {
     } finally {
       setAiLoading(false)
     }
-  }
-
-  // ========== Handle Search ==========
-  const handleSearch = async () => {
-    if (!currentSessionId) return
-    const lastUserMessage = messages.filter(m => m.role === 'user').pop()
-    if (lastUserMessage) {
-      await performSearch(lastUserMessage.content, searchMode)
-      setShowSearch(true)
-    }
-  }
-
-  // ========== Handle Select Search Result ==========
-  const handleSelectSearchResult = async (result: any) => {
-    const prompt = `بر اساس این منبع: ${result.title}\n${result.link}\n${result.snippet}\n\nلطفاً خلاصه‌ای از این مطلب ارائه بده.`
-    await addMessage('user', prompt)
-    setShowSearch(false)
-    clearSearch()  // اینجا از clearSearch استفاده می‌کنیم که alias شده
   }
 
   // ========== Handle Gem Click ==========
@@ -471,15 +468,6 @@ export default function J369Page() {
             >
               🧠
             </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={handleSearch}
-              style={styles.searchButton}
-              title="جستجو در اینترنت"
-            >
-              🌐
-            </motion.button>
             {!isMobile && <AuthStatus />}
           </div>
         </header>
@@ -493,73 +481,62 @@ export default function J369Page() {
                 ورود / عضویت
               </Link>
             </div>
+          ) : messages.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={styles.welcomeContainer}
+            >
+              <motion.div
+                animate={{
+                  scale: [1, 1.1, 1],
+                  rotate: [0, 5, -5, 0]
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  repeatType: 'reverse'
+                }}
+                style={styles.welcomeEmoji}
+              >
+                🌌
+              </motion.div>
+              <h1 style={styles.welcomeTitle}>J_369</h1>
+              <p style={styles.welcomeText}>
+                هوش مصنوعی کهکشان POITX
+              </p>
+              <div style={styles.suggestions}>
+                {[
+                  'آخرین اخبار دنیای هوش مصنوعی',
+                  'برنامه پایتون برای محاسبه اعداد اول',
+                  'شعر کهکشانی',
+                  'قیمت دلار امروز'
+                ].map((suggestion, i) => (
+                  <motion.button
+                    key={i}
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => askJ369(suggestion, [])}
+                    style={styles.suggestionButton}
+                  >
+                    {suggestion}
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
           ) : (
             <>
-              {showSearch && (
-                <SearchResults
-                  results={searchResults}
-                  loading={searchLoading}
-                  onSelect={handleSelectSearchResult}
-                />
-              )}
-              
-              {messages.length === 0 ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  style={styles.welcomeContainer}
-                >
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.1, 1],
-                      rotate: [0, 5, -5, 0]
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      repeatType: 'reverse'
-                    }}
-                    style={styles.welcomeEmoji}
-                  >
-                    🌌
-                  </motion.div>
-                  <h1 style={styles.welcomeTitle}>J_369</h1>
-                  <p style={styles.welcomeText}>
-                    هوش مصنوعی کهکشان POITX
-                  </p>
-                  <div style={styles.suggestions}>
-                    {[
-                      'تحقیق درباره سیاه‌چاله‌ها',
-                      'برنامه پایتون برای محاسبه اعداد اول',
-                      'شعر کهکشانی',
-                      'جدول مقایسه سیارات'
-                    ].map((suggestion, i) => (
-                      <motion.button
-                        key={i}
-                        whileHover={{ scale: 1.05, y: -2 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => askJ369(suggestion, [])}
-                        style={styles.suggestionButton}
-                      >
-                        {suggestion}
-                      </motion.button>
-                    ))}
-                  </div>
-                </motion.div>
-              ) : (
-                <>
-                  <MessageList
-                    messages={messages}
-                    loading={aiLoading}
-                    showThinking={showThinking}
-                    isMobile={isMobile}
-                    onCopy={copyToClipboard}
-                    onDownload={downloadFile}
-                    copiedId={copiedId}
-                  />
-                  <div ref={messagesEndRef} />
-                </>
-              )}
+              <MessageList
+                messages={messages}
+                loading={aiLoading}
+                searchLoading={searchLoading}
+                showThinking={showThinking}
+                isMobile={isMobile}
+                onCopy={copyToClipboard}
+                onDownload={downloadFile}
+                copiedId={copiedId}
+              />
+              <div ref={messagesEndRef} />
             </>
           )}
         </main>
@@ -903,15 +880,6 @@ const styles = {
     cursor: 'pointer',
     padding: '0.3rem 0.8rem',
     fontSize: '0.9rem',
-  },
-  searchButton: {
-    background: 'rgba(255,255,255,0.1)',
-    border: '1px solid rgba(255,255,255,0.2)',
-    borderRadius: '20px',
-    color: '#fff',
-    cursor: 'pointer',
-    padding: '0.3rem 0.8rem',
-    fontSize: '1rem',
   },
   messagesContainer: {
     flex: 1,
