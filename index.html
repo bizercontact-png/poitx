@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>اوبیترون — همراه ابدیت</title>
-  <meta name="description" content="هوش مصنوعی شخصی با حافظه مطلق، شخصیت‌پذیری و تفکر بصری. همراه ابدی شما در مسیر دانش و خلاقیت." />
+  <meta name="description" content="هوش مصنوعی شخصی با حافظه مطلق، شخصیت‌پذیری و تفکر بصری" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>" />
 
-  <!-- Font -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
@@ -15,9 +15,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* ============================================
-       RESET
-    ============================================ */
+    /* ===== RESET ===== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
@@ -28,9 +26,7 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* ============================================
-       GLASS
-    ============================================ */
+    /* ===== GLASS ===== */
     .glass-panel {
       background: rgba(255, 255, 255, 0.03);
       backdrop-filter: blur(20px) saturate(1.2);
@@ -38,9 +34,7 @@
       border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    /* ============================================
-       GRADIENTS
-    ============================================ */
+    /* ===== GRADIENTS ===== */
     .gradient-primary {
       background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
     }
@@ -51,9 +45,7 @@
       background-clip: text;
     }
 
-    /* ============================================
-       BUTTONS
-    ============================================ */
+    /* ===== BUTTONS ===== */
     .btn-primary {
       background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
       transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -72,9 +64,7 @@
       background: rgba(255, 255, 255, 0.04);
     }
 
-    /* ============================================
-       CARDS
-    ============================================ */
+    /* ===== CARDS ===== */
     .card-hover {
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       border: 1px solid rgba(255, 255, 255, 0.05);
@@ -85,9 +75,7 @@
       box-shadow: 0 24px 48px -16px rgba(79, 70, 229, 0.15);
     }
 
-    /* ============================================
-       ANIMATIONS
-    ============================================ */
+    /* ===== ANIMATIONS ===== */
     .fade-up {
       opacity: 0;
       transform: translateY(24px);
@@ -109,10 +97,15 @@
       pointer-events: none;
       z-index: -1;
     }
+    .badge-pulse {
+      animation: pulseBadge 3s ease-in-out infinite;
+    }
+    @keyframes pulseBadge {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
 
-    /* ============================================
-       TYPOGRAPHY
-    ============================================ */
+    /* ===== TYPOGRAPHY ===== */
     .hero-title {
       font-size: clamp(2.75rem, 6vw, 4.5rem);
       line-height: 1.08;
@@ -125,26 +118,77 @@
       color: #94a3b8;
     }
 
-    /* ============================================
-       BADGE
-    ============================================ */
-    .badge-pulse {
-      animation: pulseBadge 3s ease-in-out infinite;
+    /* ===== SECRET PANEL ===== */
+    #secret-panel {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 1.5rem;
     }
-    @keyframes pulseBadge {
-      0%, 100% { opacity: 0.6; }
-      50% { opacity: 1; }
+    #secret-panel.show {
+      display: flex;
+    }
+    .secret-title {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+    }
+    .secret-sub {
+      font-size: clamp(1.2rem, 2vw, 2rem);
+      color: #94a3b8;
+    }
+    .secret-close {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      color: #64748b;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      background: none;
+      border: none;
+    }
+    .secret-close:hover {
+      color: #f1f5f9;
     }
 
-    /* ============================================
-       RESPONSIVE
-    ============================================ */
-    @media (max-width: 640px) {
-      .container-padding { padding-left: 1rem; padding-right: 1rem; }
+    /* ===== HIDDEN INPUT ===== */
+    #hidden-input {
+      position: fixed;
+      top: -9999px;
+      left: -9999px;
+      opacity: 0;
+      pointer-events: none;
+      width: 1px;
+      height: 1px;
     }
   </style>
 </head>
 <body>
+
+  <!-- ===== INVISIBLE INPUT (برای دریافت کد مخفی) ===== -->
+  <input type="text" id="hidden-input" autofocus />
+
+  <!-- ===== SECRET PANEL ===== -->
+  <div id="secret-panel">
+    <button class="secret-close" id="secret-close">✕</button>
+    <div class="secret-title">خوش آمدید مدیر</div>
+    <div class="secret-sub">دسترسی کامل به پنل مدیریت</div>
+    <button class="px-8 py-4 rounded-full btn-primary text-white font-semibold text-lg shadow-xl shadow-indigo-500/20">
+      ورود به پنل
+    </button>
+  </div>
 
   <!-- ===== GLOW ORBS ===== -->
   <div class="glow-orb w-[480px] h-[480px] bg-indigo-600/15 -top-32 -left-32"></div>
@@ -255,6 +299,62 @@
   <footer class="max-w-7xl mx-auto px-6 lg:px-8 py-8 border-t border-white/5 text-center text-xs text-gray-500">
     <p>© ۲۰۲۶ اوبیترون · ساخته شده برای آینده</p>
   </footer>
+
+  <!-- ============================================================
+       SCRIPT (درِ مخفی با کد ۱۲۴۸)
+       ============================================================ -->
+  <script>
+    (function() {
+      const secretCode = "1248";
+      let buffer = "";
+      const hiddenInput = document.getElementById('hidden-input');
+      const secretPanel = document.getElementById('secret-panel');
+
+      // ===== ۱. گوش دادن به تایپ‌های مخفی =====
+      document.addEventListener('keydown', function(e) {
+        // فقط اعداد رو بگیر
+        if (e.key >= '0' && e.key <= '9') {
+          buffer += e.key;
+          // اگه طول بافر بیشتر از کد شد، اولی رو حذف کن
+          if (buffer.length > secretCode.length) {
+            buffer = buffer.slice(1);
+          }
+          // اگه بافر با کد مخفی برابر شد
+          if (buffer === secretCode) {
+            secretPanel.classList.add('show');
+            buffer = ""; // بافر رو ریست کن
+            // فوکوس رو به جای مخفی برگردون تا کلیدها دوباره ثبت بشن
+            hiddenInput.focus();
+          }
+        }
+      });
+
+      // ===== ۲. بستن پنل مخفی با دکمه =====
+      document.getElementById('secret-close').addEventListener('click', function() {
+        secretPanel.classList.remove('show');
+        buffer = "";
+        hiddenInput.focus();
+      });
+
+      // ===== ۳. بستن با کلید ESC =====
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && secretPanel.classList.contains('show')) {
+          secretPanel.classList.remove('show');
+          buffer = "";
+          hiddenInput.focus();
+        }
+      });
+
+      // ===== ۴. همیشه فوکوس روی اینپوت مخفی باشه =====
+      // (برای اینکه تایپ‌ها ثبت بشن، حتی اگه کاربر جایی دیگه کلیک کنه)
+      document.addEventListener('click', function() {
+        hiddenInput.focus();
+      });
+
+      // فوکوس اولیه
+      hiddenInput.focus();
+    })();
+  </script>
 
 </body>
 </html>
