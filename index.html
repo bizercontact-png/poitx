@@ -7,63 +7,42 @@
   <meta name="description" content="هوش مصنوعی شخصی با حافظه مطلق، شخصیت‌پذیری و تفکر بصری. همراه ابدی شما در مسیر دانش و خلاقیت." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>" />
 
-  <!-- Fonts -->
+  <!-- Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
 
-  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* ============================================
-       TOKENS (سیستم طراحی توکن‌محور)
-    ============================================ */
-    :root {
-      --color-primary: #4f46e5;
-      --color-primary-dark: #4338ca;
-      --color-secondary: #7c3aed;
-      --color-surface: #0a0a12;
-      --color-surface-elevated: #13131f;
-      --color-text-primary: #f1f5f9;
-      --color-text-secondary: #94a3b8;
-      --color-border: rgba(255, 255, 255, 0.06);
-      --radius-sm: 0.5rem;
-      --radius-md: 1rem;
-      --radius-lg: 1.5rem;
-      --radius-full: 9999px;
-      --font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      --transition-default: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
     /* ============================================
        RESET
     ============================================ */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
-      font-family: var(--font-family);
-      background: var(--color-surface);
-      color: var(--color-text-primary);
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      background: #0a0a0f;
+      color: #f1f5f9;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
 
     /* ============================================
-       GLASS (شیشه‌ای با استاندارد ۲۰۲۶)
+       GLASS
     ============================================ */
     .glass-panel {
       background: rgba(255, 255, 255, 0.03);
       backdrop-filter: blur(20px) saturate(1.2);
       -webkit-backdrop-filter: blur(20px) saturate(1.2);
-      border: 1px solid var(--color-border);
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     /* ============================================
        GRADIENTS
     ============================================ */
     .gradient-primary {
-      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
     }
     .gradient-text {
       background: linear-gradient(135deg, #818cf8, #c084fc);
@@ -76,25 +55,20 @@
        BUTTONS
     ============================================ */
     .btn-primary {
-      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-      transition: var(--transition-default);
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 0 8px 32px -8px rgba(79, 70, 229, 0.3);
-      position: relative;
-      overflow: hidden;
     }
     .btn-primary:hover {
       transform: scale(1.02);
       box-shadow: 0 12px 48px -8px rgba(79, 70, 229, 0.45);
     }
-    .btn-primary:active {
-      transform: scale(0.98);
-    }
     .btn-outline {
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      transition: var(--transition-default);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .btn-outline:hover {
-      border-color: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.2);
       background: rgba(255, 255, 255, 0.04);
     }
 
@@ -102,8 +76,8 @@
        CARDS
     ============================================ */
     .card-hover {
-      transition: var(--transition-default);
-      border: 1px solid var(--color-border);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
     .card-hover:hover {
       transform: translateY(-6px);
@@ -112,34 +86,7 @@
     }
 
     /* ============================================
-       TYPOGRAPHY (تایپوگرافی سیال با clamp)
-    ============================================ */
-    .hero-title {
-      font-size: clamp(2.75rem, 6vw, 4.5rem);
-      line-height: 1.08;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-    .hero-sub {
-      font-size: clamp(1rem, 1.25vw, 1.25rem);
-      line-height: 1.7;
-      color: var(--color-text-secondary);
-    }
-    .section-title {
-      font-size: clamp(2rem, 3vw, 2.75rem);
-      font-weight: 700;
-      letter-spacing: -0.01em;
-    }
-
-    /* ============================================
-       CONTAINER QUERIES (واکنش‌گرایی کامپوننت)
-    ============================================ */
-    @container (max-width: 480px) {
-      .card-content { padding: 1.25rem; }
-    }
-
-    /* ============================================
-       ANIMATIONS (موشن‌های هدفمند)
+       ANIMATIONS
     ============================================ */
     .fade-up {
       opacity: 0;
@@ -163,19 +110,30 @@
       z-index: -1;
     }
 
+    /* ============================================
+       TYPOGRAPHY
+    ============================================ */
+    .hero-title {
+      font-size: clamp(2.75rem, 6vw, 4.5rem);
+      line-height: 1.08;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 1.2vw, 1.2rem);
+      line-height: 1.7;
+      color: #94a3b8;
+    }
+
+    /* ============================================
+       BADGE
+    ============================================ */
     .badge-pulse {
       animation: pulseBadge 3s ease-in-out infinite;
     }
     @keyframes pulseBadge {
       0%, 100% { opacity: 0.6; }
       50% { opacity: 1; }
-    }
-
-    /* ============================================
-       PERFORMANCE (عملکرد به عنوان سیگنال لوکس)
-    ============================================ */
-    .will-change-transform {
-      will-change: transform;
     }
 
     /* ============================================
@@ -251,17 +209,17 @@
 
   <!-- ===== FEATURES ===== -->
   <section class="max-w-7xl mx-auto px-6 lg:px-8 py-24 grid md:grid-cols-3 gap-6 relative z-10">
-    <div class="glass-panel card-hover rounded-2xl p-8 text-center card-content">
+    <div class="glass-panel card-hover rounded-2xl p-8 text-center">
       <div class="text-4xl mb-4">🧠</div>
       <h3 class="text-xl font-bold text-white">حافظه مطلق</h3>
       <p class="text-gray-400 text-sm mt-2.5 leading-relaxed">هر مکالمه، هر ترجیح، هر هدف — همه‌چیز را به خاطر می‌سپارد.</p>
     </div>
-    <div class="glass-panel card-hover rounded-2xl p-8 text-center card-content">
+    <div class="glass-panel card-hover rounded-2xl p-8 text-center">
       <div class="text-4xl mb-4">🎭</div>
       <h3 class="text-xl font-bold text-white">شخصیت‌پذیری</h3>
       <p class="text-gray-400 text-sm mt-2.5 leading-relaxed">صدا، لحن، و سبک را خودت انتخاب کن. اوبیترون مال تو می‌شود.</p>
     </div>
-    <div class="glass-panel card-hover rounded-2xl p-8 text-center card-content">
+    <div class="glass-panel card-hover rounded-2xl p-8 text-center">
       <div class="text-4xl mb-4">👁️</div>
       <h3 class="text-xl font-bold text-white">تفکر بصری</h3>
       <p class="text-gray-400 text-sm mt-2.5 leading-relaxed">مفاهیم پیچیده را به تصویر تبدیل می‌کند. ببین، نه فقط بخوان.</p>
@@ -270,7 +228,7 @@
 
   <!-- ===== STEPS ===== -->
   <section class="max-w-4xl mx-auto px-6 lg:px-8 py-20 text-center relative z-10">
-    <h2 class="fade-up section-title">
+    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">
       سه قدم تا
       <span class="gradient-text">همراهی ابدی</span>
     </h2>
