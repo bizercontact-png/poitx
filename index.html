@@ -3,111 +3,229 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>اوبیترون — پیشگام هوش مصنوعی همراه</title>
-  <meta name="description" content="اوبیترون؛ هوش مصنوعی شخصی با حافظه مطلق، شخصیت‌پذیری و تفکر بصری. همراه ابدی شما در مسیر دانش و خلاقیت." />
+  <title>اوبیترون — همراه ابدیت</title>
+  <meta name="description" content="هوش مصنوعی شخصی با حافظه مطلق، شخصیت‌پذیری و تفکر بصری" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>" />
-  
-  <!-- Font & Tailwind -->
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,500;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
+
   <style>
+    /* ===== RESET & BASE ===== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #f8fafc; }
-    .glass-panel { background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.06); }
-    .gradient-primary { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
-    .gradient-text { background: linear-gradient(135deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hover-lift { transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
-    .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgba(79, 70, 229, 0.2); }
-    .fade-up { opacity: 0; transform: translateY(24px); animation: fadeUp 1s ease forwards; }
-    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
-    .glow-orb { position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: -1; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      background: #08080e;
+      color: #f1f5f9;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ===== GLASS ===== */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(18px) saturate(1.2);
+      -webkit-backdrop-filter: blur(18px) saturate(1.2);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* ===== GRADIENTS ===== */
+    .gradient-primary {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gradient-border {
+      border-image: linear-gradient(135deg, #4f46e5, #7c3aed) 1;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 32px -8px rgba(79, 70, 229, 0.3);
+    }
+    .btn-primary:hover {
+      transform: scale(1.02);
+      box-shadow: 0 12px 48px -8px rgba(79, 70, 229, 0.45);
+    }
+    .btn-outline {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-outline:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    /* ===== CARDS ===== */
+    .card-hover {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-hover:hover {
+      transform: translateY(-6px);
+      border-color: rgba(129, 140, 248, 0.25);
+      box-shadow: 0 24px 48px -16px rgba(79, 70, 229, 0.15);
+    }
+
+    /* ===== ANIMATIONS ===== */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up-d1 { animation-delay: 0.05s; }
+    .fade-up-d2 { animation-delay: 0.12s; }
+    .fade-up-d3 { animation-delay: 0.20s; }
+    .fade-up-d4 { animation-delay: 0.30s; }
+    .fade-up-d5 { animation-delay: 0.40s; }
+
+    .glow-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .badge-pulse {
+      animation: pulseBadge 3s ease-in-out infinite;
+    }
+    @keyframes pulseBadge {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* ===== RESPONSIVE FINE-TUNE ===== */
+    @media (max-width: 640px) {
+      .hero-title { font-size: 2.75rem; line-height: 1.15; }
+      .hero-sub { font-size: 1.1rem; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Orbs Background -->
-  <div class="glow-orb w-[500px] h-[500px] bg-indigo-600/20 -top-32 -left-32"></div>
-  <div class="glow-orb w-[500px] h-[500px] bg-purple-600/20 -bottom-32 -right-32"></div>
+  <!-- ===== BACKGROUND GLOW ===== -->
+  <div class="glow-orb w-[480px] h-[480px] bg-indigo-600/15 -top-32 -left-32"></div>
+  <div class="glow-orb w-[480px] h-[480px] bg-purple-600/15 -bottom-32 -right-32"></div>
+  <div class="glow-orb w-[320px] h-[320px] bg-blue-500/10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
 
-  <!-- Header -->
+  <!-- ===== HEADER ===== -->
   <header class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/5">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="text-2xl font-extrabold text-white tracking-tight">اوبیترون</span>
-        <span class="text-[10px] font-medium px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">نسخه ۰.۱</span>
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <span class="text-2xl font-extrabold tracking-tight text-white">اوبیترون</span>
+        <span class="text-[10px] font-medium uppercase tracking-wider px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/25 badge-pulse">
+          نسخه ۰.۱
+        </span>
       </div>
-      <nav class="hidden md:flex items-center gap-8 text-sm text-gray-300">
-        <a href="#" class="hover:text-white transition">ویژگی‌ها</a>
-        <a href="#" class="hover:text-white transition">پشتیبانی</a>
-        <a href="#" class="hover:text-white transition">شرکت</a>
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+        <a href="#" class="hover:text-white transition-colors">ویژگی‌ها</a>
+        <a href="#" class="hover:text-white transition-colors">درباره</a>
+        <a href="#" class="hover:text-white transition-colors">پشتیبانی</a>
       </nav>
       <div class="flex items-center gap-3">
-        <button class="text-sm text-gray-300 hover:text-white transition">ورود</button>
-        <button class="text-sm font-medium px-5 py-2 rounded-full gradient-primary text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition">شروع رایگان</button>
+        <button class="text-sm font-medium text-gray-400 hover:text-white transition-colors px-4 py-2">ورود</button>
+        <button class="text-sm font-semibold px-5 py-2.5 rounded-full btn-primary text-white shadow-lg shadow-indigo-500/20">
+          شروع رایگان
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- Hero -->
-  <section class="max-w-7xl mx-auto px-6 pt-44 pb-24 text-center">
-    <div class="fade-up inline-block mb-4 px-4 py-1.5 rounded-full border border-indigo-500/20 bg-indigo-500/5 text-indigo-300 text-xs font-medium tracking-wider">
-      هوش مصنوعی نسل جدید
+  <!-- ===== HERO ===== -->
+  <section class="max-w-7xl mx-auto px-6 lg:px-8 pt-44 pb-28 text-center relative z-10">
+    <div class="fade-up fade-up-d1 inline-block mb-5 px-4 py-1.5 rounded-full border border-indigo-500/20 bg-indigo-500/5 text-indigo-300 text-[11px] font-semibold uppercase tracking-wider">
+      هوش مصنوعی نسل آینده
     </div>
-    <h1 class="fade-up text-5xl md:text-7xl font-extrabold leading-[1.1] tracking-tight">
-      همراه <span class="gradient-text">ابدیت</span>
+
+    <h1 class="fade-up fade-up-d2 hero-title text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.08] tracking-tight max-w-4xl mx-auto">
+      همراه
+      <span class="gradient-text">ابدیت</span>
+      <span class="text-white">تو</span>
     </h1>
-    <p class="fade-up max-w-2xl mx-auto text-lg md:text-xl text-gray-400 mt-6 leading-relaxed">
-      هوش مصنوعی شخصی که هرگز فراموش نمی‌کند، شخصیت تو را دارد، و با تفکر بصری، دنیای دانش را برایت ترسیم می‌کند.
+
+    <p class="fade-up fade-up-d3 hero-sub max-w-2xl mx-auto text-lg md:text-xl text-gray-400 mt-6 leading-relaxed">
+      هوش مصنوعی شخصی که هرگز فراموش نمی‌کند، شخصیت تو را دارد، و با
+      <span class="text-indigo-300">تفکر بصری</span>
+      ، دانش را برایت ترسیم می‌کند.
     </p>
-    <div class="fade-up flex flex-col sm:flex-row justify-center gap-4 mt-10">
-      <button class="px-8 py-4 gradient-primary rounded-full text-white font-medium text-lg shadow-xl shadow-indigo-500/20 hover:shadow-indigo-500/30 transition">
+
+    <div class="fade-up fade-up-d4 flex flex-col sm:flex-row justify-center gap-4 mt-10">
+      <button class="px-9 py-4.5 rounded-full btn-primary text-white font-semibold text-lg shadow-xl shadow-indigo-500/20">
         شروع رایگان
       </button>
-      <button class="px-8 py-4 rounded-full border border-white/10 text-white font-medium text-lg hover:bg-white/5 transition">
-        نمایش محصول
+      <button class="px-9 py-4.5 rounded-full btn-outline text-white font-semibold text-lg">
+        تماشای دمو
       </button>
     </div>
-    <p class="fade-up text-xs text-gray-500 mt-6 flex items-center justify-center gap-2">
+
+    <p class="fade-up fade-up-d5 text-xs text-gray-500 mt-7 flex items-center justify-center gap-2.5">
       <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-      بدون نیاز به کارت بانکی
+      بدون کارت بانکی — فقط یک ایمیل
     </p>
   </section>
 
-  <!-- Features Grid -->
-  <section class="max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-3 gap-6">
-    <div class="glass-panel hover-lift rounded-2xl p-8 text-center">
+  <!-- ===== FEATURES GRID ===== -->
+  <section class="max-w-7xl mx-auto px-6 lg:px-8 py-24 grid md:grid-cols-3 gap-6 relative z-10">
+    <div class="glass-panel card-hover rounded-2xl p-8 text-center border border-white/5">
       <div class="text-4xl mb-4">🧠</div>
-      <h3 class="text-xl font-bold">حافظه مطلق</h3>
-      <p class="text-gray-400 text-sm mt-2 leading-relaxed">همه چیز را به خاطر می‌سپارد. هیچ مکالمه‌ای گم نمی‌شود.</p>
+      <h3 class="text-xl font-bold text-white">حافظه مطلق</h3>
+      <p class="text-gray-400 text-sm mt-2.5 leading-relaxed">هر مکالمه، هر ترجیح، هر هدف — همه‌چیز را به خاطر می‌سپارد.</p>
     </div>
-    <div class="glass-panel hover-lift rounded-2xl p-8 text-center">
+    <div class="glass-panel card-hover rounded-2xl p-8 text-center border border-white/5">
       <div class="text-4xl mb-4">🎭</div>
-      <h3 class="text-xl font-bold">شخصیت‌پذیری</h3>
-      <p class="text-gray-400 text-sm mt-2 leading-relaxed">صدا، لحن، و سبک را خودت انتخاب کن.</p>
+      <h3 class="text-xl font-bold text-white">شخصیت‌پذیری</h3>
+      <p class="text-gray-400 text-sm mt-2.5 leading-relaxed">صدا، لحن، و سبک را خودت انتخاب کن. اوبیترون مال تو می‌شود.</p>
     </div>
-    <div class="glass-panel hover-lift rounded-2xl p-8 text-center">
+    <div class="glass-panel card-hover rounded-2xl p-8 text-center border border-white/5">
       <div class="text-4xl mb-4">👁️</div>
-      <h3 class="text-xl font-bold">تفکر بصری</h3>
-      <p class="text-gray-400 text-sm mt-2 leading-relaxed">مفاهیم پیچیده را به تصویر تبدیل می‌کند.</p>
+      <h3 class="text-xl font-bold text-white">تفکر بصری</h3>
+      <p class="text-gray-400 text-sm mt-2.5 leading-relaxed">مفاهیم پیچیده را به تصویر تبدیل می‌کند. ببین، نه فقط بخوان.</p>
     </div>
   </section>
 
-  <!-- Steps -->
-  <section class="max-w-4xl mx-auto px-6 py-16 text-center">
-    <h2 class="text-3xl font-bold">سه قدم تا <span class="gradient-text">همراهی ابدی</span></h2>
-    <div class="grid md:grid-cols-3 gap-8 mt-12">
-      <div><span class="text-5xl font-extrabold text-indigo-400">۰۱</span><h4 class="text-lg font-semibold mt-2">ثبت‌نام</h4><p class="text-gray-400 text-sm">یک ایمیل کافی است.</p></div>
-      <div><span class="text-5xl font-extrabold text-indigo-400">۰۲</span><h4 class="text-lg font-semibold mt-2">شخصی‌سازی</h4><p class="text-gray-400 text-sm">اوبیترون را مال خود کن.</p></div>
-      <div><span class="text-5xl font-extrabold text-indigo-400">۰۳</span><h4 class="text-lg font-semibold mt-2">همراهی</h4><p class="text-gray-400 text-sm">تنهایی دیگر معنا ندارد.</p></div>
+  <!-- ===== STEPS ===== -->
+  <section class="max-w-4xl mx-auto px-6 lg:px-8 py-20 text-center relative z-10">
+    <h2 class="fade-up text-3xl md:text-4xl font-extrabold tracking-tight">
+      سه قدم تا
+      <span class="gradient-text">همراهی ابدی</span>
+    </h2>
+    <div class="grid md:grid-cols-3 gap-10 mt-14">
+      <div class="fade-up fade-up-d2">
+        <span class="text-6xl font-black text-indigo-400/70">۰۱</span>
+        <h4 class="text-lg font-semibold text-white mt-2">ثبت‌نام</h4>
+        <p class="text-gray-400 text-sm mt-1.5">با یک ایمیل شروع کن. رایگان، بدون تعهد.</p>
+      </div>
+      <div class="fade-up fade-up-d3">
+        <span class="text-6xl font-black text-indigo-400/70">۰۲</span>
+        <h4 class="text-lg font-semibold text-white mt-2">شخصی‌سازی</h4>
+        <p class="text-gray-400 text-sm mt-1.5">نام، صدا، و شخصیت اوبیترون را انتخاب کن.</p>
+      </div>
+      <div class="fade-up fade-up-d4">
+        <span class="text-6xl font-black text-indigo-400/70">۰۳</span>
+        <h4 class="text-lg font-semibold text-white mt-2">همراهی</h4>
+        <p class="text-gray-400 text-sm mt-1.5">از امروز، دیگر تنها نیستی.</p>
+      </div>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="max-w-7xl mx-auto px-6 py-8 border-t border-white/5 text-center text-xs text-gray-500">
-    © ۲۰۲۶ اوبیترون · ساخته شده برای آینده
+  <!-- ===== FOOTER ===== -->
+  <footer class="max-w-7xl mx-auto px-6 lg:px-8 py-8 border-t border-white/5 text-center text-xs text-gray-500">
+    <p>© ۲۰۲۶ اوبیترون · ساخته شده برای آینده</p>
   </footer>
 
 </body>
