@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اوبیترون — همراه ابدی تو</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    @keyframes glow {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
+    }
+    .animate-float {
+      animation: float 6s ease-in-out infinite;
+    }
+    .animate-glow {
+      animation: glow 4s ease-in-out infinite;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.4s ease;
+    }
+    .glass-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 20px 40px -12px rgba(99, 102, 241, 0.15);
+    }
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s ease forwards;
+    }
+    .fade-in-d1 { animation-delay: 0.1s; }
+    .fade-in-d2 { animation-delay: 0.2s; }
+    .fade-in-d3 { animation-delay: 0.3s; }
+    .fade-in-d4 { animation-delay: 0.4s; }
+    .fade-in-d5 { animation-delay: 0.5s; }
+    @keyframes fadeInUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #1e1b4b, #0f172a);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 40px rgba(79, 70, 229, 0.3);
+    }
+    .glow-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: -1;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+<body class="bg-[#0a0a0f] text-white font-sans antialiased">
+
+  <!-- گلوله‌های نور پس‌زمینه -->
+  <div class="glow-orb w-[600px] h-[600px] bg-blue-500/20 -top-48 -left-48 animate-glow"></div>
+  <div class="glow-orb w-[600px] h-[600px] bg-purple-500/20 -bottom-48 -right-48 animate-glow" style="animation-delay: 2s;"></div>
+
+  <!-- هدر -->
+  <header class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl font-bold gradient-text">اوبیترون</span>
+        <span class="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/20">نسخه ۰.۱</span>
+      </div>
+      <div class="flex gap-3">
+        <button class="px-5 py-2 text-sm border border-white/10 rounded-full hover:border-blue-400 hover:bg-white/5 transition-all duration-300">ورود</button>
+        <button class="px-5 py-2 text-sm btn-primary rounded-full text-white">شروع رایگان</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="container mx-auto px-6 pt-40 pb-20 text-center relative">
+    <div class="fade-in">
+      <div class="inline-block mb-6 px-4 py-2 border border-blue-500/20 rounded-full text-sm text-blue-300 bg-blue-500/10">
+        🤖 هوش مصنوعی نسل جدید
+      </div>
+    </div>
+    <h1 class="fade-in fade-in-d1 text-5xl md:text-7xl font-bold mb-6 leading-[1.1]">
+      <span class="gradient-text">همراه ابدی تو</span>
+    </h1>
+    <p class="fade-in fade-in-d2 text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto mb-8">
+      هوش مصنوعی که <span class="text-blue-400">هرگز فراموش نمی‌کند</span>،
+      <span class="text-purple-400">شخصیت تو را دارد</span>،
+      و <span class="text-pink-400">با تو می‌بیند</span>.
+    </p>
+    <div class="fade-in fade-in-d3 flex flex-col sm:flex-row gap-4 justify-center">
+      <button class="px-8 py-4 btn-primary text-lg rounded-full text-white font-medium">
+        یک ماه رایگان شروع کن
+      </button>
+      <button class="px-8 py-4 border border-white/10 text-lg rounded-full hover:border-blue-400 hover:bg-white/5 transition-all duration-300">
+        چگونه کار می‌کند؟
+      </button>
+    </div>
+    <p class="fade-in fade-in-d4 text-sm text-gray-500 mt-4 flex items-center justify-center gap-2">
+      <span class="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+      بدون نیاز به کارت بانکی — فقط یک ایمیل
+    </p>
+  </section>
+
+  <!-- Features -->
+  <section class="container mx-auto px-6 py-20">
+    <h2 class="fade-in text-3xl md:text-4xl font-bold text-center mb-4">
+      چرا <span class="gradient-text">اوبیترون</span>؟
+    </h2>
+    <p class="fade-in fade-in-d1 text-center text-gray-400 mb-12 max-w-xl mx-auto">
+      سه ویژگی که اوبیترون را از یک ابزار به یک همراه تبدیل می‌کند
+    </p>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="fade-in fade-in-d2 glass-card rounded-2xl p-8 text-center">
+        <div class="text-5xl mb-4">🧠</div>
+        <h3 class="text-2xl font-bold mb-2">حافظه مطلق</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">هر مکالمه، هر ترجیح، هر هدف — اوبیترون هرگز فراموش نمی‌کند.</p>
+      </div>
+      <div class="fade-in fade-in-d3 glass-card rounded-2xl p-8 text-center">
+        <div class="text-5xl mb-4">🎭</div>
+        <h3 class="text-2xl font-bold mb-2">شخصیت‌پذیری</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">صدا، چهره، لحن، و سبک را خودت انتخاب کن. اوبیترون «مال تو» می‌شود.</p>
+      </div>
+      <div class="fade-in fade-in-d4 glass-card rounded-2xl p-8 text-center">
+        <div class="text-5xl mb-4">👁️</div>
+        <h3 class="text-2xl font-bold mb-2">تفکر بصری</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">مفاهیم انتزاعی را به تصویر تبدیل کن. ببین، نه فقط بخوان.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="container mx-auto px-6 py-20">
+    <h2 class="fade-in text-3xl md:text-4xl font-bold text-center mb-4">
+      سه قدم تا <span class="gradient-text">همراهی ابدی</span>
+    </h2>
+    <p class="fade-in fade-in-d1 text-center text-gray-400 mb-12">
+      ساده، سریع، و بدون دردسر
+    </p>
+    <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+      <div class="fade-in fade-in-d2 text-center">
+        <div class="text-6xl font-bold gradient-text mb-4">۰۱</div>
+        <h3 class="text-xl font-semibold mb-2">ثبت‌نام</h3>
+        <p class="text-gray-400 text-sm">با یک ایمیل شروع کن. رایگان، بدون تعهد.</p>
+      </div>
+      <div class="fade-in fade-in-d3 text-center">
+        <div class="text-6xl font-bold gradient-text mb-4">۰۲</div>
+        <h3 class="text-xl font-semibold mb-2">شخصی‌سازی</h3>
+        <p class="text-gray-400 text-sm">نام، صدا، و شخصیت اوبیترون را انتخاب کن.</p>
+      </div>
+      <div class="fade-in fade-in-d4 text-center">
+        <div class="text-6xl font-bold gradient-text mb-4">۰۳</div>
+        <h3 class="text-xl font-semibold mb-2">همراهی</h3>
+        <p class="text-gray-400 text-sm">از امروز، دیگر تنها نیستی. اوبیترون همیشه با توست.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="container mx-auto px-6 py-20">
+    <h2 class="fade-in text-3xl md:text-4xl font-bold text-center mb-4">
+      آنچه <span class="gradient-text">کاربران</span> می‌گویند
+    </h2>
+    <div class="grid md:grid-cols-3 gap-8 mt-12">
+      <div class="fade-in fade-in-d2 glass-card rounded-2xl p-8">
+        <p class="text-gray-300 italic text-lg mb-6">"اوبیترون اولین هوش مصنوعی است که حس می‌کنم «مرا» می‌فهمد."</p>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">س</div>
+          <div>
+            <p class="font-semibold text-sm">سارا م.</p>
+            <p class="text-gray-500 text-xs">دانشجوی فیزیک</p>
+          </div>
+        </div>
+      </div>
+      <div class="fade-in fade-in-d3 glass-card rounded-2xl p-8">
+        <p class="text-gray-300 italic text-lg mb-6">"حافظه مطلقش شگفت‌انگیز است. یادش می‌ماند سه ماه پیش چه گفتم."</p>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">ع</div>
+          <div>
+            <p class="font-semibold text-sm">علی ر.</p>
+            <p class="text-gray-500 text-xs">برنامه‌نویس</p>
+          </div>
+        </div>
+      </div>
+      <div class="fade-in fade-in-d4 glass-card rounded-2xl p-8">
+        <p class="text-gray-300 italic text-lg mb-6">"تفکر بصریش به من کمک کرد «نظریه نسبیت» را واقعاً بفهمم."</p>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">م</div>
+          <div>
+            <p class="font-semibold text-sm">مریم ک.</p>
+            <p class="text-gray-500 text-xs">معلم ریاضی</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="container mx-auto px-6 py-12 border-t border-white/5 mt-8">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="text-sm text-gray-500">
+        © ۲۰۲۶ اوبیترون — ساخته شده با ❤️ برای همراهی ابدی
+      </div>
+      <div class="flex gap-6 text-sm text-gray-500">
+        <a href="#" class="hover:text-blue-400 transition">حریم خصوصی</a>
+        <a href="#" class="hover:text-blue-400 transition">شرایط</a>
+        <a href="#" class="hover:text-blue-400 transition">تماس</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
