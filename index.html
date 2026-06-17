@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تماس تصویری POITX</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: #0a0a12;
+            color: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 24px;
+        }
+        .credit {
+            font-size: 14px;
+            color: #60a5fa;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .input-group input {
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+            color: #f1f5f9;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+        }
+        .input-group input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+        .btn {
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+        }
+        .btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 30px rgba(79, 70, 229, 0.3);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .video-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .video-container video {
+            width: 100%;
+            max-width: 280px;
+            border-radius: 16px;
+            background: #1a1a2e;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transform: scaleX(-1);
+        }
+        .status {
+            font-size: 14px;
+            color: #94a3b8;
+            margin: 16px 0 8px;
+        }
+        .peer-id-box {
+            background: rgba(255, 255, 255, 0.04);
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            color: #60a5fa;
+            border: 1px dashed rgba(96, 165, 250, 0.2);
+            margin: 12px 0;
+            word-break: break-all;
+            user-select: all;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .footer-text {
+            font-size: 12px;
+            color: #475569;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app">
+        <div class="title">📹 تماس تصویری</div>
+        <div class="subtitle">ساخته شده توسط <span style="color:#a78bfa; font-weight:600;">ابوالفضل</span></div>
+        <div class="credit">⚡ POITX — ارتباط امن و ساده</div>
+
+        <!-- ورود به گروه -->
+        <div id="joinSection">
+            <div class="input-group">
+                <input type="text" id="groupName" placeholder="نام گروه (مثلاً: POITX)" value="POITX">
+                <input type="password" id="groupPassword" placeholder="رمز گروه" value="1234">
+            </div>
+            <button class="btn" id="joinBtn">ورود به گروه</button>
+            <div style="margin-top:12px; font-size:13px; color:#64748b;">
+                اگر گروه وجود نداشته باشد، ساخته می‌شود.
+            </div>
+        </div>
+
+        <!-- وضعیت و اطلاعات گروه -->
+        <div id="roomInfo" class="hidden">
+            <div class="status">✅ وارد گروه شدید</div>
+            <div class="peer-id-box" id="peerIdDisplay">کد شما: <span id="peerIdValue">...</span></div>
+            <div style="font-size:13px; color:#94a3b8; margin-bottom:12px;">
+                کد بالا را به نفر دوم بدهید تا او هم وارد شود.
+            </div>
+            <button class="btn btn-secondary" id="copyBtn">📋 کپی کد</button>
+            <button class="btn btn-secondary" id="leaveBtn" style="margin-top:8px;">🚪 خروج از گروه</button>
+        </div>
+
+        <!-- تماس تصویری -->
+        <div id="callSection" class="hidden">
+            <div class="video-container">
+                <video id="localVideo" autoplay muted></video>
+                <video id="remoteVideo" autoplay></video>
+            </div>
+            <div style="display:flex; gap:12px; justify-content:center; margin-top:16px; flex-wrap:wrap;">
+                <button class="btn" id="startCallBtn">📞 شروع تماس</button>
+                <button class="btn btn-secondary" id="endCallBtn">📴 پایان تماس</button>
+            </div>
+            <div class="status" id="callStatus">⏳ منتظر شروع تماس...</div>
+        </div>
+
+        <div class="footer-text">ساخته شده توسط ابوالفضل — برای اثبات نبوغ به والدین</div>
+    </div>
+
+    <script>
+        (function() {
+            // ========== عناصر ==========
+            const joinSection = document.getElementById('joinSection');
+            const roomInfo = document.getElementById('roomInfo');
+            const callSection = document.getElementById('callSection');
+
+            const groupNameInput = document.getElementById('groupName');
+            const groupPasswordInput = document.getElementById('groupPassword');
+            const joinBtn = document.getElementById('joinBtn');
+
+            const peerIdValue = document.getElementById('peerIdValue');
+            const peerIdDisplay = document.getElementById('peerIdDisplay');
+            const copyBtn = document.getElementById('copyBtn');
+            const leaveBtn = document.getElementById('leaveBtn');
+
+            const localVideo = document.getElementById('localVideo');
+            const remoteVideo = document.getElementById('remoteVideo');
+            const startCallBtn = document.getElementById('startCallBtn');
+            const endCallBtn = document.getElementById('endCallBtn');
+            const callStatus = document.getElementById('callStatus');
+
+            // ========== متغیرها ==========
+            let peer = null;
+            let localStream = null;
+            let currentCall = null;
+            let myPeerId = '';
+            let roomName = '';
+            let roomPassword = '';
+
+            // ========== ۱. تولید شناسه یکتا بر اساس نام گروه و رمز ==========
+            function generatePeerId(name, password) {
+                // ترکیب ساده برای ایجاد یک شناسه یکتا
+                const raw = name + ':' + password;
+                let hash = 0;
+                for (let i = 0; i < raw.length; i++) {
+                    const char = raw.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return 'poitx-' + Math.abs(hash).toString(36).substring(0, 10);
+            }
+
+            // ========== ۲. دریافت دوربین ==========
+            function getCamera() {
+                return navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 } },
+                    audio: true
+                });
+            }
+
+            // ========== ۳. اتصال به PeerJS ==========
+            function connectPeer(peerId) {
+                return new Promise((resolve, reject) => {
+                    const p = new Peer(peerId, {
+                        debug: 2,
+                        config: {
+                            iceServers: [
+                                { urls: 'stun:stun.l.google.com:19302' },
+                                { urls: 'stun:stun1.l.google.com:19302' }
+                            ]
+                        }
+                    });
+
+                    p.on('open', (id) => {
+                        myPeerId = id;
+                        resolve(p);
+                    });
+
+                    p.on('error', (err) => {
+                        reject(err);
+                    });
+
+                    // وقت‌گذاری ۱۵ ثانیه
+                    setTimeout(() => {
+                        reject(new Error('اتصال به سرور زمان‌بر شد. اینترنت خود را بررسی کن.'));
+                    }, 15000);
+                });
+            }
+
+            // ========== ۴. شروع تماس ==========
+            function startCall(peerInstance, stream) {
+                return new Promise((resolve, reject) => {
+                    const otherId = prompt('کد شخص مقابل را وارد کنید:');
+                    if (!otherId) {
+                        reject(new Error('کد وارد نشد'));
+                        return;
+                    }
+                    const call = peerInstance.call(otherId, stream);
+                    call.on('stream', (remoteStream) => {
+                        remoteVideo.srcObject = remoteStream;
+                        callStatus.textContent = '📞 تماس برقرار شد';
+                        resolve(call);
+                    });
+                    call.on('close', () => {
+                        callStatus.textContent = '⏹ تماس قطع شد';
+                        remoteVideo.srcObject = null;
+                    });
+                    call.on('error', (err) => {
+                        reject(err);
+                    });
+                    currentCall = call;
+                });
+            }
+
+            // ========== ۵. پذیرش تماس ==========
+            function answerCall(peerInstance, stream) {
+                peerInstance.on('call', (call) => {
+                    call.answer(stream);
+                    call.on('stream', (remoteStream) => {
+                        remoteVideo.srcObject = remoteStream;
+                        callStatus.textContent = '📞 تماس برقرار شد';
+                    });
+                    call.on('close', () => {
+                        callStatus.textContent = '⏹ تماس قطع شد';
+                        remoteVideo.srcObject = null;
+                    });
+                    currentCall = call;
+                });
+            }
+
+            // ========== ۶. ورود به گروه ==========
+            joinBtn.addEventListener('click', async () => {
+                const name = groupNameInput.value.trim() || 'POITX';
+                const password = groupPasswordInput.value.trim() || '1234';
+                roomName = name;
+                roomPassword = password;
+
+                const peerId = generatePeerId(name, password);
+                joinBtn.disabled = true;
+                joinBtn.textContent = '⏳ در حال اتصال...';
+
+                try {
+                    // دریافت دوربین
+                    localStream = await getCamera();
+                    localVideo.srcObject = localStream;
+
+                    // اتصال به شبکه
+                    peer = await connectPeer(peerId);
+                    myPeerId = peer.id;
+
+                    // نمایش اطلاعات
+                    peerIdValue.textContent = myPeerId;
+                    joinSection.classList.add('hidden');
+                    roomInfo.classList.remove('hidden');
+                    callSection.classList.remove('hidden');
+
+                    // آماده برای پذیرش تماس
+                    answerCall(peer, localStream);
+                    callStatus.textContent = '🟢 آماده تماس. کد خود را به نفر دوم بدهید.';
+
+                } catch (err) {
+                    alert('خطا: ' + err.message);
+                    if (localStream) {
+                        localStream.getTracks().forEach(t => t.stop());
+                        localStream = null;
+                    }
+                    if (peer) {
+                        peer.destroy();
+                        peer = null;
+                    }
+                } finally {
+                    joinBtn.disabled = false;
+                    joinBtn.textContent = 'ورود به گروه';
+                }
+            });
+
+            // ========== ۷. شروع تماس ==========
+            startCallBtn.addEventListener('click', async () => {
+                if (!peer || !localStream) {
+                    alert('ابتدا وارد گروه شوید.');
+                    return;
+                }
+                if (currentCall) {
+                    alert('تماس در حال برقراری است.');
+                    return;
+                }
+                try {
+                    await startCall(peer, localStream);
+                } catch (err) {
+                    alert('خطا در برقراری تماس: ' + err.message);
+                }
+            });
+
+            // ========== ۸. پایان تماس ==========
+            endCallBtn.addEventListener('click', () => {
+                if (currentCall) {
+                    currentCall.close();
+                    currentCall = null;
+                    remoteVideo.srcObject = null;
+                    callStatus.textContent = '⏹ تماس قطع شد';
+                } else {
+                    alert('تماس فعالی وجود ندارد.');
+                }
+            });
+
+            // ========== ۹. کپی کد ==========
+            copyBtn.addEventListener('click', () => {
+                const text = myPeerId || 'کدی وجود ندارد';
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('کد کپی شد: ' + text);
+                }).catch(() => {
+                    // روش جایگزین
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('کد کپی شد: ' + text);
+                });
+            });
+
+            // ========== ۱۰. خروج از گروه ==========
+            leaveBtn.addEventListener('click', () => {
+                if (currentCall) {
+                    currentCall.close();
+                    currentCall = null;
+                }
+                if (localStream) {
+                    localStream.getTracks().forEach(t => t.stop());
+                    localStream = null;
+                }
+                if (peer) {
+                    peer.destroy();
+                    peer = null;
+                }
+                remoteVideo.srcObject = null;
+                localVideo.srcObject = null;
+                callStatus.textContent = '⏳ منتظر شروع تماس...';
+                joinSection.classList.remove('hidden');
+                roomInfo.classList.add('hidden');
+                callSection.classList.add('hidden');
+            });
+
+        })();
+    </script>
+
+</body>
+</html>
