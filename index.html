@@ -253,12 +253,27 @@
             word-break: break-all;
             user-select: all;
             font-family: monospace;
+            cursor: pointer;
+        }
+        .peer-id-box:hover {
+            background: rgba(255, 255, 255, 0.04);
         }
         .room-info {
             font-size: 11px;
             color: #64748b;
             padding: 0 20px 4px;
             text-align: center;
+        }
+        .error-box {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 14px;
+            border: 1px solid rgba(239, 68, 68, 0.1);
+            margin-bottom: 16px;
+            text-align: center;
+            display: none;
         }
     </style>
 </head>
@@ -276,6 +291,8 @@
             <span id="userCount">👤 ۰ نفر</span>
         </div>
 
+        <div id="errorBox" class="error-box">⚠️ خطا</div>
+
         <!-- ورود -->
         <div id="joinSection" class="join-area">
             <input type="text" id="usernameInput" placeholder="نام شما..." maxlength="20" value="ابوالفضل" />
@@ -290,7 +307,9 @@
         <!-- چت -->
         <div id="chatSection" class="hidden" style="display:flex; flex-direction:column; flex:1;">
             <div class="room-info">اتاق: <span id="roomNameDisplay">-</span></div>
-            <div class="peer-id-box" id="peerIdBox">کد شما: <span id="peerIdDisplay">...</span></div>
+            <div class="peer-id-box" id="peerIdBox" title="کلیک کنید تا کپی شود">
+                📋 کد شما: <span id="peerIdDisplay">...</span>
+            </div>
             <div class="messages" id="messagesContainer">
                 <div class="empty-state">✨ پیامی ارسال نشده است</div>
             </div>
@@ -316,6 +335,7 @@
             // ===== عناصر =====
             const joinSection = document.getElementById('joinSection');
             const chatSection = document.getElementById('chatSection');
+            const errorBox = document.getElementById('errorBox');
             const usernameInput = document.getElementById('usernameInput');
             const roomInput = document.getElementById('roomInput');
             const passwordInput = document.getElementById('passwordInput');
@@ -339,7 +359,13 @@
             let room = '';
             let password = '';
             let myPeerId = '';
-            let isConnected = false;
+
+            // ===== خطا =====
+            function showError(msg) {
+                errorBox.style.display = 'block';
+                errorBox.textContent = '⚠️ ' + msg;
+                setTimeout(() => { errorBox.style.display = 'none'; }, 5000);
+            }
 
             // ===== پیام جدید =====
             function addMessage(name, text, isSelf, time) {
@@ -370,16 +396,29 @@
 
             // ===== ارسال پیام به همه =====
             function broadcastMessage(text) {
+                if (!text.trim()) return;
                 const time = new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
-                const data = { type: 'chat', sender: username, text: text, time: time };
+                const data = { type: 'chat', sender: username, text: text.trim(), time: time };
 
+                let sent = 0;
                 for (const id in connections) {
                     try {
                         connections[id].send(JSON.stringify(data));
+                        sent++;
                     } catch (e) {}
                 }
-                addMessage(username, text, true, time);
+                addMessage(username, text.trim(), true, time);
                 messageInput.value = '';
+
+                if (sent === 0) {
+                    showError('به کسی متصل نیستید! ابتدا به مهدیار متصل شوید.');
+                }
+            }
+
+            // ===== بروزرسانی تعداد کاربران =====
+            function updateUserCount() {
+                const count = Object.keys(connections).length + 1;
+                userCount.textContent = '👤 ' + count + ' نفر';
             }
 
             // ===== اتصال به PeerJS =====
@@ -390,9 +429,13 @@
                         config: {
                             iceServers: [
                                 { urls: 'stun:stun.l.google.com:19302' },
-                                { urls: 'stun:stun1.l.google.com:19302' }
+                                { urls: 'stun:stun1.l.google.com:19302' },
+                                { urls: 'stun:stun2.l.google.com:19302' }
                             ]
-                        }
+                        },
+                        host: '0.peerjs.com',
+                        port: 443,
+                        path: '/'
                     });
                     p.on('open', (id) => {
                         myPeerId = id;
@@ -414,17 +457,13 @@
                         conn.on('close', () => {
                             delete connections[conn.peer];
                             updateUserCount();
+                            addMessage('سیستم', 'یک کاربر قطع کرد 🔴', false);
                         });
                         updateUserCount();
+                        addMessage('سیستم', '🔗 کاربر جدید متصل شد 🟢', false);
                     });
                     setTimeout(() => { reject(new Error('اتصال زمان‌بر شد')); }, 15000);
                 });
-            }
-
-            // ===== بروزرسانی تعداد کاربران =====
-            function updateUserCount() {
-                const count = Object.keys(connections).length + 1;
-                userCount.textContent = '👤 ' + count + ' نفر';
             }
 
             // ===== ورود =====
@@ -434,7 +473,7 @@
                 const pass = passwordInput.value.trim() || '1234';
 
                 if (name.length < 2) {
-                    alert('نام باید حداقل ۲ حرف باشد');
+                    showError('نام باید حداقل ۲ حرف باشد');
                     return;
                 }
 
@@ -452,6 +491,21 @@
                     peerIdDisplay.textContent = myPeerId;
                     roomNameDisplay.textContent = room;
 
+                    // کلیک روی کد برای کپی
+                    peerIdBox.onclick = () => {
+                        navigator.clipboard.writeText(myPeerId).then(() => {
+                            showError('✅ کد کپی شد!');
+                        }).catch(() => {
+                            const ta = document.createElement('textarea');
+                            ta.value = myPeerId;
+                            document.body.appendChild(ta);
+                            ta.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(ta);
+                            showError('✅ کد کپی شد!');
+                        });
+                    };
+
                     joinSection.classList.add('hidden');
                     chatSection.style.display = 'flex';
                     chatSection.classList.remove('hidden');
@@ -466,7 +520,7 @@
                     localStorage.setItem('poitx_password', password);
 
                 } catch (err) {
-                    alert('خطا: ' + err.message);
+                    showError(err.message);
                     if (peer) {
                         peer.destroy();
                         peer = null;
@@ -479,14 +533,18 @@
 
             // ===== اتصال به مهدیار =====
             connectBtn.addEventListener('click', () => {
+                if (!peer) {
+                    showError('ابتدا وارد اتاق شوید');
+                    return;
+                }
                 const targetId = prompt('کد مهدیار را وارد کنید:');
                 if (!targetId) return;
                 if (targetId === myPeerId) {
-                    alert('این کد خودتان است!');
+                    showError('این کد خودتان است!');
                     return;
                 }
                 if (connections[targetId]) {
-                    alert('قبلاً متصل هستید!');
+                    showError('قبلاً متصل هستید!');
                     return;
                 }
 
@@ -507,30 +565,28 @@
                         addMessage('سیستم', 'مهدیار قطع کرد 🔴', false);
                     });
                     updateUserCount();
-                    addMessage('سیستم', '🔗 به مهدیار متصل شدید', false);
+                    addMessage('سیستم', '🔗 به مهدیار متصل شدید 🟢', false);
                 });
                 conn.on('error', () => {
-                    alert('اتصال به مهدیار ممکن نشد. کد را چک کنید.');
+                    showError('اتصال به مهدیار ممکن نشد. کد را چک کنید.');
                 });
             });
 
             // ===== ارسال پیام =====
             sendBtn.addEventListener('click', () => {
-                if (messageInput.value.trim()) {
-                    broadcastMessage(messageInput.value.trim());
-                }
+                broadcastMessage(messageInput.value);
             });
 
             messageInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
-                    broadcastMessage(messageInput.value.trim());
+                    broadcastMessage(messageInput.value);
                 }
             });
 
             // ===== کپی کد =====
             copyBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(myPeerId).then(() => {
-                    alert('کد کپی شد: ' + myPeerId);
+                    showError('✅ کد کپی شد: ' + myPeerId);
                 }).catch(() => {
                     const ta = document.createElement('textarea');
                     ta.value = myPeerId;
@@ -538,7 +594,7 @@
                     ta.select();
                     document.execCommand('copy');
                     document.body.removeChild(ta);
-                    alert('کد کپی شد: ' + myPeerId);
+                    showError('✅ کد کپی شد: ' + myPeerId);
                 });
             });
 
@@ -571,6 +627,18 @@
             if (savedUser) usernameInput.value = savedUser;
             if (savedRoom) roomInput.value = savedRoom;
             if (savedPass) passwordInput.value = savedPass;
+
+            // ===== قطع اتصال در صورت بسته شدن =====
+            window.addEventListener('beforeunload', () => {
+                for (const id in connections) {
+                    try {
+                        connections[id].close();
+                    } catch (e) {}
+                }
+                if (peer) {
+                    peer.destroy();
+                }
+            });
 
         })();
     </script>
