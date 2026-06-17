@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>پیام‌رسان POITX</title>
+    <title>چت‌روم POITX</title>
     <style>
         * {
             margin: 0;
@@ -11,7 +11,6 @@
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-
         body {
             background: #0b0b12;
             display: flex;
@@ -20,7 +19,6 @@
             min-height: 100vh;
             padding: 16px;
         }
-
         .app {
             width: 100%;
             max-width: 420px;
@@ -34,10 +32,8 @@
             height: 90vh;
             max-height: 700px;
         }
-
-        /* هدر */
         .header {
-            padding: 18px 20px 14px;
+            padding: 16px 20px;
             background: rgba(255, 255, 255, 0.02);
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             display: flex;
@@ -51,14 +47,12 @@
             color: #f1f5f9;
         }
         .header .badge {
-            font-size: 11px;
+            font-size: 10px;
             color: #60a5fa;
             background: rgba(96, 165, 250, 0.1);
             padding: 4px 12px;
             border-radius: 20px;
         }
-
-        /* بخش ورود */
         .join-area {
             padding: 20px;
             flex-shrink: 0;
@@ -95,8 +89,6 @@
             transform: scale(1.01);
             box-shadow: 0 8px 24px rgba(79, 70, 229, 0.25);
         }
-
-        /* پیام‌ها */
         .messages {
             flex: 1;
             overflow-y: auto;
@@ -113,7 +105,6 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
         }
-
         .msg {
             max-width: 80%;
             padding: 10px 14px;
@@ -141,16 +132,15 @@
             color: #60a5fa;
             margin-bottom: 2px;
         }
+        .msg-self .name {
+            color: rgba(255, 255, 255, 0.7);
+        }
         .msg .time {
             font-size: 10px;
             opacity: 0.5;
             margin-top: 4px;
             text-align: left;
         }
-        .msg-self .time {
-            color: rgba(255, 255, 255, 0.6);
-        }
-
         @keyframes fadeUp {
             from {
                 opacity: 0;
@@ -161,8 +151,6 @@
                 transform: translateY(0);
             }
         }
-
-        /* ورودی پیام */
         .input-area {
             padding: 12px 16px 16px;
             border-top: 1px solid rgba(255, 255, 255, 0.04);
@@ -201,14 +189,6 @@
             transform: scale(1.02);
             box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
         }
-
-        .input-area button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        /* وضعیت */
         .status-bar {
             display: flex;
             justify-content: space-between;
@@ -224,11 +204,9 @@
         .status-bar .offline {
             color: #ef4444;
         }
-
         .hidden {
             display: none !important;
         }
-
         .footer {
             text-align: center;
             font-size: 10px;
@@ -241,8 +219,6 @@
             color: #a78bfa;
             font-weight: 500;
         }
-
-        /* خروج */
         .btn-leave {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.04);
@@ -256,7 +232,6 @@
         .btn-leave:hover {
             background: rgba(255, 255, 255, 0.08);
         }
-
         .empty-state {
             color: #475569;
             text-align: center;
@@ -264,50 +239,53 @@
             margin-top: 40px;
             opacity: 0.6;
         }
+        .room-info {
+            font-size: 11px;
+            color: #64748b;
+            padding: 0 20px 4px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
     <div class="app" id="app">
 
-        <!-- هدر -->
         <div class="header">
             <h1>💬 پیام‌رسان</h1>
             <span class="badge">POITX</span>
         </div>
 
-        <!-- وضعیت -->
         <div class="status-bar">
             <span id="statusText">🔴 <span class="offline">خارج از گروه</span></span>
             <span id="userCount">👤 ۰ نفر</span>
         </div>
 
-        <!-- بخش ورود -->
+        <!-- ورود -->
         <div id="joinSection" class="join-area">
-            <input type="text" id="usernameInput" placeholder="نام خود را وارد کنید..." maxlength="20" />
-            <input type="text" id="roomInput" placeholder="نام گروه (مثلاً: POITX)" value="POITX" />
-            <button class="btn-join" id="joinBtn">ورود به گروه</button>
+            <input type="text" id="usernameInput" placeholder="نام شما..." maxlength="20" value="ابوالفضل" />
+            <input type="text" id="roomInput" placeholder="نام اتاق (مثلاً: POITX)" value="POITX" />
+            <input type="password" id="passwordInput" placeholder="رمز اتاق" value="1234" />
+            <button class="btn-join" id="joinBtn">ورود به اتاق</button>
             <div style="font-size:12px; color:#475569; text-align:center; margin-top:10px;">
-                با این نام وارد گروه می‌شوید
+                با همین نام و رمز، مهدیار هم وارد شود
             </div>
         </div>
 
-        <!-- بخش چت -->
+        <!-- چت -->
         <div id="chatSection" class="hidden" style="display:flex; flex-direction:column; flex:1;">
-
+            <div class="room-info" id="roomInfoDisplay">اتاق: <span id="roomNameDisplay">-</span></div>
             <div class="messages" id="messagesContainer">
                 <div class="empty-state">✨ پیامی ارسال نشده است</div>
             </div>
-
             <div class="input-area">
-                <input type="text" id="messageInput" placeholder="پیام بنویسید..." />
+                <input type="text" id="messageInput" placeholder="پیام..." />
                 <button id="sendBtn">ارسال</button>
             </div>
-
-            <div style="display:flex; justify-content:center; padding:4px 0 8px;">
-                <button class="btn-leave" id="leaveBtn">🚪 خروج از گروه</button>
+            <div style="display:flex; justify-content:center; padding:4px 0 8px; gap:10px;">
+                <button class="btn-leave" id="leaveBtn">🚪 خروج</button>
+                <button class="btn-leave" id="inviteBtn">📋 کپی لینک</button>
             </div>
-
             <div class="footer">
                 ساخته شده توسط <strong>ابوالفضل</strong>
             </div>
@@ -321,28 +299,31 @@
             // ===== عناصر =====
             const joinSection = document.getElementById('joinSection');
             const chatSection = document.getElementById('chatSection');
-
             const usernameInput = document.getElementById('usernameInput');
             const roomInput = document.getElementById('roomInput');
+            const passwordInput = document.getElementById('passwordInput');
             const joinBtn = document.getElementById('joinBtn');
-
             const messagesContainer = document.getElementById('messagesContainer');
             const messageInput = document.getElementById('messageInput');
             const sendBtn = document.getElementById('sendBtn');
             const leaveBtn = document.getElementById('leaveBtn');
-
+            const inviteBtn = document.getElementById('inviteBtn');
             const statusText = document.getElementById('statusText');
             const userCount = document.getElementById('userCount');
+            const roomNameDisplay = document.getElementById('roomNameDisplay');
 
             // ===== متغیرها =====
             let ws = null;
             let username = '';
             let room = '';
+            let password = '';
             let isConnected = false;
 
-            // ===== پیام جدید به DOM =====
-            function addMessage(name, text, isSelf) {
-                // حذف empty-state
+            // ===== ذخیره پیام‌ها =====
+            let messages = [];
+
+            // ===== افزودن پیام =====
+            function addMessage(name, text, isSelf, time) {
                 const empty = messagesContainer.querySelector('.empty-state');
                 if (empty) empty.remove();
 
@@ -358,9 +339,7 @@
 
                 const timeSpan = document.createElement('div');
                 timeSpan.className = 'time';
-                const now = new Date();
-                timeSpan.textContent = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2,
-                '0');
+                timeSpan.textContent = time || new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
 
                 div.appendChild(nameSpan);
                 div.appendChild(textSpan);
@@ -368,11 +347,13 @@
 
                 messagesContainer.appendChild(div);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                messages.push({ name, text, isSelf, time: timeSpan.textContent });
             }
 
-            // ===== اتصال WebSocket =====
+            // ===== اتصال WebSocket واقعی =====
             function connectWebSocket() {
                 return new Promise((resolve, reject) => {
+                    // استفاده از WebSocket عمومی برای تست (در صورت نیاز به سرور واقعی، باید خودت راه بندازی)
                     const wsUrl = 'wss://echo.websocket.org';
                     ws = new WebSocket(wsUrl);
 
@@ -382,7 +363,7 @@
                     };
 
                     ws.onerror = () => {
-                        reject(new Error('اتصال به سرور امکان‌پذیر نیست'));
+                        reject(new Error('اتصال به سرور امکان‌پذیر نیست. اینترنت را بررسی کن.'));
                     };
 
                     ws.onmessage = (event) => {
@@ -390,14 +371,20 @@
                             const data = JSON.parse(event.data);
                             if (data.type === 'message') {
                                 const isSelf = data.sender === username;
-                                addMessage(data.sender, data.text, isSelf);
+                                addMessage(data.sender, data.text, isSelf, data.time);
                             }
                             if (data.type === 'users') {
                                 userCount.textContent = '👤 ' + data.count + ' نفر';
                             }
+                            if (data.type === 'join') {
+                                addMessage('سیستم', data.sender + ' وارد شد 🟢', false);
+                            }
+                            if (data.type === 'leave') {
+                                addMessage('سیستم', data.sender + ' خارج شد 🔴', false);
+                            }
                         } catch (e) {
                             // پیام ساده
-                            if (event.data.startsWith('USER:')) {
+                            if (event.data.startsWith('MSG:')) {
                                 const parts = event.data.split(':');
                                 if (parts[1] === username) return;
                                 addMessage(parts[1], parts[2] || 'پیام', false);
@@ -407,7 +394,7 @@
 
                     setTimeout(() => {
                         reject(new Error('اتصال زمان‌بر شد'));
-                    }, 10000);
+                    }, 12000);
                 });
             }
 
@@ -422,17 +409,21 @@
                 const data = {
                     type: 'message',
                     sender: username,
-                    text: text.trim()
+                    text: text.trim(),
+                    room: room,
+                    password: password,
+                    time: new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
                 };
                 ws.send(JSON.stringify(data));
-                addMessage(username, text.trim(), true);
+                addMessage(username, text.trim(), true, data.time);
                 messageInput.value = '';
             }
 
-            // ===== ورود به گروه =====
+            // ===== ورود به اتاق =====
             joinBtn.addEventListener('click', async () => {
                 const name = usernameInput.value.trim() || 'کاربر';
                 const roomName = roomInput.value.trim() || 'POITX';
+                const pass = passwordInput.value.trim() || '1234';
 
                 if (name.length < 2) {
                     alert('نام باید حداقل ۲ حرف باشد');
@@ -441,6 +432,7 @@
 
                 username = name;
                 room = roomName;
+                password = pass;
 
                 joinBtn.disabled = true;
                 joinBtn.textContent = '⏳ در حال اتصال...';
@@ -448,8 +440,13 @@
                 try {
                     await connectWebSocket();
 
-                    // پیام خوش‌آمدگویی
-                    addMessage('سیستم', 'به گروه ' + room + ' خوش آمدید ' + username + ' 👋', false);
+                    // ذخیره در localStorage
+                    localStorage.setItem('poitx_username', username);
+                    localStorage.setItem('poitx_room', room);
+                    localStorage.setItem('poitx_password', password);
+
+                    roomNameDisplay.textContent = room;
+                    addMessage('سیستم', 'به اتاق ' + room + ' خوش آمدید ' + username + ' 👋', false);
 
                     joinSection.classList.add('hidden');
                     chatSection.style.display = 'flex';
@@ -467,7 +464,7 @@
                     isConnected = false;
                 } finally {
                     joinBtn.disabled = false;
-                    joinBtn.textContent = 'ورود به گروه';
+                    joinBtn.textContent = 'ورود به اتاق';
                 }
             });
 
@@ -483,9 +480,10 @@
                 }
             });
 
-            // ===== خروج از گروه =====
+            // ===== خروج =====
             leaveBtn.addEventListener('click', () => {
                 if (ws) {
+                    ws.send(JSON.stringify({ type: 'leave', sender: username, room: room }));
                     ws.close();
                     ws = null;
                 }
@@ -502,12 +500,32 @@
                 messageInput.value = '';
             });
 
-            // ===== قطع اتصال در صورت بسته شدن مرورگر =====
+            // ===== کپی لینک =====
+            inviteBtn.addEventListener('click', () => {
+                const link = window.location.href;
+                navigator.clipboard.writeText(link).then(() => {
+                    alert('لینک کپی شد!\nاتاق: ' + room + '\nرمز: ' + password);
+                }).catch(() => {
+                    alert('لینک: ' + link + '\nاتاق: ' + room + '\nرمز: ' + password);
+                });
+            });
+
+            // ===== قطع اتصال در صورت بسته شدن =====
             window.addEventListener('beforeunload', () => {
                 if (ws) {
+                    ws.send(JSON.stringify({ type: 'leave', sender: username, room: room }));
                     ws.close();
                 }
             });
+
+            // ===== بارگذاری اطلاعات قبلی =====
+            const savedUser = localStorage.getItem('poitx_username');
+            const savedRoom = localStorage.getItem('poitx_room');
+            const savedPass = localStorage.getItem('poitx_password');
+
+            if (savedUser) usernameInput.value = savedUser;
+            if (savedRoom) roomInput.value = savedRoom;
+            if (savedPass) passwordInput.value = savedPass;
 
         })();
     </script>
