@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>چت‌روم POITX</title>
+    <title>چت POITX</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js">
+    </script>
     <style>
         * {
             margin: 0;
@@ -239,6 +241,19 @@
             margin-top: 40px;
             opacity: 0.6;
         }
+        .peer-id-box {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #60a5fa;
+            border: 1px dashed rgba(96, 165, 250, 0.15);
+            text-align: center;
+            margin: 4px 16px 8px;
+            word-break: break-all;
+            user-select: all;
+            font-family: monospace;
+        }
         .room-info {
             font-size: 11px;
             color: #64748b;
@@ -268,13 +283,14 @@
             <input type="password" id="passwordInput" placeholder="رمز اتاق" value="1234" />
             <button class="btn-join" id="joinBtn">ورود به اتاق</button>
             <div style="font-size:12px; color:#475569; text-align:center; margin-top:10px;">
-                با همین نام و رمز، مهدیار هم وارد شود
+                کد خود را به مهدیار بدهید تا او هم وصل شود
             </div>
         </div>
 
         <!-- چت -->
         <div id="chatSection" class="hidden" style="display:flex; flex-direction:column; flex:1;">
-            <div class="room-info" id="roomInfoDisplay">اتاق: <span id="roomNameDisplay">-</span></div>
+            <div class="room-info">اتاق: <span id="roomNameDisplay">-</span></div>
+            <div class="peer-id-box" id="peerIdBox">کد شما: <span id="peerIdDisplay">...</span></div>
             <div class="messages" id="messagesContainer">
                 <div class="empty-state">✨ پیامی ارسال نشده است</div>
             </div>
@@ -282,9 +298,10 @@
                 <input type="text" id="messageInput" placeholder="پیام..." />
                 <button id="sendBtn">ارسال</button>
             </div>
-            <div style="display:flex; justify-content:center; padding:4px 0 8px; gap:10px;">
+            <div style="display:flex; justify-content:center; padding:4px 0 8px; gap:10px; flex-wrap:wrap;">
                 <button class="btn-leave" id="leaveBtn">🚪 خروج</button>
-                <button class="btn-leave" id="inviteBtn">📋 کپی لینک</button>
+                <button class="btn-leave" id="copyBtn">📋 کپی کد</button>
+                <button class="btn-leave" id="connectBtn">🔗 اتصال به مهدیار</button>
             </div>
             <div class="footer">
                 ساخته شده توسط <strong>ابوالفضل</strong>
@@ -307,22 +324,24 @@
             const messageInput = document.getElementById('messageInput');
             const sendBtn = document.getElementById('sendBtn');
             const leaveBtn = document.getElementById('leaveBtn');
-            const inviteBtn = document.getElementById('inviteBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const connectBtn = document.getElementById('connectBtn');
             const statusText = document.getElementById('statusText');
             const userCount = document.getElementById('userCount');
             const roomNameDisplay = document.getElementById('roomNameDisplay');
+            const peerIdDisplay = document.getElementById('peerIdDisplay');
+            const peerIdBox = document.getElementById('peerIdBox');
 
             // ===== متغیرها =====
-            let ws = null;
+            let peer = null;
+            let connections = {};
             let username = '';
             let room = '';
             let password = '';
+            let myPeerId = '';
             let isConnected = false;
 
-            // ===== ذخیره پیام‌ها =====
-            let messages = [];
-
-            // ===== افزودن پیام =====
+            // ===== پیام جدید =====
             function addMessage(name, text, isSelf, time) {
                 const empty = messagesContainer.querySelector('.empty-state');
                 if (empty) empty.remove();
@@ -347,79 +366,68 @@
 
                 messagesContainer.appendChild(div);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                messages.push({ name, text, isSelf, time: timeSpan.textContent });
             }
 
-            // ===== اتصال WebSocket واقعی =====
-            function connectWebSocket() {
-                return new Promise((resolve, reject) => {
-                    // استفاده از WebSocket عمومی برای تست (در صورت نیاز به سرور واقعی، باید خودت راه بندازی)
-                    const wsUrl = 'wss://echo.websocket.org';
-                    ws = new WebSocket(wsUrl);
+            // ===== ارسال پیام به همه =====
+            function broadcastMessage(text) {
+                const time = new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+                const data = { type: 'chat', sender: username, text: text, time: time };
 
-                    ws.onopen = () => {
-                        isConnected = true;
-                        resolve();
-                    };
-
-                    ws.onerror = () => {
-                        reject(new Error('اتصال به سرور امکان‌پذیر نیست. اینترنت را بررسی کن.'));
-                    };
-
-                    ws.onmessage = (event) => {
-                        try {
-                            const data = JSON.parse(event.data);
-                            if (data.type === 'message') {
-                                const isSelf = data.sender === username;
-                                addMessage(data.sender, data.text, isSelf, data.time);
-                            }
-                            if (data.type === 'users') {
-                                userCount.textContent = '👤 ' + data.count + ' نفر';
-                            }
-                            if (data.type === 'join') {
-                                addMessage('سیستم', data.sender + ' وارد شد 🟢', false);
-                            }
-                            if (data.type === 'leave') {
-                                addMessage('سیستم', data.sender + ' خارج شد 🔴', false);
-                            }
-                        } catch (e) {
-                            // پیام ساده
-                            if (event.data.startsWith('MSG:')) {
-                                const parts = event.data.split(':');
-                                if (parts[1] === username) return;
-                                addMessage(parts[1], parts[2] || 'پیام', false);
-                            }
-                        }
-                    };
-
-                    setTimeout(() => {
-                        reject(new Error('اتصال زمان‌بر شد'));
-                    }, 12000);
-                });
-            }
-
-            // ===== ارسال پیام =====
-            function sendMessage(text) {
-                if (!ws || ws.readyState !== WebSocket.OPEN) {
-                    alert('ارتباط قطع است');
-                    return;
+                for (const id in connections) {
+                    try {
+                        connections[id].send(JSON.stringify(data));
+                    } catch (e) {}
                 }
-                if (!text.trim()) return;
-
-                const data = {
-                    type: 'message',
-                    sender: username,
-                    text: text.trim(),
-                    room: room,
-                    password: password,
-                    time: new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
-                };
-                ws.send(JSON.stringify(data));
-                addMessage(username, text.trim(), true, data.time);
+                addMessage(username, text, true, time);
                 messageInput.value = '';
             }
 
-            // ===== ورود به اتاق =====
+            // ===== اتصال به PeerJS =====
+            function initPeer(peerId) {
+                return new Promise((resolve, reject) => {
+                    const p = new Peer(peerId, {
+                        debug: 0,
+                        config: {
+                            iceServers: [
+                                { urls: 'stun:stun.l.google.com:19302' },
+                                { urls: 'stun:stun1.l.google.com:19302' }
+                            ]
+                        }
+                    });
+                    p.on('open', (id) => {
+                        myPeerId = id;
+                        resolve(p);
+                    });
+                    p.on('error', (err) => {
+                        reject(err);
+                    });
+                    p.on('connection', (conn) => {
+                        connections[conn.peer] = conn;
+                        conn.on('data', (data) => {
+                            try {
+                                const msg = JSON.parse(data);
+                                if (msg.type === 'chat') {
+                                    addMessage(msg.sender, msg.text, false, msg.time);
+                                }
+                            } catch (e) {}
+                        });
+                        conn.on('close', () => {
+                            delete connections[conn.peer];
+                            updateUserCount();
+                        });
+                        updateUserCount();
+                    });
+                    setTimeout(() => { reject(new Error('اتصال زمان‌بر شد')); }, 15000);
+                });
+            }
+
+            // ===== بروزرسانی تعداد کاربران =====
+            function updateUserCount() {
+                const count = Object.keys(connections).length + 1;
+                userCount.textContent = '👤 ' + count + ' نفر';
+            }
+
+            // ===== ورود =====
             joinBtn.addEventListener('click', async () => {
                 const name = usernameInput.value.trim() || 'کاربر';
                 const roomName = roomInput.value.trim() || 'POITX';
@@ -438,84 +446,121 @@
                 joinBtn.textContent = '⏳ در حال اتصال...';
 
                 try {
-                    await connectWebSocket();
+                    const peerId = 'poitx-' + roomName + '-' + pass;
+                    peer = await initPeer(peerId);
 
-                    // ذخیره در localStorage
-                    localStorage.setItem('poitx_username', username);
-                    localStorage.setItem('poitx_room', room);
-                    localStorage.setItem('poitx_password', password);
-
+                    peerIdDisplay.textContent = myPeerId;
                     roomNameDisplay.textContent = room;
-                    addMessage('سیستم', 'به اتاق ' + room + ' خوش آمدید ' + username + ' 👋', false);
 
                     joinSection.classList.add('hidden');
                     chatSection.style.display = 'flex';
                     chatSection.classList.remove('hidden');
 
                     statusText.innerHTML = '🟢 <span class="online">آنلاین</span>';
-                    userCount.textContent = '👤 ۱ نفر';
+                    updateUserCount();
+
+                    addMessage('سیستم', 'به اتاق ' + room + ' خوش آمدید ' + username + ' 👋', false);
+
+                    localStorage.setItem('poitx_username', username);
+                    localStorage.setItem('poitx_room', room);
+                    localStorage.setItem('poitx_password', password);
 
                 } catch (err) {
                     alert('خطا: ' + err.message);
-                    if (ws) {
-                        ws.close();
-                        ws = null;
+                    if (peer) {
+                        peer.destroy();
+                        peer = null;
                     }
-                    isConnected = false;
                 } finally {
                     joinBtn.disabled = false;
                     joinBtn.textContent = 'ورود به اتاق';
                 }
             });
 
-            // ===== ارسال با دکمه =====
-            sendBtn.addEventListener('click', () => {
-                sendMessage(messageInput.value);
+            // ===== اتصال به مهدیار =====
+            connectBtn.addEventListener('click', () => {
+                const targetId = prompt('کد مهدیار را وارد کنید:');
+                if (!targetId) return;
+                if (targetId === myPeerId) {
+                    alert('این کد خودتان است!');
+                    return;
+                }
+                if (connections[targetId]) {
+                    alert('قبلاً متصل هستید!');
+                    return;
+                }
+
+                const conn = peer.connect(targetId);
+                conn.on('open', () => {
+                    connections[targetId] = conn;
+                    conn.on('data', (data) => {
+                        try {
+                            const msg = JSON.parse(data);
+                            if (msg.type === 'chat') {
+                                addMessage(msg.sender, msg.text, false, msg.time);
+                            }
+                        } catch (e) {}
+                    });
+                    conn.on('close', () => {
+                        delete connections[targetId];
+                        updateUserCount();
+                        addMessage('سیستم', 'مهدیار قطع کرد 🔴', false);
+                    });
+                    updateUserCount();
+                    addMessage('سیستم', '🔗 به مهدیار متصل شدید', false);
+                });
+                conn.on('error', () => {
+                    alert('اتصال به مهدیار ممکن نشد. کد را چک کنید.');
+                });
             });
 
-            // ===== ارسال با Enter =====
+            // ===== ارسال پیام =====
+            sendBtn.addEventListener('click', () => {
+                if (messageInput.value.trim()) {
+                    broadcastMessage(messageInput.value.trim());
+                }
+            });
+
             messageInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
-                    sendMessage(messageInput.value);
+                    broadcastMessage(messageInput.value.trim());
                 }
+            });
+
+            // ===== کپی کد =====
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(myPeerId).then(() => {
+                    alert('کد کپی شد: ' + myPeerId);
+                }).catch(() => {
+                    const ta = document.createElement('textarea');
+                    ta.value = myPeerId;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    alert('کد کپی شد: ' + myPeerId);
+                });
             });
 
             // ===== خروج =====
             leaveBtn.addEventListener('click', () => {
-                if (ws) {
-                    ws.send(JSON.stringify({ type: 'leave', sender: username, room: room }));
-                    ws.close();
-                    ws = null;
+                for (const id in connections) {
+                    try {
+                        connections[id].close();
+                    } catch (e) {}
                 }
-                isConnected = false;
-
+                connections = {};
+                if (peer) {
+                    peer.destroy();
+                    peer = null;
+                }
                 chatSection.style.display = 'none';
                 chatSection.classList.add('hidden');
                 joinSection.classList.remove('hidden');
-
                 statusText.innerHTML = '🔴 <span class="offline">خارج از گروه</span>';
                 userCount.textContent = '👤 ۰ نفر';
-
                 messagesContainer.innerHTML = `<div class="empty-state">✨ پیامی ارسال نشده است</div>`;
                 messageInput.value = '';
-            });
-
-            // ===== کپی لینک =====
-            inviteBtn.addEventListener('click', () => {
-                const link = window.location.href;
-                navigator.clipboard.writeText(link).then(() => {
-                    alert('لینک کپی شد!\nاتاق: ' + room + '\nرمز: ' + password);
-                }).catch(() => {
-                    alert('لینک: ' + link + '\nاتاق: ' + room + '\nرمز: ' + password);
-                });
-            });
-
-            // ===== قطع اتصال در صورت بسته شدن =====
-            window.addEventListener('beforeunload', () => {
-                if (ws) {
-                    ws.send(JSON.stringify({ type: 'leave', sender: username, room: room }));
-                    ws.close();
-                }
             });
 
             // ===== بارگذاری اطلاعات قبلی =====
