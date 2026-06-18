@@ -3,86 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeonLink - پیام‌رسان سایبرپانک</title>
+    <title>NeonLink Pro - Enterprise Messaging Platform</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&display=swap');
-
+        /* ==================== CSS Custom Properties ==================== */
         :root {
+            /* Primary Colors */
             --neon-pink: #ff2d95;
             --neon-blue: #00f0ff;
             --neon-purple: #b400ff;
             --neon-green: #00ff88;
             --neon-yellow: #ffee00;
-            --dark-bg: #0a0a0f;
-            --darker-bg: #050508;
-            --glass-bg: rgba(10, 10, 20, 0.8);
-            --glass-border: rgba(0, 240, 255, 0.2);
-            --text-primary: #e0e0ff;
-            --text-secondary: #8080aa;
-            --glow-pink: 0 0 20px rgba(255, 45, 149, 0.5);
-            --glow-blue: 0 0 20px rgba(0, 240, 255, 0.5);
-            --glow-purple: 0 0 20px rgba(180, 0, 255, 0.5);
+            --neon-orange: #ff6600;
+            
+            /* Background System */
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #0d0d15;
+            --bg-tertiary: #111122;
+            --bg-elevated: #151530;
+            --bg-glass: rgba(13, 13, 25, 0.85);
+            --bg-glass-heavy: rgba(10, 10, 20, 0.95);
+            
+            /* Border System */
+            --border-subtle: rgba(0, 240, 255, 0.08);
+            --border-default: rgba(0, 240, 255, 0.15);
+            --border-strong: rgba(0, 240, 255, 0.25);
+            --border-active: rgba(0, 240, 255, 0.5);
+            
+            /* Text System */
+            --text-primary: #e8e8ff;
+            --text-secondary: #9898cc;
+            --text-tertiary: #6868aa;
+            --text-disabled: #484888;
+            
+            /* Glow Effects */
+            --glow-pink: 0 0 20px rgba(255, 45, 149, 0.4), 0 0 40px rgba(255, 45, 149, 0.2);
+            --glow-blue: 0 0 20px rgba(0, 240, 255, 0.4), 0 0 40px rgba(0, 240, 255, 0.2);
+            --glow-purple: 0 0 20px rgba(180, 0, 255, 0.4), 0 0 40px rgba(180, 0, 255, 0.2);
+            --glow-green: 0 0 20px rgba(0, 255, 136, 0.4), 0 0 40px rgba(0, 255, 136, 0.2);
+            
+            /* Spacing System */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            --space-3xl: 64px;
+            
+            /* Border Radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
+            --radius-full: 9999px;
+            
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Typography */
+            --font-primary: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --font-display: 'Orbitron', var(--font-primary);
         }
 
-        * {
+        /* ==================== Reset & Base ==================== */
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
         body {
-            font-family: 'Vazirmatn', 'Orbitron', sans-serif;
-            background: var(--darker-bg);
+            font-family: var(--font-primary);
+            background: var(--bg-primary);
             color: var(--text-primary);
             height: 100vh;
+            width: 100vw;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
-        /* پس‌زمینه متحرک */
-        .cyber-bg {
+        /* ==================== Typography Imports ==================== */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+        /* ==================== Background System ==================== */
+        .bg-layer {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0;
-            background: 
-                radial-gradient(ellipse at 20% 50%, rgba(180, 0, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(0, 240, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 80%, rgba(255, 45, 149, 0.1) 0%, transparent 50%);
-        }
-
-        .grid-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: 1;
-            animation: gridMove 20s linear infinite;
-        }
-
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
             pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-gradient {
+            background: 
+                radial-gradient(ellipse at 15% 50%, rgba(180, 0, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 85% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 85%, rgba(255, 45, 149, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 30% 30%, rgba(0, 255, 136, 0.04) 0%, transparent 50%);
+            animation: bgShift 20s ease-in-out infinite;
+        }
+
+        @keyframes bgShift {
+            0%, 100% { opacity: 0.8; }
+            25% { opacity: 1; }
+            50% { opacity: 0.9; }
+            75% { opacity: 0.7; }
+        }
+
+        .bg-grid {
+            background-image: 
+                linear-gradient(var(--border-subtle) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+            animation: gridDrift 30s linear infinite;
+        }
+
+        @keyframes gridDrift {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(60px, 60px) rotate(1deg); }
+        }
+
+        .bg-particles {
+            z-index: 2;
         }
 
         .particle {
@@ -91,482 +153,191 @@
             height: 2px;
             background: var(--neon-blue);
             border-radius: 50%;
-            animation: floatUp linear infinite;
+            box-shadow: 0 0 6px var(--neon-blue), 0 0 12px var(--neon-blue);
+            animation: particleFloat linear infinite;
             opacity: 0;
-            box-shadow: 0 0 10px var(--neon-blue);
         }
 
-        @keyframes floatUp {
+        @keyframes particleFloat {
             0% {
-                transform: translateY(100vh) scale(0);
+                transform: translateY(110vh) translateX(0) scale(0);
                 opacity: 0;
             }
-            10% {
-                opacity: 1;
+            5% {
+                opacity: 0.8;
             }
             90% {
-                opacity: 1;
+                opacity: 0.6;
             }
             100% {
-                transform: translateY(-100vh) scale(1);
+                transform: translateY(-10vh) translateX(100px) scale(1.5);
                 opacity: 0;
             }
         }
 
-        /* کانتینر اصلی */
-        .main-container {
-            width: 95vw;
-            max-width: 1400px;
-            height: 90vh;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
+        /* ==================== Main Container ==================== */
+        .app-container {
+            width: 96vw;
+            max-width: 1600px;
+            height: 94vh;
+            background: var(--bg-glass);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-2xl);
             display: flex;
             position: relative;
             z-index: 10;
             box-shadow: 
-                0 0 40px rgba(0, 240, 255, 0.1),
-                0 0 80px rgba(180, 0, 255, 0.05),
-                inset 0 0 40px rgba(0, 240, 255, 0.02);
+                0 0 60px rgba(0, 240, 255, 0.08),
+                0 0 120px rgba(180, 0, 255, 0.04),
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.02);
             overflow: hidden;
-            animation: containerGlow 4s ease-in-out infinite;
+            animation: containerBreath 8s ease-in-out infinite;
         }
 
-        @keyframes containerGlow {
-            0%, 100% { box-shadow: 0 0 40px rgba(0, 240, 255, 0.1), 0 0 80px rgba(180, 0, 255, 0.05); }
-            50% { box-shadow: 0 0 60px rgba(0, 240, 255, 0.2), 0 0 100px rgba(180, 0, 255, 0.1); }
+        @keyframes containerBreath {
+            0%, 100% { 
+                box-shadow: 0 0 60px rgba(0, 240, 255, 0.08), 0 0 120px rgba(180, 0, 255, 0.04), 0 20px 60px rgba(0, 0, 0, 0.5);
+            }
+            50% { 
+                box-shadow: 0 0 80px rgba(0, 240, 255, 0.12), 0 0 160px rgba(180, 0, 255, 0.06), 0 20px 60px rgba(0, 0, 0, 0.5);
+            }
         }
 
-        /* نوار کناری */
-        .sidebar {
-            width: 80px;
-            background: rgba(5, 5, 10, 0.9);
-            border-left: 1px solid var(--glass-border);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 0;
-            gap: 30px;
-            z-index: 20;
-        }
-
-        .sidebar-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 15px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            font-size: 20px;
-            color: var(--text-secondary);
-        }
-
-        .sidebar-icon:hover {
-            border-color: var(--neon-blue);
-            box-shadow: var(--glow-blue);
-            color: var(--neon-blue);
-            transform: translateY(-2px);
-        }
-
-        .sidebar-icon.active {
-            border-color: var(--neon-pink);
-            box-shadow: var(--glow-pink);
-            color: var(--neon-pink);
-            background: rgba(255, 45, 149, 0.1);
-        }
-
-        .sidebar-icon .badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            width: 20px;
-            height: 20px;
-            background: var(--neon-pink);
-            border-radius: 50%;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            box-shadow: var(--glow-pink);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-
-        /* پنل چت */
-        .chat-panel {
-            width: 350px;
-            background: rgba(5, 5, 10, 0.7);
-            border-left: 1px solid var(--glass-border);
-            display: flex;
-            flex-direction: column;
-            z-index: 15;
-        }
-
-        .search-container {
-            padding: 20px;
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--glass-border);
-            border-radius: 25px;
-            color: var(--text-primary);
-            font-family: 'Vazirmatn', sans-serif;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            padding-left: 40px;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--neon-blue);
-            box-shadow: var(--glow-blue);
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 35px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
-            font-size: 18px;
-        }
-
-        .contact-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0 15px;
-        }
-
-        .contact-list::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .contact-list::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .contact-list::-webkit-scrollbar-thumb {
-            background: var(--neon-purple);
-            border-radius: 10px;
-        }
-
-        .contact-item {
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 15px;
-            background: var(--glass-bg);
-            border: 1px solid transparent;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .contact-item::before {
-            content: '';
+        /* ==================== Login Screen ==================== */
+        .login-screen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, transparent, rgba(0, 240, 255, 0.05), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.5s ease;
-        }
-
-        .contact-item:hover::before {
-            transform: translateX(100%);
-        }
-
-        .contact-item:hover {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
-            transform: translateX(-5px);
-        }
-
-        .contact-item.active {
-            border-color: var(--neon-pink);
-            box-shadow: var(--glow-pink);
-            background: rgba(255, 45, 149, 0.1);
-        }
-
-        .contact-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 22px;
-            font-weight: bold;
-            color: white;
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .online-dot {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 12px;
-            height: 12px;
-            background: var(--neon-green);
-            border-radius: 50%;
-            border: 2px solid var(--dark-bg);
-            box-shadow: 0 0 10px var(--neon-green);
-        }
-
-        .contact-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .contact-name {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 5px;
-            color: var(--text-primary);
-        }
-
-        .contact-last-message {
-            font-size: 12px;
-            color: var(--text-secondary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .contact-time {
-            font-size: 10px;
-            color: var(--neon-blue);
-            font-family: 'Orbitron', monospace;
-        }
-
-        /* منطقه اصلی چت */
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .chat-header {
-            padding: 20px 30px;
-            border-bottom: 1px solid var(--glass-border);
-            display: flex;
             align-items: center;
-            gap: 15px;
-            background: rgba(5, 5, 10, 0.5);
+            z-index: 100;
+            background: var(--bg-glass-heavy);
+            backdrop-filter: blur(40px);
+            transition: all var(--transition-slow);
         }
 
-        .chat-header-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: white;
+        .login-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.1);
         }
 
-        .chat-header-info h3 {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .chat-header-info .status {
-            font-size: 12px;
-            color: var(--neon-green);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--neon-green);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--neon-green);
-            animation: pulse 2s infinite;
-        }
-
-        .chat-header-actions {
-            margin-right: auto;
-            display: flex;
-            gap: 15px;
-        }
-
-        .header-action-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: var(--text-secondary);
-            font-size: 18px;
-        }
-
-        .header-action-btn:hover {
-            border-color: var(--neon-blue);
+        .login-card {
+            width: 420px;
+            padding: var(--space-3xl);
+            background: var(--bg-glass);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-2xl);
             box-shadow: var(--glow-blue);
-            color: var(--neon-blue);
+            animation: loginPulse 3s ease-in-out infinite;
         }
 
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        @keyframes loginPulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(0, 240, 255, 0.3), 0 0 60px rgba(0, 240, 255, 0.1); }
+            50% { box-shadow: 0 0 50px rgba(0, 240, 255, 0.5), 0 0 100px rgba(0, 240, 255, 0.2); }
         }
 
-        .messages-container::-webkit-scrollbar {
-            width: 5px;
+        .login-logo {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: var(--space-xl);
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: logoGlitch 5s infinite;
         }
 
-        .messages-container::-webkit-scrollbar-track {
-            background: transparent;
+        @keyframes logoGlitch {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 1px); }
+            94% { transform: translate(2px, -1px); }
+            96% { transform: translate(-1px, 2px); }
+            98% { transform: translate(1px, -2px); }
         }
 
-        .messages-container::-webkit-scrollbar-thumb {
-            background: var(--neon-purple);
-            border-radius: 10px;
-        }
-
-        .message {
-            display: flex;
-            gap: 10px;
-            max-width: 70%;
-            animation: messageSlide 0.3s ease-out;
-        }
-
-        @keyframes messageSlide {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .message.sent {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
-
-        .message.received {
-            align-self: flex-start;
-        }
-
-        .message-content {
-            padding: 15px;
-            border-radius: 20px;
-            position: relative;
-            word-wrap: break-word;
-            line-height: 1.5;
-        }
-
-        .message.sent .message-content {
-            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(180, 0, 255, 0.2));
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-bottom-right-radius: 5px;
-        }
-
-        .message.received .message-content {
-            background: rgba(255, 45, 149, 0.1);
-            border: 1px solid rgba(255, 45, 149, 0.3);
-            border-bottom-left-radius: 5px;
-        }
-
-        .message-time {
-            font-size: 10px;
+        .login-subtitle {
+            text-align: center;
             color: var(--text-secondary);
-            margin-top: 5px;
-            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            margin-bottom: var(--space-2xl);
+            font-family: var(--font-mono);
         }
 
-        .message-input-area {
-            padding: 20px 30px;
-            border-top: 1px solid var(--glass-border);
-            background: rgba(5, 5, 10, 0.5);
+        .form-group {
+            margin-bottom: var(--space-lg);
         }
 
-        .input-container {
-            display: flex;
-            gap: 15px;
-            align-items: center;
+        .form-label {
+            display: block;
+            margin-bottom: var(--space-sm);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .message-input {
-            flex: 1;
-            padding: 15px 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--glass-border);
-            border-radius: 30px;
+        .form-input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
             color: var(--text-primary);
-            font-family: 'Vazirmatn', sans-serif;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            resize: none;
-        }
-
-        .message-input:focus {
+            font-family: var(--font-primary);
+            font-size: 0.95rem;
+            transition: all var(--transition-fast);
             outline: none;
-            border-color: var(--neon-blue);
-            box-shadow: var(--glow-blue);
         }
 
-        .send-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+        .form-input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-disabled);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
             border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border-radius: var(--radius-lg);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 20px;
-            color: white;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+            transition: all var(--transition-base);
             position: relative;
             overflow: hidden;
         }
 
-        .send-btn::before {
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 240, 255, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary::after {
             content: '';
             position: absolute;
             top: -50%;
@@ -574,95 +345,632 @@
             width: 200%;
             height: 200%;
             background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transform: rotate(45deg);
-            animation: sendGlow 2s infinite;
+            transform: rotate(45deg) translateX(-100%);
+            animation: btnShine 3s infinite;
         }
 
-        @keyframes sendGlow {
-            0% { transform: rotate(45deg) translateX(-100%); }
-            100% { transform: rotate(45deg) translateX(100%); }
+        @keyframes btnShine {
+            0%, 100% { transform: rotate(45deg) translateX(-100%); }
+            50% { transform: rotate(45deg) translateX(100%); }
         }
 
-        .send-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
-        }
-
-        .send-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* انیمیشن تایپ */
-        .typing-indicator {
+        /* ==================== Sidebar ==================== */
+        .sidebar {
+            width: 72px;
+            min-width: 72px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-subtle);
             display: flex;
-            gap: 5px;
-            padding: 15px;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-lg) 0;
+            gap: var(--space-lg);
+            z-index: 20;
+        }
+
+        .sidebar-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            background: transparent;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            position: relative;
+            font-size: 1.3rem;
+            color: var(--text-tertiary);
+        }
+
+        .sidebar-icon:hover {
+            border-color: var(--border-active);
+            background: rgba(0, 240, 255, 0.05);
+            color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        .sidebar-icon.active {
+            border-color: var(--neon-blue);
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--neon-blue);
+            box-shadow: var(--glow-blue);
+        }
+
+        .sidebar-icon .badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 5px;
+            background: var(--neon-pink);
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            box-shadow: var(--glow-pink);
+            animation: badgePulse 2s infinite;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        /* ==================== Chat List Panel ==================== */
+        .chat-list-panel {
+            width: 360px;
+            min-width: 360px;
+            background: var(--bg-tertiary);
+            border-right: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            z-index: 15;
+        }
+
+        .panel-header {
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: var(--space-md);
+            font-family: var(--font-display);
+            letter-spacing: 1px;
+        }
+
+        .search-wrapper {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            padding-left: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-full);
+            color: var(--text-primary);
+            font-family: var(--font-primary);
+            font-size: 0.9rem;
+            transition: all var(--transition-fast);
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-sm);
+        }
+
+        .chat-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-list::-webkit-scrollbar-track {
+            background: transparent;
+            margin: 10px 0;
+        }
+
+        .chat-list::-webkit-scrollbar-thumb {
+            background: var(--border-strong);
+            border-radius: var(--radius-full);
+        }
+
+        .chat-list::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-purple);
+        }
+
+        .chat-item {
+            padding: var(--space-md);
+            margin-bottom: 4px;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            position: relative;
+            border: 1px solid transparent;
+        }
+
+        .chat-item:hover {
+            background: rgba(0, 240, 255, 0.03);
+            border-color: var(--border-default);
+            transform: translateX(-2px);
+        }
+
+        .chat-item.active {
+            background: rgba(0, 240, 255, 0.08);
+            border-color: var(--border-active);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: white;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .avatar-1 { background: linear-gradient(135deg, #ff2d95, #ff6600); }
+        .avatar-2 { background: linear-gradient(135deg, #00f0ff, #0066ff); }
+        .avatar-3 { background: linear-gradient(135deg, #b400ff, #ff2d95); }
+        .avatar-4 { background: linear-gradient(135deg, #00ff88, #00cc66); }
+        .avatar-5 { background: linear-gradient(135deg, #ff6600, #ffee00); }
+        .avatar-6 { background: linear-gradient(135deg, #0066ff, #b400ff); }
+
+        .online-indicator {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 14px;
+            height: 14px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            border: 2px solid var(--bg-tertiary);
+            box-shadow: 0 0 10px var(--neon-green);
+            animation: onlinePulse 2s infinite;
+        }
+
+        @keyframes onlinePulse {
+            0%, 100% { box-shadow: 0 0 5px var(--neon-green); }
+            50% { box-shadow: 0 0 15px var(--neon-green), 0 0 30px rgba(0, 255, 136, 0.5); }
+        }
+
+        .chat-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-item-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-item-message {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item-time {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            font-family: var(--font-mono);
+        }
+
+        .unread-count {
+            min-width: 22px;
+            height: 22px;
+            background: var(--neon-pink);
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            box-shadow: var(--glow-pink);
+        }
+
+        /* ==================== Main Chat Area ==================== */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            min-width: 0;
+        }
+
+        .chat-header {
+            padding: var(--space-lg) var(--space-xl);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            background: var(--bg-elevated);
+        }
+
+        .chat-header-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .chat-header-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .chat-header-info .user-status {
+            font-size: 0.8rem;
+            color: var(--neon-green);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--neon-green);
+        }
+
+        .chat-header-actions {
+            margin-left: auto;
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid var(--border-default);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .icon-btn:hover {
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        /* Messages Area */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-xl);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            background: 
+                radial-gradient(ellipse at center, rgba(0, 240, 255, 0.02) 0%, transparent 70%);
+        }
+
+        .messages-area::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .messages-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages-area::-webkit-scrollbar-thumb {
+            background: var(--border-strong);
+            border-radius: var(--radius-full);
+        }
+
+        .message-wrapper {
+            display: flex;
+            gap: var(--space-sm);
+            max-width: 75%;
+            animation: messageSlideIn 0.3s ease-out;
+        }
+
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .message-wrapper.sent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-wrapper.received {
             align-self: flex-start;
         }
 
+        .message-bubble {
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-xl);
+            position: relative;
+            word-wrap: break-word;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        .message-wrapper.sent .message-bubble {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(180, 0, 255, 0.15));
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            border-bottom-right-radius: var(--radius-sm);
+        }
+
+        .message-wrapper.received .message-bubble {
+            background: linear-gradient(135deg, rgba(255, 45, 149, 0.1), rgba(255, 102, 0, 0.1));
+            border: 1px solid rgba(255, 45, 149, 0.2);
+            border-bottom-left-radius: var(--radius-sm);
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            margin-top: var(--space-xs);
+            font-family: var(--font-mono);
+            text-align: left;
+        }
+
+        .message-status {
+            font-size: 0.7rem;
+            margin-left: var(--space-xs);
+        }
+
+        .date-separator {
+            text-align: center;
+            margin: var(--space-lg) 0;
+            position: relative;
+        }
+
+        .date-separator span {
+            background: var(--bg-primary);
+            padding: var(--space-xs) var(--space-md);
+            border-radius: var(--radius-full);
+            border: 1px solid var(--border-default);
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            font-family: var(--font-mono);
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: var(--space-lg) var(--space-xl);
+            border-top: 1px solid var(--border-subtle);
+            background: var(--bg-elevated);
+        }
+
+        .input-container {
+            display: flex;
+            gap: var(--space-md);
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 14px 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-2xl);
+            color: var(--text-primary);
+            font-family: var(--font-primary);
+            font-size: 0.9rem;
+            transition: all var(--transition-fast);
+            resize: none;
+            outline: none;
+            max-height: 120px;
+            min-height: 48px;
+        }
+
+        .message-input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+        }
+
+        .send-button {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
+            flex-shrink: 0;
+        }
+
+        .send-button:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 30px rgba(0, 240, 255, 0.5);
+        }
+
+        .send-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: var(--space-md) var(--space-lg);
+            align-self: flex-start;
+            background: rgba(255, 45, 149, 0.05);
+            border-radius: var(--radius-xl);
+            border: 1px solid rgba(255, 45, 149, 0.15);
+        }
+
         .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--neon-blue);
+            width: 7px;
+            height: 7px;
+            background: var(--neon-pink);
             border-radius: 50%;
             animation: typingBounce 1.4s infinite;
-            box-shadow: 0 0 10px var(--neon-blue);
+            box-shadow: 0 0 8px var(--neon-pink);
         }
 
-        .typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
         @keyframes typingBounce {
             0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-10px); }
+            30% { transform: translateY(-8px); }
         }
 
-        /* افکت‌های ویژه */
-        .glitch-text {
-            position: relative;
-            animation: glitch 3s infinite;
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-lg);
+            padding: var(--space-sm);
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            display: none;
+            min-width: 200px;
         }
 
-        @keyframes glitch {
-            0%, 100% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
+        .context-menu.show {
+            display: block;
+            animation: contextFadeIn 0.2s ease-out;
         }
 
-        /* رسپانسیو */
+        @keyframes contextFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .context-item {
+            padding: var(--space-sm) var(--space-md);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-fast);
+            font-size: 0.9rem;
+        }
+
+        .context-item:hover {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--neon-blue);
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .toast {
+            padding: var(--space-md) var(--space-lg);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: toastSlideIn 0.3s ease-out;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        @keyframes toastSlideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .chat-list-panel {
+                width: 300px;
+                min-width: 300px;
+            }
+        }
+
         @media (max-width: 768px) {
-            .main-container {
+            .app-container {
                 width: 100vw;
                 height: 100vh;
                 border-radius: 0;
-                flex-direction: column;
             }
 
             .sidebar {
                 width: 100%;
                 height: 60px;
+                min-width: unset;
                 flex-direction: row;
-                padding: 0 20px;
-                gap: 20px;
-                border-left: none;
-                border-bottom: 1px solid var(--glass-border);
+                padding: 0 var(--space-lg);
+                border-right: none;
+                border-bottom: 1px solid var(--border-subtle);
+                order: 3;
             }
 
-            .sidebar-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
-
-            .chat-panel {
+            .chat-list-panel {
                 width: 100%;
+                min-width: unset;
                 flex: 1;
             }
 
@@ -673,288 +981,626 @@
     </style>
 </head>
 <body>
-    <div class="cyber-bg"></div>
-    <div class="grid-overlay"></div>
-    <div class="particles" id="particles"></div>
+    <!-- Background Layers -->
+    <div class="bg-layer bg-gradient"></div>
+    <div class="bg-layer bg-grid"></div>
+    <div class="bg-layer bg-particles" id="particlesContainer"></div>
 
-    <div class="main-container">
-        <!-- نوار کناری -->
-        <div class="sidebar">
-            <div class="sidebar-icon active" title="چت‌ها">💬</div>
-            <div class="sidebar-icon" title="تماس‌ها">📞</div>
-            <div class="sidebar-icon" title="گروه‌ها">👥</div>
-            <div class="sidebar-icon" title="تنظیمات">⚙️
-                <span class="badge">3</span>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-item" onclick="replyMessage()">↩️ پاسخ</div>
+        <div class="context-item" onclick="copyMessage()">📋 کپی</div>
+        <div class="context-item" onclick="forwardMessage()">↗️ ارسال به...</div>
+        <div class="context-item" onclick="deleteMessage()" style="color: var(--neon-pink);">🗑️ حذف</div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container" id="appContainer">
+        <!-- Login Screen -->
+        <div class="login-screen" id="loginScreen">
+            <div class="login-card">
+                <div class="login-logo">NEONLINK</div>
+                <div class="login-subtitle">Enterprise Messaging Platform v3.0</div>
+                
+                <div class="form-group">
+                    <label class="form-label">نام کاربری</label>
+                    <input type="text" class="form-input" id="usernameInput" placeholder="username@neonlink" value="sara">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">رمز عبور</label>
+                    <input type="password" class="form-input" id="passwordInput" placeholder="••••••••" value="1234">
+                </div>
+                
+                <button class="btn btn-primary" onclick="handleLogin()">
+                    ورود به سیستم
+                </button>
+                
+                <div style="text-align: center; margin-top: var(--space-lg);">
+                    <small style="color: var(--text-tertiary);">
+                        Demo: username: sara | password: 1234
+                    </small>
+                </div>
             </div>
-            <div class="sidebar-icon" title="پروفایل">👤</div>
         </div>
 
-        <!-- پنل مخاطبین -->
-        <div class="chat-panel">
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="جستجوی مخاطب...">
-                <span class="search-icon">🔍</span>
-            </div>
-            <div class="contact-list" id="contactList">
-                <!-- مخاطبین به صورت داینامیک اضافه می‌شوند -->
-            </div>
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-icon active" title="پیام‌ها" data-view="chats">💬</div>
+            <div class="sidebar-icon" title="تماس‌ها" data-view="calls">📞</div>
+            <div class="sidebar-icon" title="مخاطبین" data-view="contacts">👥</div>
+            <div class="sidebar-icon" title="تنظیمات" data-view="settings">⚙️</div>
+            <div class="sidebar-icon" title="خروج" onclick="handleLogout()" style="margin-top: auto;">🚪</div>
         </div>
 
-        <!-- منطقه چت -->
-        <div class="chat-area">
-            <div class="chat-header">
-                <div class="chat-header-avatar">س</div>
+        <!-- Chat List Panel -->
+        <div class="chat-list-panel" id="chatListPanel">
+            <div class="panel-header">
+                <div class="panel-title">پیام‌ها</div>
+                <div class="search-wrapper">
+                    <input type="text" class="search-input" id="searchInput" placeholder="جستجو در پیام‌ها...">
+                    <span class="search-icon">🔍</span>
+                </div>
+            </div>
+            <div class="chat-list" id="chatList"></div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-area" id="chatArea">
+            <div class="chat-header" id="chatHeader">
+                <div class="chat-header-avatar avatar-1">س</div>
                 <div class="chat-header-info">
-                    <h3 class="glitch-text">سارا</h3>
-                    <div class="status">
+                    <h3 id="chatUserName">سارا احمدی</h3>
+                    <div class="user-status">
                         <span class="status-dot"></span>
-                        آنلاین
+                        <span id="chatUserStatus">آنلاین</span>
                     </div>
                 </div>
                 <div class="chat-header-actions">
-                    <button class="header-action-btn" title="تماس صوتی">🎙️</button>
-                    <button class="header-action-btn" title="تماس تصویری">📹</button>
-                    <button class="header-action-btn" title="اطلاعات">ℹ️</button>
+                    <button class="icon-btn" title="جستجو در گفتگو">🔍</button>
+                    <button class="icon-btn" title="تماس صوتی">🎙️</button>
+                    <button class="icon-btn" title="تماس تصویری">📹</button>
+                    <button class="icon-btn" title="اطلاعات بیشتر">ℹ️</button>
                 </div>
             </div>
-
-            <div class="messages-container" id="messagesContainer">
-                <!-- پیام‌ها به صورت داینامیک اضافه می‌شوند -->
-            </div>
-
-            <div class="message-input-area">
+            
+            <div class="messages-area" id="messagesArea"></div>
+            
+            <div class="input-area">
                 <div class="input-container">
-                    <button class="header-action-btn" title="Emoji">😊</button>
-                    <button class="header-action-btn" title="Attachment">📎</button>
-                    <input type="text" class="message-input" id="messageInput" placeholder="پیام خود را بنویسید..." onkeypress="handleKeyPress(event)">
-                    <button class="send-btn" onclick="sendMessage()">➤</button>
+                    <button class="icon-btn" title="ضمیمه">📎</button>
+                    <textarea class="message-input" id="messageInput" placeholder="پیام خود را بنویسید..." rows="1" onkeydown="handleInputKey(event)"></textarea>
+                    <button class="icon-btn" title="ایموجی">😊</button>
+                    <button class="send-button" onclick="sendMessage()" title="ارسال">➤</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // داده‌های اولیه
-        const contacts = [
-            { id: 1, name: 'سارا', lastMessage: 'فردا میای استودیو؟', time: '10:30', online: true, unread: 2 },
-            { id: 2, name: 'علی', lastMessage: 'پروژه تموم شد', time: '09:15', online: true, unread: 0 },
-            { id: 3, name: 'مارینا', lastMessage: 'کد جدید رو دیدی؟', time: 'دیروز', online: false, unread: 5 },
-            { id: 4, name: 'تیم طراحی', lastMessage: 'جلسه ساعت ۳', time: 'دیروز', online: true, unread: 0 },
-            { id: 5, name: 'کیارش', lastMessage: 'آپدیت جدید اومده', time: 'شنبه', online: false, unread: 1 },
-            { id: 6, name: 'نئون گنگ', lastMessage: '🎵 موزیک جدید', time: 'جمعه', online: true, unread: 0 }
-        ];
-
-        const messages = [
-            { id: 1, text: 'سلام! حالت چطوره؟', sender: 'received', time: '10:15' },
-            { id: 2, text: 'سلام! خوبم مرسی. تو چطوری؟', sender: 'sent', time: '10:16' },
-            { id: 3, text: 'عالی! فردا میای استودیو؟', sender: 'received', time: '10:18' },
-            { id: 4, text: 'حتماً! ساعت چند؟', sender: 'sent', time: '10:20' },
-            { id: 5, text: 'ساعت ۲ بعد از ظهر. یه پروژه جدید داریم', sender: 'received', time: '10:22' },
-            { id: 6, text: 'چه خوب! مشتاقم ببینمش', sender: 'sent', time: '10:25' },
-            { id: 7, text: 'عالیه! پس فردا می‌بینمت 🤘', sender: 'received', time: '10:30' }
-        ];
-
-        // ایجاد ذرات متحرک
-        function createParticles() {
-            const container = document.getElementById('particles');
-            for (let i = 0; i < 50; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
-                particle.style.animationDelay = Math.random() * 10 + 's';
-                container.appendChild(particle);
+        // ==================== Application Core ====================
+        class MessagingApp {
+            constructor() {
+                this.state = {
+                    isLoggedIn: false,
+                    currentUser: null,
+                    activeChat: null,
+                    chats: [],
+                    messages: {},
+                    selectedMessage: null
+                };
+                
+                this.init();
             }
-        }
 
-        // بارگذاری مخاطبین
-        function loadContacts() {
-            const contactList = document.getElementById('contactList');
-            contactList.innerHTML = '';
-            
-            contacts.forEach(contact => {
-                const contactElement = document.createElement('div');
-                contactElement.className = 'contact-item' + (contact.id === 1 ? ' active' : '');
-                contactElement.innerHTML = `
-                    <div class="contact-avatar">
-                        ${contact.name.charAt(0)}
-                        ${contact.online ? '<span class="online-dot"></span>' : ''}
-                    </div>
-                    <div class="contact-info">
-                        <div class="contact-name">${contact.name}</div>
-                        <div class="contact-last-message">${contact.lastMessage}</div>
-                    </div>
-                    <div style="text-align: left;">
-                        <div class="contact-time">${contact.time}</div>
-                        ${contact.unread > 0 ? `<div style="background: var(--neon-pink); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; margin-top: 5px; box-shadow: var(--glow-pink);">${contact.unread}</div>` : ''}
-                    </div>
-                `;
-                contactElement.addEventListener('click', () => {
-                    document.querySelectorAll('.contact-item').forEach(el => el.classList.remove('active'));
-                    contactElement.classList.add('active');
-                    updateChatHeader(contact);
+            init() {
+                this.createParticles();
+                this.setupEventListeners();
+                this.loadFromStorage();
+                this.autoResizeTextarea();
+                
+                // Focus on login input
+                document.getElementById('usernameInput').focus();
+            }
+
+            // ==================== Data Management ====================
+            getDefaultData() {
+                return {
+                    users: [
+                        { id: 1, username: 'sara', name: 'سارا احمدی', avatar: 'س', avatarClass: 'avatar-1', online: true, lastSeen: new Date() },
+                        { id: 2, username: 'ali', name: 'علی رضایی', avatar: 'ع', avatarClass: 'avatar-2', online: true, lastSeen: new Date() },
+                        { id: 3, username: 'marina', name: 'مارینا کاظمی', avatar: 'م', avatarClass: 'avatar-3', online: false, lastSeen: new Date(Date.now() - 3600000) },
+                        { id: 4, username: 'design_team', name: 'تیم طراحی', avatar: 'ط', avatarClass: 'avatar-4', online: true, lastSeen: new Date(), isGroup: true },
+                        { id: 5, username: 'kiarash', name: 'کیارش موسوی', avatar: 'ک', avatarClass: 'avatar-5', online: false, lastSeen: new Date(Date.now() - 86400000) },
+                        { id: 6, username: 'neon_gang', name: 'نئون گنگ', avatar: 'ن', avatarClass: 'avatar-6', online: true, lastSeen: new Date(), isGroup: true }
+                    ],
+                    chats: [
+                        { id: 1, userId: 1, lastMessage: 'فردا جلسه ساعت ۳ برگزار میشه', lastMessageTime: new Date(Date.now() - 1800000), unread: 2 },
+                        { id: 2, userId: 2, lastMessage: 'پروژه رو تحویل دادم', lastMessageTime: new Date(Date.now() - 3600000), unread: 0 },
+                        { id: 3, userId: 3, lastMessage: 'کد جدید رو دیدی؟ عالیه', lastMessageTime: new Date(Date.now() - 7200000), unread: 5 },
+                        { id: 4, userId: 4, lastMessage: 'جلسه طراحی فردا کنسل شد', lastMessageTime: new Date(Date.now() - 14400000), unread: 0 },
+                        { id: 5, userId: 5, lastMessage: 'آپدیت جدید اومده', lastMessageTime: new Date(Date.now() - 86400000), unread: 1 },
+                        { id: 6, userId: 6, lastMessage: '🎵 ترک جدید منتشر شد', lastMessageTime: new Date(Date.now() - 172800000), unread: 0 }
+                    ],
+                    messages: {
+                        1: [
+                            { id: 101, senderId: 1, text: 'سلام! حالت چطوره؟', time: new Date(Date.now() - 3600000), status: 'read' },
+                            { id: 102, senderId: 'me', text: 'سلام سارا! خوبم، مرسی. تو چطوری؟', time: new Date(Date.now() - 3500000), status: 'read' },
+                            { id: 103, senderId: 1, text: 'خوبم! فردا جلسه داریم یادت نره', time: new Date(Date.now() - 3400000), status: 'read' },
+                            { id: 104, senderId: 'me', text: 'چشم، حتماً. ساعت چند؟', time: new Date(Date.now() - 3300000), status: 'read' },
+                            { id: 105, senderId: 1, text: 'ساعت ۳ بعد از ظهر. پروژه جدید خیلی جذابه', time: new Date(Date.now() - 2000000), status: 'read' },
+                            { id: 106, senderId: 'me', text: 'منتظرم ببینمش! 🤩', time: new Date(Date.now() - 1900000), status: 'read' },
+                            { id: 107, senderId: 1, text: 'فردا جلسه ساعت ۳ برگزار میشه', time: new Date(Date.now() - 1800000), status: 'delivered' }
+                        ],
+                        2: [
+                            { id: 201, senderId: 2, text: 'سلام داداش', time: new Date(Date.now() - 7200000), status: 'read' },
+                            { id: 202, senderId: 'me', text: 'سلام علی! چه خبر؟', time: new Date(Date.now() - 7000000), status: 'read' },
+                            { id: 203, senderId: 2, text: 'پروژه رو تحویل دادم، بازخورد خوبی گرفتم', time: new Date(Date.now() - 5000000), status: 'read' },
+                            { id: 204, senderId: 'me', text: 'آفرین! میدونستم موفق میشی 💪', time: new Date(Date.now() - 4800000), status: 'read' },
+                            { id: 205, senderId: 2, text: 'پروژه رو تحویل دادم', time: new Date(Date.now() - 3600000), status: 'read' }
+                        ],
+                        3: [
+                            { id: 301, senderId: 3, text: 'کد جدید رو دیدی؟', time: new Date(Date.now() - 14400000), status: 'read' },
+                            { id: 302, senderId: 'me', text: 'آره، فوق‌العاده‌ست! چطور نوشتی؟', time: new Date(Date.now() - 14000000), status: 'read' },
+                            { id: 303, senderId: 3, text: 'کلی تحقیق کردم. بهینه‌سازی عالی داره', time: new Date(Date.now() - 10000000), status: 'read' },
+                            { id: 304, senderId: 3, text: 'باید یه روز با هم بررسیش کنیم', time: new Date(Date.now() - 8000000), status: 'read' },
+                            { id: 305, senderId: 3, text: 'کد جدید رو دیدی؟ عالیه', time: new Date(Date.now() - 7200000), status: 'read' }
+                        ]
+                    }
+                };
+            }
+
+            loadFromStorage() {
+                const savedData = localStorage.getItem('neonlink_data');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    this.state.chats = data.chats || this.getDefaultData().chats;
+                    this.state.messages = data.messages || this.getDefaultData().messages;
+                } else {
+                    const defaultData = this.getDefaultData();
+                    this.state.chats = defaultData.chats;
+                    this.state.messages = defaultData.messages;
+                    this.saveToStorage();
+                }
+            }
+
+            saveToStorage() {
+                const data = {
+                    chats: this.state.chats,
+                    messages: this.state.messages
+                };
+                localStorage.setItem('neonlink_data', JSON.stringify(data));
+            }
+
+            // ==================== Authentication ====================
+            handleLogin() {
+                const username = document.getElementById('usernameInput').value.trim();
+                const password = document.getElementById('passwordInput').value.trim();
+                
+                if (username && password) {
+                    const user = this.getDefaultData().users.find(u => u.username === username);
+                    if (user) {
+                        this.state.isLoggedIn = true;
+                        this.state.currentUser = user;
+                        
+                        document.getElementById('loginScreen').classList.add('hidden');
+                        this.renderChatList();
+                        this.setActiveChat(1);
+                        this.showToast('success', `خوش آمدید ${user.name} جان! 🚀`);
+                    } else {
+                        this.showToast('error', 'نام کاربری یا رمز عبور اشتباه است');
+                    }
+                } else {
+                    this.showToast('warning', 'لطفاً نام کاربری و رمز عبور را وارد کنید');
+                }
+            }
+
+            handleLogout() {
+                this.state.isLoggedIn = false;
+                this.state.currentUser = null;
+                this.state.activeChat = null;
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('usernameInput').value = 'sara';
+                document.getElementById('passwordInput').value = '1234';
+                document.getElementById('usernameInput').focus();
+                this.showToast('info', 'از سیستم خارج شدید');
+            }
+
+            // ==================== Chat Management ====================
+            setActiveChat(chatId) {
+                this.state.activeChat = chatId;
+                this.renderChatList();
+                this.renderMessages();
+                this.updateChatHeader();
+                
+                // Mark as read
+                const chat = this.state.chats.find(c => c.id === chatId);
+                if (chat) {
+                    chat.unread = 0;
+                    this.saveToStorage();
+                }
+            }
+
+            updateChatHeader() {
+                const chat = this.state.chats.find(c => c.id === this.state.activeChat);
+                if (!chat) return;
+                
+                const user = this.getDefaultData().users.find(u => u.id === chat.userId);
+                if (!user) return;
+                
+                document.getElementById('chatUserName').textContent = user.name;
+                document.getElementById('chatUserStatus').textContent = user.online ? 'آنلاین' : 'آفلاین';
+                
+                const statusDot = document.querySelector('.status-dot');
+                if (user.online) {
+                    statusDot.style.display = 'inline-block';
+                } else {
+                    statusDot.style.display = 'none';
+                }
+                
+                const headerAvatar = document.querySelector('.chat-header-avatar');
+                headerAvatar.className = `chat-header-avatar ${user.avatarClass}`;
+                headerAvatar.textContent = user.avatar;
+            }
+
+            // ==================== Rendering ====================
+            renderChatList() {
+                const chatList = document.getElementById('chatList');
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                
+                let filteredChats = this.state.chats;
+                if (searchTerm) {
+                    filteredChats = this.state.chats.filter(chat => {
+                        const user = this.getDefaultData().users.find(u => u.id === chat.userId);
+                        return user && (user.name.toLowerCase().includes(searchTerm) || chat.lastMessage.toLowerCase().includes(searchTerm));
+                    });
+                }
+                
+                chatList.innerHTML = filteredChats.map(chat => {
+                    const user = this.getDefaultData().users.find(u => u.id === chat.userId);
+                    if (!user) return '';
+                    
+                    const isActive = this.state.activeChat === chat.id;
+                    const timeStr = this.formatTime(chat.lastMessageTime);
+                    
+                    return `
+                        <div class="chat-item ${isActive ? 'active' : ''}" onclick="app.setActiveChat(${chat.id})">
+                            <div class="avatar ${user.avatarClass}">
+                                ${user.avatar}
+                                ${user.online ? '<span class="online-indicator"></span>' : ''}
+                            </div>
+                            <div class="chat-item-info">
+                                <div class="chat-item-name">
+                                    <span>${user.name}</span>
+                                    <span class="chat-item-time">${timeStr}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span class="chat-item-message">${chat.lastMessage}</span>
+                                    ${chat.unread > 0 ? `<span class="unread-count">${chat.unread}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            renderMessages() {
+                const messagesArea = document.getElementById('messagesArea');
+                const chatMessages = this.state.messages[this.state.activeChat] || [];
+                
+                if (chatMessages.length === 0) {
+                    messagesArea.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px; color: var(--text-tertiary);">
+                            <div style="font-size: 3rem; margin-bottom: 20px;">💬</div>
+                            <div style="font-size: 1.1rem;">هنوز پیامی در این گفتگو وجود ندارد</div>
+                            <div style="font-size: 0.9rem; margin-top: 8px;">اولین پیام را ارسال کنید</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                let lastDate = null;
+                
+                chatMessages.forEach((msg, index) => {
+                    const msgDate = new Date(msg.time).toDateString();
+                    if (msgDate !== lastDate) {
+                        lastDate = msgDate;
+                        html += `
+                            <div class="date-separator">
+                                <span>${this.formatDate(msg.time)}</span>
+                            </div>
+                        `;
+                    }
+                    
+                    const isSent = msg.senderId === 'me';
+                    const user = isSent ? null : this.getDefaultData().users.find(u => u.id === msg.senderId);
+                    
+                    html += `
+                        <div class="message-wrapper ${isSent ? 'sent' : 'received'}" data-message-id="${msg.id}">
+                            <div class="message-bubble" oncontextmenu="app.showContextMenu(event, ${msg.id})">
+                                ${msg.text}
+                                <div class="message-time">
+                                    ${this.formatTime(msg.time)}
+                                    ${isSent ? `<span class="message-status">${msg.status === 'read' ? '✓✓' : '✓'}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 });
-                contactList.appendChild(contactElement);
-            });
-        }
-
-        // بارگذاری پیام‌ها
-        function loadMessages() {
-            const messagesContainer = document.getElementById('messagesContainer');
-            messagesContainer.innerHTML = '';
-            
-            messages.forEach(msg => {
-                addMessageToContainer(msg, false);
-            });
-            
-            // اسکرول به پایین
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        // اضافه کردن پیام به کانتینر
-        function addMessageToContainer(msg, animate = true) {
-            const messagesContainer = document.getElementById('messagesContainer');
-            const messageElement = document.createElement('div');
-            messageElement.className = `message ${msg.sender}`;
-            if (animate) {
-                messageElement.style.animation = 'messageSlide 0.3s ease-out';
+                
+                messagesArea.innerHTML = html;
+                messagesArea.scrollTop = messagesArea.scrollHeight;
             }
-            messageElement.innerHTML = `
-                <div class="message-content">
-                    ${msg.text}
-                    <div class="message-time">${msg.time}</div>
-                </div>
-            `;
-            messagesContainer.appendChild(messageElement);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
 
-        // بروزرسانی هدر چت
-        function updateChatHeader(contact) {
-            const headerName = document.querySelector('.chat-header-info h3');
-            const headerAvatar = document.querySelector('.chat-header-avatar');
-            const statusDot = document.querySelector('.status-dot');
-            const statusText = document.querySelector('.status');
-            
-            headerName.textContent = contact.name;
-            headerAvatar.textContent = contact.name.charAt(0);
-            
-            if (contact.online) {
-                statusDot.style.display = 'inline-block';
-                statusText.innerHTML = '<span class="status-dot"></span> آنلاین';
-            } else {
-                statusDot.style.display = 'none';
-                statusText.innerHTML = 'آفلاین';
-            }
-        }
-
-        // ارسال پیام
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
-            
-            if (text) {
-                const now = new Date();
-                const time = now.getHours().toString().padStart(2, '0') + ':' + 
-                           now.getMinutes().toString().padStart(2, '0');
+            // ==================== Message Actions ====================
+            sendMessage() {
+                const input = document.getElementById('messageInput');
+                const text = input.value.trim();
+                
+                if (!text || !this.state.activeChat) return;
                 
                 const newMessage = {
                     id: Date.now(),
+                    senderId: 'me',
                     text: text,
-                    sender: 'sent',
-                    time: time
+                    time: new Date(),
+                    status: 'sent'
                 };
                 
-                messages.push(newMessage);
-                addMessageToContainer(newMessage, true);
-                input.value = '';
+                // Add to messages
+                if (!this.state.messages[this.state.activeChat]) {
+                    this.state.messages[this.state.activeChat] = [];
+                }
+                this.state.messages[this.state.activeChat].push(newMessage);
                 
-                // شبیه‌سازی پاسخ خودکار
+                // Update chat last message
+                const chat = this.state.chats.find(c => c.id === this.state.activeChat);
+                if (chat) {
+                    chat.lastMessage = text;
+                    chat.lastMessageTime = new Date();
+                }
+                
+                this.saveToStorage();
+                this.renderMessages();
+                this.renderChatList();
+                
+                input.value = '';
+                input.style.height = 'auto';
+                
+                // Simulate auto-reply
+                setTimeout(() => this.simulateReply(), 1500 + Math.random() * 2000);
+            }
+
+            simulateReply() {
+                if (!this.state.activeChat) return;
+                
+                const chat = this.state.chats.find(c => c.id === this.state.activeChat);
+                if (!chat) return;
+                
+                const user = this.getDefaultData().users.find(u => u.id === chat.userId);
+                if (!user || !user.online) return;
+                
+                // Show typing indicator
+                const messagesArea = document.getElementById('messagesArea');
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing-indicator';
+                typingDiv.id = 'typingIndicator';
+                typingDiv.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+                messagesArea.appendChild(typingDiv);
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+                
                 setTimeout(() => {
-                    simulateReply();
-                }, 1000 + Math.random() * 2000);
+                    const indicator = document.getElementById('typingIndicator');
+                    if (indicator) indicator.remove();
+                    
+                    const replies = [
+                        'آره، موافقم! 🤘',
+                        'جالبه، بیشتر توضیح بده',
+                        'باشه، چشم 👌',
+                        'حتماً، خبر میدم',
+                        '👍👍',
+                        'دقیقاً! همینطوره',
+                        'باشه، می‌بینمت',
+                        'مرسی از اطلاع‌رسانی 🙏',
+                        'عالیه! منتظرم',
+                        'اوکی، انجام میدم'
+                    ];
+                    
+                    const reply = replies[Math.floor(Math.random() * replies.length)];
+                    const newMessage = {
+                        id: Date.now(),
+                        senderId: chat.userId,
+                        text: reply,
+                        time: new Date(),
+                        status: 'delivered'
+                    };
+                    
+                    if (!this.state.messages[this.state.activeChat]) {
+                        this.state.messages[this.state.activeChat] = [];
+                    }
+                    this.state.messages[this.state.activeChat].push(newMessage);
+                    
+                    chat.lastMessage = reply;
+                    chat.lastMessageTime = new Date();
+                    
+                    if (this.state.activeChat !== chat.id) {
+                        chat.unread = (chat.unread || 0) + 1;
+                    }
+                    
+                    this.saveToStorage();
+                    this.renderMessages();
+                    this.renderChatList();
+                }, 2000);
+            }
+
+            deleteMessage(messageId) {
+                if (!this.state.activeChat) return;
+                
+                const messages = this.state.messages[this.state.activeChat];
+                if (!messages) return;
+                
+                const index = messages.findIndex(m => m.id === messageId);
+                if (index !== -1) {
+                    messages.splice(index, 1);
+                    
+                    // Update last message in chat
+                    if (messages.length > 0) {
+                        const lastMsg = messages[messages.length - 1];
+                        const chat = this.state.chats.find(c => c.id === this.state.activeChat);
+                        if (chat) {
+                            chat.lastMessage = lastMsg.text;
+                            chat.lastMessageTime = lastMsg.time;
+                        }
+                    }
+                    
+                    this.saveToStorage();
+                    this.renderMessages();
+                    this.renderChatList();
+                    this.showToast('success', 'پیام با موفقیت حذف شد');
+                }
+            }
+
+            // ==================== Context Menu ====================
+            showContextMenu(event, messageId) {
+                event.preventDefault();
+                this.state.selectedMessage = messageId;
+                
+                const menu = document.getElementById('contextMenu');
+                menu.style.left = event.clientX + 'px';
+                menu.style.top = event.clientY + 'px';
+                menu.classList.add('show');
+                
+                setTimeout(() => {
+                    const closeMenu = () => {
+                        menu.classList.remove('show');
+                        document.removeEventListener('click', closeMenu);
+                    };
+                    document.addEventListener('click', closeMenu);
+                }, 100);
+            }
+
+            // ==================== Utility Functions ====================
+            formatTime(date) {
+                const d = new Date(date);
+                const now = new Date();
+                const diff = now - d;
+                
+                if (diff < 60000) return 'همین الان';
+                if (diff < 3600000) return Math.floor(diff / 60000) + ' دقیقه پیش';
+                if (diff < 86400000) return d.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+                if (diff < 172800000) return 'دیروز';
+                if (diff < 604800000) return Math.floor(diff / 86400000) + ' روز پیش';
+                
+                return d.toLocaleDateString('fa-IR', { month: 'short', day: 'numeric' });
+            }
+
+            formatDate(date) {
+                return new Date(date).toLocaleDateString('fa-IR', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            }
+
+            showToast(type, message) {
+                const container = document.getElementById('toastContainer');
+                const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+                
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.innerHTML = `${icons[type] || ''} ${message}`;
+                container.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(100%)';
+                    toast.style.transition = 'all 0.3s ease-out';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            createParticles() {
+                const container = document.getElementById('particlesContainer');
+                const colors = ['var(--neon-blue)', 'var(--neon-purple)', 'var(--neon-pink)'];
+                
+                for (let i = 0; i < 40; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+                    particle.style.animationDelay = Math.random() * 15 + 's';
+                    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    particle.style.width = (Math.random() * 3 + 1) + 'px';
+                    particle.style.height = particle.style.width;
+                    container.appendChild(particle);
+                }
+            }
+
+            setupEventListeners() {
+                // Enter key for login
+                document.getElementById('passwordInput').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') this.handleLogin();
+                });
+                
+                // Search functionality
+                document.getElementById('searchInput').addEventListener('input', () => {
+                    this.renderChatList();
+                });
+                
+                // Sidebar navigation
+                document.querySelectorAll('.sidebar-icon[data-view]').forEach(icon => {
+                    icon.addEventListener('click', (e) => {
+                        document.querySelectorAll('.sidebar-icon').forEach(el => el.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                    });
+                });
+            }
+
+            autoResizeTextarea() {
+                const textarea = document.getElementById('messageInput');
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                });
             }
         }
 
-        // شبیه‌سازی پاسخ
-        function simulateReply() {
-            const replies = [
-                'آره موافقم! 🤘',
-                'جالب بود، بیشتر توضیح بده',
-                'باشه، چشم 👌',
-                'فردا حتماً خبر بده',
-                '👍',
-                '😂 آره دقیقاً',
-                'باشه، می‌بینمت',
-                'مرسی از اطلاع‌رسانی'
-            ];
-            
-            const randomReply = replies[Math.floor(Math.random() * replies.length)];
-            const now = new Date();
-            const time = now.getHours().toString().padStart(2, '0') + ':' + 
-                       now.getMinutes().toString().padStart(2, '0');
-            
-            // نمایش indicator تایپ
-            const messagesContainer = document.getElementById('messagesContainer');
-            const typingIndicator = document.createElement('div');
-            typingIndicator.className = 'typing-indicator';
-            typingIndicator.innerHTML = `
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            `;
-            typingIndicator.id = 'typingIndicator';
-            messagesContainer.appendChild(typingIndicator);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            
-            // حذف indicator و اضافه کردن پیام
-            setTimeout(() => {
-                const indicator = document.getElementById('typingIndicator');
-                if (indicator) {
-                    indicator.remove();
-                }
-                
-                const replyMessage = {
-                    id: Date.now(),
-                    text: randomReply,
-                    sender: 'received',
-                    time: time
-                };
-                
-                messages.push(replyMessage);
-                addMessageToContainer(replyMessage, true);
-            }, 2000);
+        // Global functions for HTML onclick handlers
+        function handleLogin() { app.handleLogin(); }
+        function handleLogout() { app.handleLogout(); }
+        function sendMessage() { app.sendMessage(); }
+        function deleteMessage() { 
+            if (app.state.selectedMessage) {
+                app.deleteMessage(app.state.selectedMessage);
+                document.getElementById('contextMenu').classList.remove('show');
+            }
         }
-
-        // هندل کردن Enter
-        function handleKeyPress(event) {
+        function replyMessage() {
+            app.showToast('info', 'در حال توسعه...');
+            document.getElementById('contextMenu').classList.remove('show');
+        }
+        function copyMessage() {
+            app.showToast('success', 'پیام کپی شد');
+            document.getElementById('contextMenu').classList.remove('show');
+        }
+        function forwardMessage() {
+            app.showToast('info', 'در حال توسعه...');
+            document.getElementById('contextMenu').classList.remove('show');
+        }
+        function handleInputKey(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
                 sendMessage();
             }
         }
 
-        // کلیک روی آیکون‌های سایدبار
-        document.querySelectorAll('.sidebar-icon').forEach(icon => {
-            icon.addEventListener('click', function() {
-                document.querySelectorAll('.sidebar-icon').forEach(el => el.classList.remove('active'));
-                this.classList.add('active');
-                
-                // افکت کلیک
-                this.style.transform = 'scale(0.9)';
-                setTimeout(() => {
-                    this.style.transform = 'scale(1)';
-                }, 150);
-            });
-        });
-
-        // راه‌اندازی
-        createParticles();
-        loadContacts();
-        loadMessages();
-
-        // فوکوس روی input
-        document.getElementById('messageInput').focus();
+        // Initialize application
+        const app = new MessagingApp();
     </script>
 </body>
 </html>
