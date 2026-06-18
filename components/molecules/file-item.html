@@ -1,1 +1,13 @@
-
+<div class="cyber-card" style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <div style="color:#00f0ff;">📄 ${name}</div>
+        <div style="font-size:11px; color:#888;">${size} bytes • ${date}</div>
+    </div>
+    <button onclick="removeFile('${id}')" style="
+        background:transparent; 
+        border:1px solid #ff2d95; 
+        color:#ff2d95; 
+        padding:4px 12px; 
+        cursor:pointer;
+    ">🗑️</button>
+</div>
