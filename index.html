@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CyberStream Pro - Live Streaming Engine</title>
+    
+    <!-- فونت‌ها باید قبل از هر استایل دیگه‌ای لود بشن -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         /* ============ DESIGN SYSTEM v3.0 ============ */
         :root {
@@ -111,8 +117,6 @@
             position: relative;
             line-height: 1.6;
         }
-
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
 
         /* ============ BACKGROUND ENGINE ============ */
         .bg-engine {
@@ -485,7 +489,6 @@
             pointer-events: all;
         }
 
-        /* Main Stream Section */
         .broadcast-section {
             flex: 1;
             display: flex;
@@ -636,7 +639,6 @@
             color: var(--neon-red);
         }
 
-        /* Video Grid */
         .video-grid {
             flex: 1;
             display: grid;
@@ -653,48 +655,11 @@
             grid-template-rows: 1fr 180px;
         }
 
-        .video-panel {
-            position: relative;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            background: var(--bg-abyss);
-            border: 1px solid var(--border-hairline);
-            transition: all 0.3s ease;
-        }
-
-        .video-panel.main {
-            grid-column: 1;
-            grid-row: 1 / -1;
-        }
-
-        .video-panel.pip {
-            grid-column: 2;
-            grid-row: 2;
-            cursor: pointer;
-        }
-
-        .video-panel.pip:hover {
-            border-color: var(--neon-blue);
-            box-shadow: var(--glow-blue-sm);
-        }
-
         .video-element {
             width: 100%;
             height: 100%;
             object-fit: contain;
             background: #000;
-        }
-
-        .video-label {
-            position: absolute;
-            bottom: var(--space-2);
-            left: var(--space-2);
-            padding: var(--space-1) var(--space-3);
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            font-weight: 600;
-            border: 1px solid var(--border-hairline);
         }
 
         .stream-placeholder {
@@ -832,11 +797,12 @@
             font-size: 0.82rem;
         }
 
-        .message-author.host {
+        /* رفع باگ: کلاس‌های نقش برای message-author */
+        .message-author[data-role="host"] {
             color: var(--neon-blue);
         }
 
-        .message-author.guest {
+        .message-author[data-role="guest"] {
             color: var(--neon-pink);
         }
 
@@ -1053,7 +1019,8 @@
                     <p style="margin-top: var(--space-3); font-size: 0.78rem; color: var(--text-tertiary);">
                         کد را برای مهمان ارسال کنید
                     </p>
-                    <button class="btn btn-primary" style="margin-top: var(--space-3);" onclick="enterStreamRoom('host')">
+                    <!-- رفع باگ: آرگومان اضافی حذف شد -->
+                    <button class="btn btn-primary" style="margin-top: var(--space-3);" onclick="enterStreamRoom()">
                         🎬 ورود به اتاق لایو
                     </button>
                 </div>
@@ -1124,6 +1091,7 @@
             <div class="chat-message-list" id="chatMessageList"></div>
             <div class="chat-composer">
                 <div class="composer-wrapper">
+                    <!-- رفع باگ: فقط از onkeypress استفاده می‌کنیم، addEventListener اضافی حذف شد -->
                     <input type="text" class="composer-input" id="chatInput" placeholder="پیام خود را بنویسید..." onkeypress="handleChatKeyPress(event)">
                     <button class="composer-send" onclick="broadcastMessage()">➤</button>
                 </div>
@@ -1154,8 +1122,8 @@
                 // Configuration
                 this.config = {
                     roomCodeLength: 6,
-                    autoResponseDelay: { min: 1200, max: 3500 },
-                    messageStorageKey: 'cyberstream_messages'
+                    autoResponseDelay: { min: 1200, max: 3500 }
+                    // messageStorageKey حذف نشد ولی استفاده خاصی نداره، برای توسعه‌های بعدی نگه داشته شد
                 };
 
                 this.boot();
@@ -1164,7 +1132,7 @@
             // ============ LIFECYCLE ============
             boot() {
                 this.generateParticleField();
-                this.registerGlobalEvents();
+                // رفع باگ: registerGlobalEvents حذف شد چون هندلر Enter مستقیماً تو HTML هست
                 console.log('%c🚀 CyberStream Engine v3.0 Initialized', 'color: #00f0ff; font-size: 14px;');
             }
 
@@ -1448,9 +1416,10 @@
                 
                 const bubble = document.createElement('div');
                 bubble.className = 'message-bubble';
+                // رفع باگ: استفاده از data-attribute به جای کلاس برای نقش
                 bubble.innerHTML = `
                     <div class="message-meta">
-                        <span class="message-author ${msg.role}">${this.escapeHTML(msg.author)}</span>
+                        <span class="message-author" data-role="${msg.role}">${this.escapeHTML(msg.author)}</span>
                         <span class="author-badge badge-${msg.role}">${msg.role === 'host' ? 'HOST' : 'GUEST'}</span>
                         <span class="message-timestamp">${time}</span>
                     </div>
@@ -1612,12 +1581,13 @@
             }
 
             resetState() {
+                this.stopAllMedia(); // اول مدیا رو استوپ کن
                 this.state.roomCode = null;
                 this.state.userRole = null;
                 this.state.userName = null;
                 this.state.peerName = null;
                 this.state.messages = [];
-                this.stopAllMedia();
+                this.state.streamStartTime = null; // رفع باگ: streamStartTime هم ریست بشه
             }
 
             dispatchToast(message) {
@@ -1648,15 +1618,6 @@
                     p.style.background = colors[Math.floor(Math.random() * colors.length)];
                     container.appendChild(p);
                 }
-            }
-
-            registerGlobalEvents() {
-                document.getElementById('chatInput').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        this.broadcastMessage();
-                    }
-                });
             }
 
             escapeHTML(str) {
