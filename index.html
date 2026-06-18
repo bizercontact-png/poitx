@@ -3,327 +3,473 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberStream Live - Room Based Streaming</title>
+    <title>CyberStream Pro - Live Streaming Engine</title>
     <style>
-        /* ==================== Design System ==================== */
+        /* ============ DESIGN SYSTEM v3.0 ============ */
         :root {
+            /* Primary Neon Palette */
             --neon-pink: #ff2d95;
             --neon-blue: #00f0ff;
             --neon-purple: #b400ff;
             --neon-green: #00ff88;
             --neon-yellow: #ffee00;
+            --neon-orange: #ff6600;
             --neon-red: #ff1744;
+            --neon-cyan: #00e5ff;
             
-            --bg-abyss: #050510;
-            --bg-deep: #0a0a1a;
-            --bg-surface: #0f0f25;
-            --bg-elevated: #151530;
-            --glass-light: rgba(15, 15, 40, 0.6);
-            --glass-medium: rgba(10, 10, 30, 0.8);
-            --glass-heavy: rgba(5, 5, 20, 0.95);
+            /* Dark Matter Backgrounds */
+            --bg-void: #030308;
+            --bg-abyss: #060613;
+            --bg-deep: #0a0a1f;
+            --bg-surface: #0f0f2a;
+            --bg-elevated: #151538;
+            --bg-overlay: rgba(8, 8, 25, 0.92);
             
-            --border-subtle: rgba(0, 240, 255, 0.12);
+            /* Glass Morphism */
+            --glass-subtle: rgba(12, 12, 30, 0.5);
+            --glass-medium: rgba(10, 10, 25, 0.75);
+            --glass-heavy: rgba(6, 6, 18, 0.95);
+            --glass-border: rgba(0, 240, 255, 0.15);
+            
+            /* Border Hierarchy */
+            --border-ghost: rgba(0, 240, 255, 0.05);
+            --border-hairline: rgba(0, 240, 255, 0.1);
             --border-default: rgba(0, 240, 255, 0.2);
-            --border-bright: rgba(0, 240, 255, 0.4);
-            --border-active: rgba(0, 240, 255, 0.7);
+            --border-emphasis: rgba(0, 240, 255, 0.35);
+            --border-glow: rgba(0, 240, 255, 0.6);
             
-            --text-primary: #e8e8ff;
-            --text-secondary: #b0b0d8;
-            --text-muted: #7878a8;
+            /* Text Hierarchy */
+            --text-primary: #ececff;
+            --text-secondary: #b8b8e0;
+            --text-tertiary: #8080b8;
+            --text-muted: #585890;
+            --text-disabled: #383868;
             
-            --shadow-blue: 0 0 30px rgba(0, 240, 255, 0.3);
-            --shadow-pink: 0 0 30px rgba(255, 45, 149, 0.3);
-            --shadow-red: 0 0 30px rgba(255, 23, 68, 0.4);
+            /* Shadow & Glow System */
+            --glow-blue-sm: 0 0 10px rgba(0, 240, 255, 0.3);
+            --glow-blue-md: 0 0 25px rgba(0, 240, 255, 0.45);
+            --glow-blue-lg: 0 0 50px rgba(0, 240, 255, 0.6);
+            --glow-pink-sm: 0 0 10px rgba(255, 45, 149, 0.3);
+            --glow-pink-md: 0 0 25px rgba(255, 45, 149, 0.45);
+            --glow-purple-md: 0 0 25px rgba(180, 0, 255, 0.4);
+            --glow-red-pulse: 0 0 20px rgba(255, 23, 68, 0.5);
             
+            /* Spacing Scale (4px base) */
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 20px;
+            --space-6: 24px;
+            --space-8: 32px;
+            --space-10: 40px;
+            --space-12: 48px;
+            --space-16: 64px;
+            
+            /* Radius Scale */
+            --radius-xs: 4px;
             --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 16px;
             --radius-xl: 20px;
+            --radius-2xl: 28px;
             --radius-full: 9999px;
             
-            --font-body: 'Vazirmatn', system-ui, sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            --font-display: 'Orbitron', sans-serif;
+            /* Animation Curves */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-in-out-circ: cubic-bezier(0.85, 0, 0.15, 1);
+            
+            /* Typography */
+            --font-body: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            --font-display: 'Orbitron', 'Rajdhani', sans-serif;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* ============ GLOBAL RESET ============ */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            scroll-behavior: smooth;
+        }
 
         body {
             font-family: var(--font-body);
-            background: var(--bg-abyss);
+            background: var(--bg-void);
             color: var(--text-primary);
             width: 100vw;
             height: 100vh;
             overflow: hidden;
             position: relative;
+            line-height: 1.6;
         }
 
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
 
-        /* ==================== Background ==================== */
-        .cyber-bg {
+        /* ============ BACKGROUND ENGINE ============ */
+        .bg-engine {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
             z-index: 0;
         }
 
-        .bg-gradient {
+        .bg-gradient-orbital {
             position: absolute;
-            width: 100%; height: 100%;
+            width: 100%;
+            height: 100%;
             background: 
-                radial-gradient(ellipse at 15% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 85% 70%, rgba(180, 0, 255, 0.06) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(255, 45, 149, 0.04) 0%, transparent 60%);
-            animation: bgPulse 12s ease-in-out infinite;
+                radial-gradient(ellipse 80% 60% at 20% 30%, rgba(0, 240, 255, 0.07) 0%, transparent 55%),
+                radial-gradient(ellipse 70% 50% at 80% 70%, rgba(180, 0, 255, 0.06) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 40% at 50% 50%, rgba(255, 45, 149, 0.04) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.02) 0%, transparent 80%);
+            animation: orbitalShift 18s ease-in-out infinite;
         }
 
-        @keyframes bgPulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
+        @keyframes orbitalShift {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+            25% { transform: scale(1.05) rotate(1deg); opacity: 1; }
+            50% { transform: scale(0.98) rotate(-0.5deg); opacity: 0.9; }
+            75% { transform: scale(1.02) rotate(0.5deg); opacity: 0.85; }
         }
 
-        .bg-grid {
+        .bg-grid-matrix {
             position: absolute;
-            width: 100%; height: 100%;
+            width: 100%;
+            height: 100%;
             background-image: 
-                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
-            animation: gridMove 20s linear infinite;
+                linear-gradient(rgba(0, 240, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.025) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(ellipse 70% 60% at center, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 60% at center, black 30%, transparent 70%);
+            animation: matrixDrift 25s linear infinite;
         }
 
-        @keyframes gridMove {
+        @keyframes matrixDrift {
             0% { transform: translate(0, 0); }
-            100% { transform: translate(60px, 60px); }
+            100% { transform: translate(50px, 50px); }
         }
 
-        .particles-layer {
+        .bg-particle-field {
             position: absolute;
-            width: 100%; height: 100%;
+            width: 100%;
+            height: 100%;
         }
 
         .particle {
             position: absolute;
             border-radius: 50%;
             background: var(--neon-blue);
-            box-shadow: 0 0 10px var(--neon-blue);
-            animation: float linear infinite;
+            box-shadow: 0 0 6px var(--neon-blue), 0 0 12px rgba(0, 240, 255, 0.5);
+            animation: particleAscend linear infinite;
             opacity: 0;
+            pointer-events: none;
         }
 
-        @keyframes float {
-            0% { transform: translateY(100vh) scale(0); opacity: 0; }
-            10% { opacity: 0.8; }
-            90% { opacity: 0.4; }
-            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        @keyframes particleAscend {
+            0% {
+                transform: translateY(105vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            8% {
+                opacity: 0.9;
+            }
+            85% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-5vh) translateX(80px) scale(1.8);
+                opacity: 0;
+            }
         }
 
-        /* ==================== Join Screen ==================== */
-        .join-screen {
+        /* ============ JOIN/ENTRY SCREEN ============ */
+        .entry-screen {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 100;
-            background: var(--glass-heavy);
-            backdrop-filter: blur(30px);
-            transition: all 0.5s ease;
+            background: var(--bg-overlay);
+            backdrop-filter: blur(40px) saturate(150%);
+            -webkit-backdrop-filter: blur(40px) saturate(150%);
+            transition: all 0.6s var(--ease-out-expo);
         }
 
-        .join-screen.hidden {
+        .entry-screen.concealed {
             opacity: 0;
             pointer-events: none;
-            transform: scale(1.1);
+            transform: scale(1.08);
+            filter: blur(10px);
         }
 
-        .join-card {
-            width: 480px;
-            padding: 40px;
+        .entry-card {
+            width: 500px;
+            padding: var(--space-12);
             background: var(--glass-medium);
-            border: 1px solid var(--border-bright);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-blue);
-            animation: cardGlow 3s ease-in-out infinite;
+            border: 1px solid var(--border-emphasis);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--glow-blue-md), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            animation: cardBreathe 4s ease-in-out infinite;
         }
 
-        @keyframes cardGlow {
-            0%, 100% { box-shadow: 0 0 30px rgba(0, 240, 255, 0.3); }
-            50% { box-shadow: 0 0 50px rgba(0, 240, 255, 0.5), 0 0 80px rgba(0, 240, 255, 0.2); }
+        @keyframes cardBreathe {
+            0%, 100% { box-shadow: var(--glow-blue-md); }
+            50% { box-shadow: var(--glow-blue-lg), 0 0 80px rgba(0, 240, 255, 0.2); }
         }
 
-        .join-logo {
+        .entry-logo {
             font-family: var(--font-display);
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: 900;
             text-align: center;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
+            margin-bottom: var(--space-2);
+            background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-purple) 50%, var(--neon-pink) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: logoGlitch 5s infinite;
+            letter-spacing: 3px;
+            animation: logoDistort 6s infinite;
         }
 
-        @keyframes logoGlitch {
-            0%, 92%, 100% { transform: translate(0); }
-            93% { transform: translate(-2px, 1px); }
-            95% { transform: translate(2px, -1px); }
-            97% { transform: translate(-1px, 2px); }
-            99% { transform: translate(1px, -2px); }
+        @keyframes logoDistort {
+            0%, 94%, 100% { transform: translate(0); filter: hue-rotate(0deg); }
+            95% { transform: translate(-1.5px, 1px); filter: hue-rotate(5deg); }
+            96% { transform: translate(1.5px, -1px); filter: hue-rotate(-5deg); }
+            97% { transform: translate(-1px, -1px); }
+            98% { transform: translate(1px, 1px); }
         }
 
-        .join-subtitle {
+        .entry-subtitle {
             text-align: center;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 30px;
+            color: var(--text-tertiary);
+            font-size: 0.85rem;
+            margin-bottom: var(--space-10);
             font-family: var(--font-mono);
+            letter-spacing: 1px;
         }
 
-        .tabs {
+        .tab-navigation {
             display: flex;
-            gap: 2px;
-            margin-bottom: 30px;
-            background: rgba(0, 0, 0, 0.3);
+            gap: 3px;
+            margin-bottom: var(--space-8);
+            background: rgba(0, 0, 0, 0.4);
             border-radius: var(--radius-lg);
             padding: 4px;
+            border: 1px solid var(--border-hairline);
         }
 
-        .tab {
+        .tab-trigger {
             flex: 1;
-            padding: 12px;
+            padding: 14px;
             text-align: center;
             border-radius: var(--radius-md);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s var(--ease-out-expo);
             font-weight: 600;
+            font-size: 0.9rem;
             border: 1px solid transparent;
+            color: var(--text-tertiary);
+            position: relative;
+            overflow: hidden;
         }
 
-        .tab.active {
-            background: rgba(0, 240, 255, 0.15);
+        .tab-trigger::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .tab-trigger:hover::before {
+            left: 100%;
+        }
+
+        .tab-trigger.active {
+            background: rgba(0, 240, 255, 0.12);
             border-color: var(--neon-blue);
             color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+            box-shadow: var(--glow-blue-sm);
         }
 
-        .tab:hover:not(.active) {
-            background: rgba(0, 240, 255, 0.05);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
+        .form-field {
+            margin-bottom: var(--space-5);
         }
 
         .form-label {
             display: block;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-            font-weight: 500;
+            margin-bottom: var(--space-2);
+            font-size: 0.8rem;
+            font-weight: 600;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
         }
 
         .form-input {
             width: 100%;
             padding: 14px 18px;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.5);
             border: 1px solid var(--border-default);
             border-radius: var(--radius-lg);
             color: var(--text-primary);
             font-family: var(--font-body);
             font-size: 0.95rem;
-            transition: all 0.2s ease;
+            transition: all 0.25s var(--ease-out-expo);
             outline: none;
+            letter-spacing: 0.3px;
         }
 
         .form-input:focus {
             border-color: var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.2), inset 0 0 15px rgba(0, 240, 255, 0.03);
+            background: rgba(0, 0, 0, 0.7);
         }
 
         .form-input::placeholder {
-            color: #484868;
+            color: var(--text-disabled);
         }
 
-        .invite-code-display {
+        .invite-code-showcase {
             background: rgba(0, 0, 0, 0.6);
-            border: 2px dashed var(--neon-purple);
-            border-radius: var(--radius-lg);
-            padding: 20px;
+            border: 2px dashed var(--border-glow);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: var(--space-5);
+            position: relative;
+            overflow: hidden;
         }
 
-        .invite-code {
+        .invite-code-showcase::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(180, 0, 255, 0.1), transparent, rgba(0, 240, 255, 0.1), transparent);
+            animation: codeRotate 8s linear infinite;
+        }
+
+        @keyframes codeRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .invite-code-value {
             font-family: var(--font-mono);
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: 700;
             color: var(--neon-purple);
-            letter-spacing: 8px;
-            text-shadow: 0 0 20px rgba(180, 0, 255, 0.5);
+            letter-spacing: 10px;
+            text-shadow: 0 0 30px rgba(180, 0, 255, 0.6);
+            position: relative;
+            z-index: 1;
         }
 
         .btn {
             width: 100%;
-            padding: 14px;
+            padding: 15px;
             border: none;
             border-radius: var(--radius-lg);
             font-family: var(--font-body);
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 0.95rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s var(--ease-out-back);
             position: relative;
             overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+            transform: rotate(45deg) translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .btn:hover::after {
+            transform: rotate(45deg) translateX(100%);
         }
 
         .btn-primary {
             background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
             color: white;
-            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
+            box-shadow: 0 6px 25px rgba(0, 240, 255, 0.3);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 30px rgba(0, 240, 255, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(0, 240, 255, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
         }
 
         .btn-secondary {
             background: transparent;
-            border: 1px solid var(--border-bright);
+            border: 1px solid var(--border-emphasis);
             color: var(--text-primary);
-            margin-top: 10px;
+            margin-top: var(--space-3);
         }
 
         .btn-secondary:hover {
             border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+            box-shadow: var(--glow-blue-sm);
         }
 
-        .copy-btn {
-            background: rgba(180, 0, 255, 0.2);
+        .btn-copy {
+            background: rgba(180, 0, 255, 0.15);
             border: 1px solid var(--neon-purple);
             color: var(--neon-purple);
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: var(--radius-md);
             cursor: pointer;
             font-size: 0.85rem;
+            font-weight: 600;
             transition: all 0.2s ease;
+            position: relative;
+            z-index: 1;
         }
 
-        .copy-btn:hover {
-            background: rgba(180, 0, 255, 0.3);
-            box-shadow: 0 0 15px rgba(180, 0, 255, 0.3);
+        .btn-copy:hover {
+            background: rgba(180, 0, 255, 0.25);
+            box-shadow: 0 0 25px rgba(180, 0, 255, 0.35);
+            transform: scale(1.05);
         }
 
-        /* ==================== Stream Room ==================== */
-        .room-container {
+        /* ============ STREAM ROOM ============ */
+        .stream-room {
             position: relative;
             z-index: 10;
             width: 100%;
@@ -331,849 +477,1236 @@
             display: flex;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.5s ease;
+            transition: all 0.6s var(--ease-out-expo);
         }
 
-        .room-container.active {
+        .stream-room.engaged {
             opacity: 1;
             pointer-events: all;
         }
 
-        /* Stream Area */
-        .stream-area {
+        /* Main Stream Section */
+        .broadcast-section {
             flex: 1;
             display: flex;
             flex-direction: column;
             background: var(--bg-deep);
-            border-right: 1px solid var(--border-subtle);
+            border-right: 1px solid var(--border-ghost);
+            min-width: 0;
         }
 
-        .stream-header {
-            height: 64px;
+        .broadcast-header {
+            height: 68px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 24px;
+            padding: 0 var(--space-6);
             background: var(--glass-heavy);
-            border-bottom: 1px solid var(--border-subtle);
-            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-hairline);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
         }
 
-        .room-info {
+        .broadcaster-profile {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: var(--space-4);
         }
 
-        .room-id {
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            background: rgba(0, 0, 0, 0.3);
-            padding: 6px 12px;
-            border-radius: var(--radius-full);
-            border: 1px solid var(--border-subtle);
-        }
-
-        .streamer-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .streamer-avatar {
-            width: 40px;
-            height: 40px;
+        .broadcaster-avatar {
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
+            font-size: 1.2rem;
             color: white;
-            border: 2px solid var(--border-bright);
+            border: 2px solid var(--border-glow);
+            box-shadow: var(--glow-blue-sm);
+            transition: all 0.3s ease;
         }
 
-        .live-badge {
+        .broadcaster-avatar.recording {
+            animation: avatarGlow 1.5s ease-in-out infinite;
+        }
+
+        @keyframes avatarGlow {
+            0%, 100% { box-shadow: var(--glow-blue-sm); }
+            50% { box-shadow: var(--glow-blue-lg); }
+        }
+
+        .broadcaster-name {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .live-indicator {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            padding: 4px 12px;
-            background: rgba(255, 23, 68, 0.2);
+            gap: var(--space-1);
+            padding: var(--space-1) var(--space-3);
+            background: rgba(255, 23, 68, 0.15);
             border: 1px solid var(--neon-red);
             border-radius: var(--radius-full);
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--neon-red);
             font-weight: 700;
-            animation: livePulse 2s infinite;
+            animation: liveIndicatorPulse 2s infinite;
         }
 
-        @keyframes livePulse {
-            0%, 100% { box-shadow: 0 0 10px rgba(255, 23, 68, 0.3); }
+        @keyframes liveIndicatorPulse {
+            0%, 100% { box-shadow: 0 0 8px rgba(255, 23, 68, 0.3); }
             50% { box-shadow: 0 0 25px rgba(255, 23, 68, 0.7); }
         }
 
         .live-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             background: var(--neon-red);
             border-radius: 50%;
-            animation: dotBlink 1s infinite;
+            animation: dotFlash 0.8s infinite;
         }
 
-        @keyframes dotBlink {
+        @keyframes dotFlash {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+            50% { opacity: 0.2; }
         }
 
-        .stream-controls {
+        .room-code-badge {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            background: rgba(0, 0, 0, 0.4);
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--border-hairline);
+        }
+
+        .header-actions {
             display: flex;
-            gap: 8px;
+            gap: var(--space-2);
         }
 
-        .icon-btn {
+        .icon-button {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--glass-light);
+            background: var(--glass-subtle);
             border: 1px solid var(--border-default);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s ease;
-            color: var(--text-primary);
+            transition: all 0.25s var(--ease-out-expo);
+            color: var(--text-secondary);
             font-size: 1.1rem;
+            position: relative;
         }
 
-        .icon-btn:hover {
-            border-color: var(--border-bright);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        .icon-button:hover {
+            border-color: var(--border-glow);
+            color: var(--neon-blue);
+            box-shadow: var(--glow-blue-sm);
+            transform: translateY(-2px);
         }
 
-        .icon-btn.danger {
+        .icon-button.danger {
+            border-color: rgba(255, 23, 68, 0.3);
+            color: var(--neon-red);
+        }
+
+        .icon-button.danger:hover {
+            box-shadow: var(--glow-red-pulse);
+            background: rgba(255, 23, 68, 0.1);
+        }
+
+        .icon-button.mic-active {
+            background: rgba(0, 255, 136, 0.15);
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .icon-button.mic-muted {
+            background: rgba(255, 23, 68, 0.15);
             border-color: var(--neon-red);
             color: var(--neon-red);
         }
 
-        .icon-btn.danger:hover {
-            box-shadow: 0 0 20px rgba(255, 23, 68, 0.4);
-        }
-
-        .stream-container {
+        /* Video Grid */
+        .video-grid {
             flex: 1;
-            position: relative;
+            display: grid;
+            gap: var(--space-3);
+            padding: var(--space-4);
             background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
+            position: relative;
         }
 
-        .stream-video {
+        .video-grid.has-pip {
+            grid-template-columns: 1fr 240px;
+            grid-template-rows: 1fr 180px;
+        }
+
+        .video-panel {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--bg-abyss);
+            border: 1px solid var(--border-hairline);
+            transition: all 0.3s ease;
+        }
+
+        .video-panel.main {
+            grid-column: 1;
+            grid-row: 1 / -1;
+        }
+
+        .video-panel.pip {
+            grid-column: 2;
+            grid-row: 2;
+            cursor: pointer;
+        }
+
+        .video-panel.pip:hover {
+            border-color: var(--neon-blue);
+            box-shadow: var(--glow-blue-sm);
+        }
+
+        .video-element {
             width: 100%;
             height: 100%;
             object-fit: contain;
+            background: #000;
+        }
+
+        .video-label {
+            position: absolute;
+            bottom: var(--space-2);
+            left: var(--space-2);
+            padding: var(--space-1) var(--space-3);
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid var(--border-hairline);
         }
 
         .stream-placeholder {
-            text-align: center;
+            grid-column: 1 / -1;
+            grid-row: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             color: var(--text-muted);
+            text-align: center;
         }
 
-        .stream-placeholder .icon {
-            font-size: 6rem;
-            opacity: 0.3;
-            margin-bottom: 20px;
+        .stream-placeholder .icon-large {
+            font-size: 7rem;
+            opacity: 0.2;
+            margin-bottom: var(--space-5);
+        }
+
+        .stream-placeholder h3 {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            margin-bottom: var(--space-2);
+            letter-spacing: 1px;
+        }
+
+        .recording-timer {
+            position: absolute;
+            top: var(--space-3);
+            right: var(--space-3);
+            padding: var(--space-2) var(--space-4);
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid var(--neon-red);
+            border-radius: var(--radius-full);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--neon-red);
+            z-index: 20;
+            animation: liveIndicatorPulse 2s infinite;
         }
 
         /* Chat Sidebar */
-        .chat-sidebar {
-            width: 340px;
+        .chat-section {
+            width: 360px;
             display: flex;
             flex-direction: column;
             background: var(--bg-surface);
+            border-left: 1px solid var(--border-ghost);
         }
 
         .chat-header {
-            height: 64px;
+            height: 68px;
             display: flex;
             align-items: center;
-            padding: 0 20px;
-            background: var(--glass-heavy);
-            border-bottom: 1px solid var(--border-subtle);
-            backdrop-filter: blur(20px);
             justify-content: space-between;
+            padding: 0 var(--space-5);
+            background: var(--glass-heavy);
+            border-bottom: 1px solid var(--border-hairline);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+        }
+
+        .chat-title-area {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
         }
 
         .chat-title {
             font-family: var(--font-display);
             font-weight: 700;
-            letter-spacing: 1px;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
         }
 
-        .viewer-count {
+        .participant-count {
             font-family: var(--font-mono);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--neon-green);
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
         }
 
-        .chat-messages {
+        .chat-message-list {
             flex: 1;
             overflow-y: auto;
-            padding: 16px;
+            padding: var(--space-4);
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: var(--space-3);
         }
 
-        .chat-messages::-webkit-scrollbar {
+        .chat-message-list::-webkit-scrollbar {
             width: 4px;
         }
 
-        .chat-messages::-webkit-scrollbar-track {
+        .chat-message-list::-webkit-scrollbar-track {
             background: transparent;
         }
 
-        .chat-messages::-webkit-scrollbar-thumb {
+        .chat-message-list::-webkit-scrollbar-thumb {
             background: var(--border-default);
             border-radius: var(--radius-full);
         }
 
-        .message {
-            animation: slideIn 0.3s ease-out;
+        .chat-message-list::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-purple);
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
+        .message-bubble {
+            animation: messageSlideIn 0.35s var(--ease-out-back);
         }
 
-        .msg-header {
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(25px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        .message-meta {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
+            gap: var(--space-2);
+            margin-bottom: var(--space-1);
         }
 
-        .msg-user {
+        .message-author {
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
         }
 
-        .msg-user.streamer { color: var(--neon-blue); }
-        .msg-user.viewer { color: var(--neon-pink); }
+        .message-author.host {
+            color: var(--neon-blue);
+        }
 
-        .msg-badge {
+        .message-author.guest {
+            color: var(--neon-pink);
+        }
+
+        .author-badge {
             font-size: 0.6rem;
-            padding: 2px 6px;
-            border-radius: var(--radius-sm);
-            background: rgba(0, 240, 255, 0.2);
+            padding: 2px 7px;
+            border-radius: var(--radius-xs);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-host {
+            background: rgba(0, 240, 255, 0.15);
             border: 1px solid var(--neon-blue);
             color: var(--neon-blue);
         }
 
-        .msg-time {
+        .badge-guest {
+            background: rgba(255, 45, 149, 0.15);
+            border: 1px solid var(--neon-pink);
+            color: var(--neon-pink);
+        }
+
+        .message-timestamp {
             font-family: var(--font-mono);
             font-size: 0.65rem;
             color: var(--text-muted);
             margin-right: auto;
         }
 
-        .msg-text {
-            font-size: 0.9rem;
+        .message-content {
+            font-size: 0.88rem;
             color: var(--text-secondary);
-            padding-right: 24px;
-            line-height: 1.5;
+            padding-right: var(--space-6);
+            line-height: 1.6;
+            word-break: break-word;
         }
 
-        .system-msg {
+        .system-notification {
             text-align: center;
             font-size: 0.75rem;
-            color: var(--text-muted);
-            padding: 8px;
+            color: var(--text-tertiary);
+            padding: var(--space-2) var(--space-4);
             font-style: italic;
+            background: rgba(0, 240, 255, 0.03);
+            border-radius: var(--radius-full);
+            border: 1px solid var(--border-ghost);
         }
 
-        .chat-input-area {
-            padding: 16px;
-            border-top: 1px solid var(--border-subtle);
+        .chat-composer {
+            padding: var(--space-4);
+            border-top: 1px solid var(--border-hairline);
             background: var(--glass-heavy);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
         }
 
-        .chat-input-wrapper {
+        .composer-wrapper {
             display: flex;
-            gap: 8px;
+            gap: var(--space-2);
         }
 
-        .chat-input {
+        .composer-input {
             flex: 1;
-            padding: 12px 16px;
-            background: rgba(0, 0, 0, 0.4);
+            padding: 13px 18px;
+            background: rgba(0, 0, 0, 0.5);
             border: 1px solid var(--border-default);
             border-radius: var(--radius-full);
             color: var(--text-primary);
             font-family: var(--font-body);
             font-size: 0.85rem;
-            transition: all 0.2s ease;
+            transition: all 0.25s var(--ease-out-expo);
             outline: none;
         }
 
-        .chat-input:focus {
+        .composer-input:focus {
             border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
         }
 
-        .send-btn {
-            width: 44px;
-            height: 44px;
+        .composer-send {
+            width: 46px;
+            height: 46px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
             border: none;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.25s var(--ease-out-back);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 1.2rem;
-            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
+            box-shadow: 0 4px 18px rgba(0, 240, 255, 0.35);
+            flex-shrink: 0;
         }
 
-        .send-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(0, 240, 255, 0.5);
+        .composer-send:hover {
+            transform: scale(1.12);
+            box-shadow: 0 8px 30px rgba(0, 240, 255, 0.55);
         }
 
-        /* Toast */
-        .toast-container {
+        .composer-send:active {
+            transform: scale(0.94);
+        }
+
+        /* Toast Notifications */
+        .toast-hub {
             position: fixed;
-            top: 20px;
+            top: var(--space-6);
             left: 50%;
             transform: translateX(-50%);
             z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+            pointer-events: none;
         }
 
-        .toast {
-            padding: 12px 24px;
+        .toast-item {
+            padding: var(--space-3) var(--space-6);
             background: var(--bg-elevated);
-            border: 1px solid var(--border-bright);
+            border: 1px solid var(--border-emphasis);
             border-radius: var(--radius-full);
-            animation: toastIn 0.3s ease-out;
-            font-size: 0.9rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+            animation: toastDropIn 0.4s var(--ease-out-back);
+            font-size: 0.85rem;
+            font-weight: 500;
+            pointer-events: all;
         }
 
-        @keyframes toastIn {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        @keyframes toastDropIn {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 1024px) {
+            .chat-section {
+                width: 300px;
+            }
+            .video-grid.has-pip {
+                grid-template-columns: 1fr 180px;
+                grid-template-rows: 1fr 140px;
+            }
         }
 
         @media (max-width: 768px) {
-            .room-container {
+            .stream-room {
                 flex-direction: column;
             }
-            .chat-sidebar {
+            .broadcast-section {
+                height: 55%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-ghost);
+            }
+            .chat-section {
                 width: 100%;
                 flex: 1;
             }
-            .join-card {
-                width: 90vw;
-                padding: 24px;
+            .entry-card {
+                width: 92vw;
+                padding: var(--space-6);
+            }
+            .video-grid.has-pip {
+                grid-template-columns: 1fr 120px;
+                grid-template-rows: 1fr 100px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Background -->
-    <div class="cyber-bg">
-        <div class="bg-gradient"></div>
-        <div class="bg-grid"></div>
-        <div class="particles-layer" id="particles"></div>
+    <!-- Background Engine -->
+    <div class="bg-engine">
+        <div class="bg-gradient-orbital"></div>
+        <div class="bg-grid-matrix"></div>
+        <div class="bg-particle-field" id="particleField"></div>
     </div>
 
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
+    <!-- Toast Hub -->
+    <div class="toast-hub" id="toastHub"></div>
 
-    <!-- Join/Create Screen -->
-    <div class="join-screen" id="joinScreen">
-        <div class="join-card">
-            <div class="join-logo">CYBERSTREAM</div>
-            <div class="join-subtitle">Live Streaming Platform</div>
+    <!-- ============ ENTRY SCREEN ============ -->
+    <div class="entry-screen" id="entryScreen">
+        <div class="entry-card">
+            <div class="entry-logo">CYBERSTREAM</div>
+            <div class="entry-subtitle">&#9670; Live Streaming Protocol v3.0 &#9670;</div>
             
-            <div class="tabs">
-                <div class="tab active" id="tabCreate" onclick="switchTab('create')">🎥 ایجاد لایو جدید</div>
-                <div class="tab" id="tabJoin" onclick="switchTab('join')">🔗 پیوستن به لایو</div>
+            <div class="tab-navigation">
+                <div class="tab-trigger active" id="tabHost" onclick="switchToHostTab()">🎥 میزبان لایو</div>
+                <div class="tab-trigger" id="tabGuest" onclick="switchToGuestTab()">🔗 مهمان لایو</div>
             </div>
 
-            <!-- Create Room Form -->
-            <div id="createForm">
-                <div class="form-group">
-                    <label class="form-label">نام شما (استریمر)</label>
-                    <input type="text" class="form-input" id="streamerName" placeholder="مثلاً: ابوالفضل" value="ابوالفضل">
+            <!-- Host Form -->
+            <div id="hostForm">
+                <div class="form-field">
+                    <label class="form-label">نام میزبان</label>
+                    <input type="text" class="form-input" id="hostName" placeholder="نام خود را وارد کنید" value="ابوالفضل">
                 </div>
-                <button class="btn btn-primary" onclick="createRoom()">
-                    🚀 ایجاد لایو و دریافت کد دعوت
+                <button class="btn btn-primary" onclick="createStreamRoom()">
+                    🚀 ایجاد اتاق لایو
                 </button>
                 
-                <div class="invite-code-display" id="inviteCodeDisplay" style="display: none; margin-top: 20px;">
-                    <label class="form-label">🔑 کد دعوت لایو</label>
-                    <div class="invite-code" id="inviteCode">------</div>
-                    <button class="copy-btn" onclick="copyInviteCode()">📋 کپی کد دعوت</button>
-                    <p style="margin-top: 12px; font-size: 0.8rem; color: var(--text-muted);">
-                        این کد رو برای مهدیار بفرست تا بیاد لایو
+                <div class="invite-code-showcase" id="inviteShowcase" style="display: none; margin-top: var(--space-5);">
+                    <label class="form-label">🔑 کد دعوت اختصاصی</label>
+                    <div class="invite-code-value" id="inviteCodeDisplay">------</div>
+                    <button class="btn-copy" onclick="copyInviteCode()">📋 کپی کد</button>
+                    <p style="margin-top: var(--space-3); font-size: 0.78rem; color: var(--text-tertiary);">
+                        کد را برای مهمان ارسال کنید
                     </p>
-                    <button class="btn btn-primary" style="margin-top: 12px;" onclick="startStreaming()">
-                        🎥 شروع استریم دسکتاپ
+                    <button class="btn btn-primary" style="margin-top: var(--space-3);" onclick="enterStreamRoom('host')">
+                        🎬 ورود به اتاق لایو
                     </button>
                 </div>
             </div>
 
-            <!-- Join Room Form -->
-            <div id="joinForm" style="display: none;">
-                <div class="form-group">
-                    <label class="form-label">نام شما (بیننده)</label>
-                    <input type="text" class="form-input" id="viewerName" placeholder="مثلاً: مهدیار" value="مهدیار">
+            <!-- Guest Form -->
+            <div id="guestForm" style="display: none;">
+                <div class="form-field">
+                    <label class="form-label">نام مهمان</label>
+                    <input type="text" class="form-input" id="guestName" placeholder="نام خود را وارد کنید" value="مهدیار">
                 </div>
-                <div class="form-group">
+                <div class="form-field">
                     <label class="form-label">کد دعوت</label>
-                    <input type="text" class="form-input" id="inviteCodeInput" placeholder="کد ۶ رقمی رو وارد کن">
+                    <input type="text" class="form-input" id="inviteCodeInput" placeholder="کد ۶ رقمی را وارد کنید">
                 </div>
-                <button class="btn btn-primary" onclick="joinRoom()">
+                <button class="btn btn-primary" onclick="joinStreamRoom()">
                     🔗 پیوستن به لایو
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Stream Room (Hidden initially) -->
-    <div class="room-container" id="roomContainer">
-        <!-- Stream Area -->
-        <div class="stream-area">
-            <div class="stream-header">
-                <div class="room-info">
-                    <div class="streamer-info">
-                        <div class="streamer-avatar" id="roomAvatar">ا</div>
-                        <div>
-                            <div id="roomStreamerName" style="font-weight: 700;">ابوالفضل</div>
-                            <span class="live-badge">
-                                <span class="live-dot"></span> LIVE
-                            </span>
-                        </div>
+    <!-- ============ STREAM ROOM ============ -->
+    <div class="stream-room" id="streamRoom">
+        <!-- Broadcast Section -->
+        <div class="broadcast-section">
+            <div class="broadcast-header">
+                <div class="broadcaster-profile">
+                    <div class="broadcaster-avatar" id="hostAvatar">ا</div>
+                    <div>
+                        <div class="broadcaster-name" id="hostNameDisplay">ابوالفضل</div>
+                        <span class="live-indicator" id="liveBadge" style="display: none;">
+                            <span class="live-dot"></span> LIVE
+                        </span>
                     </div>
-                    <span class="room-id" id="roomIdDisplay">Room: ------</span>
                 </div>
-                <div class="stream-controls">
-                    <button class="icon-btn" id="startStreamBtn" onclick="startScreenCapture()" title="شروع اشتراک صفحه">🖥️</button>
-                    <button class="icon-btn danger" onclick="leaveRoom()" title="خروج">🚪</button>
+                <span class="room-code-badge" id="roomCodeBadge">Room: ------</span>
+                <div class="header-actions">
+                    <button class="icon-button" id="micToggle" onclick="toggleMicrophone()" title="میکروفون">🎙️</button>
+                    <button class="icon-button" id="cameraToggle" onclick="toggleCamera()" title="دوربین">📹</button>
+                    <button class="icon-button" id="screenShareBtn" onclick="toggleScreenShare()" title="اشتراک صفحه">🖥️</button>
+                    <button class="icon-button danger" onclick="exitStreamRoom()" title="خروج">🚪</button>
                 </div>
             </div>
 
-            <div class="stream-container">
-                <video class="stream-video" id="streamVideo" autoplay muted playsinline style="display: none;"></video>
+            <div class="video-grid" id="videoGrid">
+                <video class="video-element" id="mainVideo" autoplay muted playsinline></video>
+                <video class="video-element" id="pipVideo" autoplay muted playsinline style="display: none;"></video>
                 <div class="stream-placeholder" id="streamPlaceholder">
-                    <div class="icon">📡</div>
-                    <h3 id="placeholderText">در انتظار استریم...</h3>
+                    <div class="icon-large">📡</div>
+                    <h3>در حال اتصال...</h3>
+                    <p id="placeholderMessage">لطفاً دوربین یا صفحه خود را به اشتراک بگذارید</p>
+                </div>
+                <div class="recording-timer" id="streamTimer" style="display: none;">
+                    🔴 <span id="timerValue">00:00:00</span>
                 </div>
             </div>
         </div>
 
-        <!-- Chat Sidebar -->
-        <div class="chat-sidebar">
+        <!-- Chat Section -->
+        <div class="chat-section">
             <div class="chat-header">
-                <span class="chat-title">💬 چت زنده</span>
-                <span class="viewer-count" id="viewerCountDisplay">🟢 1 نفر</span>
+                <div class="chat-title-area">
+                    <span class="chat-title">💬 گفتگوی زنده</span>
+                </div>
+                <span class="participant-count" id="participantCounter">🟢 1 شرکت‌کننده</span>
             </div>
-            <div class="chat-messages" id="chatMessages"></div>
-            <div class="chat-input-area">
-                <div class="chat-input-wrapper">
-                    <input type="text" class="chat-input" id="chatInput" placeholder="نظرت رو بنویس..." onkeypress="handleChatEnter(event)">
-                    <button class="send-btn" onclick="sendMessage()">➤</button>
+            <div class="chat-message-list" id="chatMessageList"></div>
+            <div class="chat-composer">
+                <div class="composer-wrapper">
+                    <input type="text" class="composer-input" id="chatInput" placeholder="پیام خود را بنویسید..." onkeypress="handleChatKeyPress(event)">
+                    <button class="composer-send" onclick="broadcastMessage()">➤</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // ==================== CyberStream Core ====================
-        class CyberStream {
+        // ============ CYBERSTREAM ENGINE - CORE ARCHITECTURE ============
+        class CyberStreamEngine {
             constructor() {
-                this.roomCode = null;
-                this.userRole = null; // 'streamer' or 'viewer'
-                this.userName = null;
-                this.mediaStream = null;
-                this.isStreaming = false;
-                
-                this.createParticles();
-            }
-
-            // ==================== Room Management ====================
-            createRoom() {
-                const name = document.getElementById('streamerName').value.trim();
-                if (!name) {
-                    this.showToast('⚠️ لطفاً نام خود را وارد کنید');
-                    return;
-                }
-
-                // Generate unique 6-digit room code
-                this.roomCode = Math.floor(100000 + Math.random() * 900000).toString();
-                this.userRole = 'streamer';
-                this.userName = name;
-
-                // Store room data in localStorage (simulating server)
-                const roomData = {
-                    code: this.roomCode,
-                    streamer: name,
-                    createdAt: new Date().toISOString(),
-                    isLive: false,
+                // State Management
+                this.state = {
+                    roomCode: null,
+                    userRole: null, // 'host' or 'guest'
+                    userName: null,
+                    peerName: null,
+                    mediaStream: null,
+                    screenStream: null,
+                    isMicActive: true,
+                    isCameraActive: false,
+                    isScreenSharing: false,
+                    streamStartTime: null,
+                    timerInterval: null,
                     messages: []
                 };
-                localStorage.setItem(`room_${this.roomCode}`, JSON.stringify(roomData));
+
+                // Configuration
+                this.config = {
+                    roomCodeLength: 6,
+                    autoResponseDelay: { min: 1200, max: 3500 },
+                    messageStorageKey: 'cyberstream_messages'
+                };
+
+                this.boot();
+            }
+
+            // ============ LIFECYCLE ============
+            boot() {
+                this.generateParticleField();
+                this.registerGlobalEvents();
+                console.log('%c🚀 CyberStream Engine v3.0 Initialized', 'color: #00f0ff; font-size: 14px;');
+            }
+
+            // ============ ROOM MANAGEMENT ============
+            createRoom() {
+                const hostName = document.getElementById('hostName').value.trim();
+                if (!hostName) {
+                    this.dispatchToast('⚠️ لطفاً نام خود را وارد کنید');
+                    return null;
+                }
+
+                this.state.roomCode = this.generateRoomCode();
+                this.state.userRole = 'host';
+                this.state.userName = hostName;
+                this.state.peerName = 'مهمان';
+
+                // Persist room data
+                this.persistRoomData({
+                    code: this.state.roomCode,
+                    host: hostName,
+                    isLive: false,
+                    createdAt: Date.now(),
+                    messages: []
+                });
 
                 // Show invite code
-                document.getElementById('inviteCode').textContent = this.roomCode;
-                document.getElementById('inviteCodeDisplay').style.display = 'block';
-                document.getElementById('streamerName').disabled = true;
+                document.getElementById('inviteCodeDisplay').textContent = this.state.roomCode;
+                document.getElementById('inviteShowcase').style.display = 'block';
+                document.getElementById('hostName').disabled = true;
 
-                this.showToast('✅ لایو با موفقیت ایجاد شد!');
-                this.log(`Room created: ${this.roomCode} by ${name}`);
+                this.dispatchToast('✅ اتاق لایو با موفقیت ایجاد شد');
+                this.log(`Room ${this.state.roomCode} created by ${hostName}`);
+                
+                return this.state.roomCode;
             }
 
-            startStreaming() {
-                document.getElementById('joinScreen').classList.add('hidden');
-                document.getElementById('roomContainer').classList.add('active');
+            enterAsHost() {
+                this.activateStreamRoom();
+                this.updateRoomUI();
+                this.broadcastSystemMessage(`🚀 ${this.state.userName} لایو را آغاز کرد`);
+                this.broadcastSystemMessage(`🔑 کد دعوت: ${this.state.roomCode}`);
+                this.updateParticipantCount(1);
                 
-                // Update room UI
-                document.getElementById('roomAvatar').textContent = this.userName.charAt(0);
-                document.getElementById('roomStreamerName').textContent = this.userName;
-                document.getElementById('roomIdDisplay').textContent = `Room: ${this.roomCode}`;
+                // Start camera automatically
+                setTimeout(() => this.activateCamera(), 800);
                 
-                // Add system message
-                this.addSystemMessage(`🚀 ${this.userName} لایو رو شروع کرد`);
-                this.addSystemMessage(`🔑 کد دعوت: ${this.roomCode}`);
-
                 // Mark room as live
                 this.updateRoomData({ isLive: true });
-
-                // Simulate viewer joining (Mehdiar)
-                setTimeout(() => {
-                    this.simulateViewerJoin('مهدیار');
-                }, 3000);
+                
+                // Simulate guest joining
+                setTimeout(() => this.simulateGuestArrival('مهدیار'), 2500);
             }
 
-            joinRoom() {
-                const name = document.getElementById('viewerName').value.trim();
-                const code = document.getElementById('inviteCodeInput').value.trim();
+            joinAsGuest() {
+                const guestName = document.getElementById('guestName').value.trim();
+                const inviteCode = document.getElementById('inviteCodeInput').value.trim();
 
-                if (!name || !code) {
-                    this.showToast('⚠️ لطفاً نام و کد دعوت را وارد کنید');
+                if (!guestName || !inviteCode) {
+                    this.dispatchToast('⚠️ لطفاً نام و کد دعوت را وارد کنید');
                     return;
                 }
 
-                // Check if room exists
-                const roomData = JSON.parse(localStorage.getItem(`room_${code}`));
+                const roomData = this.retrieveRoomData(inviteCode);
                 if (!roomData) {
-                    this.showToast('❌ کد دعوت معتبر نیست');
+                    this.dispatchToast('❌ کد دعوت نامعتبر است');
                     return;
                 }
 
-                this.roomCode = code;
-                this.userRole = 'viewer';
-                this.userName = name;
+                this.state.roomCode = inviteCode;
+                this.state.userRole = 'guest';
+                this.state.userName = guestName;
+                this.state.peerName = roomData.host;
 
-                // Join the room
-                document.getElementById('joinScreen').classList.add('hidden');
-                document.getElementById('roomContainer').classList.add('active');
+                this.activateStreamRoom();
+                this.updateRoomUI();
+                this.broadcastSystemMessage(`👋 ${guestName} به لایو پیوست`);
+                this.updateParticipantCount(2);
                 
-                document.getElementById('roomAvatar').textContent = roomData.streamer.charAt(0);
-                document.getElementById('roomStreamerName').textContent = roomData.streamer;
-                document.getElementById('roomIdDisplay').textContent = `Room: ${code}`;
-                document.getElementById('placeholderText').textContent = 'در انتظار استریم استریمر...';
-                
-                // Hide start stream button for viewer
-                document.getElementById('startStreamBtn').style.display = 'none';
-
-                // Add system messages
-                this.addSystemMessage(`👋 ${name} به لایو پیوست`);
-                
-                // Show existing messages
-                if (roomData.messages && roomData.messages.length > 0) {
-                    roomData.messages.forEach(msg => {
-                        this.displayMessage(msg.user, msg.text, msg.role);
-                    });
+                // Load existing messages
+                if (roomData.messages) {
+                    roomData.messages.forEach(msg => this.renderMessage(msg));
                 }
 
-                // If streamer is already live, simulate receiving stream
-                if (roomData.isLive) {
-                    this.addSystemMessage('🔴 استریمر در حال پخش است...');
-                }
+                // Start camera
+                setTimeout(() => this.activateCamera(), 800);
 
-                this.showToast('✅ با موفقیت به لایو پیوستید!');
+                // Hide screen share button for guest
+                document.getElementById('screenShareBtn').style.display = 'none';
+
+                this.dispatchToast('✅ با موفقیت به لایو پیوستید');
             }
 
-            leaveRoom() {
-                if (this.mediaStream) {
-                    this.mediaStream.getTracks().forEach(track => track.stop());
-                    this.mediaStream = null;
-                }
-
-                this.addSystemMessage(`👋 ${this.userName} از لایو خارج شد`);
-
-                if (this.userRole === 'streamer') {
+            exitRoom() {
+                // Stop all media
+                this.stopAllMedia();
+                
+                this.broadcastSystemMessage(`👋 ${this.state.userName} از لایو خارج شد`);
+                
+                if (this.state.userRole === 'host') {
                     this.updateRoomData({ isLive: false });
                 }
 
-                // Reset UI
-                document.getElementById('roomContainer').classList.remove('active');
-                document.getElementById('joinScreen').classList.remove('hidden');
-                document.getElementById('streamVideo').style.display = 'none';
-                document.getElementById('streamPlaceholder').style.display = 'block';
-                document.getElementById('startStreamBtn').style.display = 'inline-flex';
-                document.getElementById('chatMessages').innerHTML = '';
-                
-                // Reset forms
-                document.getElementById('streamerName').disabled = false;
-                document.getElementById('inviteCodeDisplay').style.display = 'none';
-                document.getElementById('inviteCode').textContent = '------';
-
-                this.roomCode = null;
-                this.userRole = null;
-                this.userName = null;
-                this.isStreaming = false;
+                // Reset state
+                this.deactivateStreamRoom();
+                this.resetState();
             }
 
-            // ==================== Screen Capture ====================
-            async startScreenCapture() {
-                if (this.userRole !== 'streamer') return;
+            // ============ MEDIA CONTROLS ============
+            async activateCamera() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: 1280, height: 720, facingMode: 'user' },
+                        audio: true
+                    });
+
+                    this.state.mediaStream = stream;
+                    this.state.isCameraActive = true;
+                    this.state.isMicActive = true;
+
+                    const mainVideo = document.getElementById('mainVideo');
+                    mainVideo.srcObject = stream;
+                    mainVideo.style.display = 'block';
+                    document.getElementById('streamPlaceholder').style.display = 'none';
+
+                    // Update UI
+                    document.getElementById('cameraToggle').classList.add('mic-active');
+                    document.getElementById('micToggle').classList.add('mic-active');
+                    document.getElementById('hostAvatar').classList.add('recording');
+
+                    this.startStreamTimer();
+                    this.broadcastSystemMessage('📹 دوربین فعال شد');
+                } catch (error) {
+                    this.dispatchToast('⚠️ دسترسی به دوربین امکان‌پذیر نیست');
+                    console.error('Camera error:', error);
+                }
+            }
+
+            async toggleScreenShare() {
+                if (this.state.userRole !== 'host') return;
+
+                if (this.state.isScreenSharing) {
+                    this.stopScreenShare();
+                    return;
+                }
 
                 try {
-                    const stream = await navigator.mediaDevices.getDisplayMedia({
+                    const screenStream = await navigator.mediaDevices.getDisplayMedia({
                         video: { cursor: 'always' },
                         audio: true
                     });
 
-                    this.mediaStream = stream;
-                    this.isStreaming = true;
+                    this.state.screenStream = screenStream;
+                    this.state.isScreenSharing = true;
 
-                    const video = document.getElementById('streamVideo');
-                    video.srcObject = stream;
-                    video.style.display = 'block';
+                    // Show screen in main, camera in PIP
+                    const mainVideo = document.getElementById('mainVideo');
+                    const pipVideo = document.getElementById('pipVideo');
+                    
+                    mainVideo.srcObject = screenStream;
+                    
+                    if (this.state.mediaStream) {
+                        pipVideo.srcObject = this.state.mediaStream;
+                        pipVideo.style.display = 'block';
+                        document.getElementById('videoGrid').classList.add('has-pip');
+                    }
+
+                    document.getElementById('screenShareBtn').classList.add('mic-active');
                     document.getElementById('streamPlaceholder').style.display = 'none';
-                    document.getElementById('startStreamBtn').style.display = 'none';
+                    this.broadcastSystemMessage('🖥️ میزبان صفحه خود را به اشتراک گذاشت');
 
-                    this.addSystemMessage('🖥️ استریمر صفحه نمایش خود را به اشتراک گذاشت');
-                    this.updateRoomData({ isLive: true });
-
-                    // Handle stream stop
-                    stream.getVideoTracks()[0].addEventListener('ended', () => {
-                        this.stopScreenCapture();
-                    });
-
+                    screenStream.getVideoTracks()[0].addEventListener('ended', () => this.stopScreenShare());
                 } catch (error) {
-                    this.showToast('❌ خطا در اشتراک‌گذاری صفحه: ' + error.message);
+                    this.dispatchToast('⚠️ اشتراک صفحه ممکن نشد');
+                    console.error('Screen share error:', error);
                 }
             }
 
-            stopScreenCapture() {
-                if (this.mediaStream) {
-                    this.mediaStream.getTracks().forEach(track => track.stop());
-                    this.mediaStream = null;
+            stopScreenShare() {
+                if (this.state.screenStream) {
+                    this.state.screenStream.getTracks().forEach(track => track.stop());
+                    this.state.screenStream = null;
                 }
+                this.state.isScreenSharing = false;
 
-                this.isStreaming = false;
-                document.getElementById('streamVideo').style.display = 'none';
-                document.getElementById('streamPlaceholder').style.display = 'block';
-                document.getElementById('startStreamBtn').style.display = 'inline-flex';
+                // Restore camera to main
+                const mainVideo = document.getElementById('mainVideo');
+                const pipVideo = document.getElementById('pipVideo');
                 
-                this.addSystemMessage('⏹️ استریمر اشتراک صفحه را متوقف کرد');
-                this.updateRoomData({ isLive: false });
+                if (this.state.mediaStream) {
+                    mainVideo.srcObject = this.state.mediaStream;
+                }
+                pipVideo.srcObject = null;
+                pipVideo.style.display = 'none';
+                document.getElementById('videoGrid').classList.remove('has-pip');
+                document.getElementById('screenShareBtn').classList.remove('mic-active');
+                
+                this.broadcastSystemMessage('⏹️ اشتراک صفحه پایان یافت');
             }
 
-            // ==================== Chat System ====================
-            sendMessage() {
+            toggleMicrophone() {
+                if (!this.state.mediaStream) return;
+                
+                const audioTrack = this.state.mediaStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    this.state.isMicActive = !this.state.isMicActive;
+                    audioTrack.enabled = this.state.isMicActive;
+                    
+                    const micBtn = document.getElementById('micToggle');
+                    if (this.state.isMicActive) {
+                        micBtn.classList.add('mic-active');
+                        micBtn.classList.remove('mic-muted');
+                        this.broadcastSystemMessage('🎙️ میکروفون فعال شد');
+                    } else {
+                        micBtn.classList.add('mic-muted');
+                        micBtn.classList.remove('mic-active');
+                        this.broadcastSystemMessage('🔇 میکروفون قطع شد');
+                    }
+                }
+            }
+
+            toggleCamera() {
+                if (!this.state.mediaStream) {
+                    this.activateCamera();
+                    return;
+                }
+                
+                const videoTrack = this.state.mediaStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    this.state.isCameraActive = !this.state.isCameraActive;
+                    videoTrack.enabled = this.state.isCameraActive;
+                    
+                    const camBtn = document.getElementById('cameraToggle');
+                    if (this.state.isCameraActive) {
+                        camBtn.classList.add('mic-active');
+                        this.broadcastSystemMessage('📹 دوربین فعال شد');
+                    } else {
+                        camBtn.classList.remove('mic-active');
+                        this.broadcastSystemMessage('📷 دوربین غیرفعال شد');
+                    }
+                }
+            }
+
+            stopAllMedia() {
+                [this.state.mediaStream, this.state.screenStream].forEach(stream => {
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                    }
+                });
+                this.state.mediaStream = null;
+                this.state.screenStream = null;
+                this.stopStreamTimer();
+            }
+
+            // ============ CHAT SYSTEM ============
+            broadcastMessage() {
                 const input = document.getElementById('chatInput');
                 const text = input.value.trim();
-                
                 if (!text) return;
 
-                this.displayMessage(this.userName, text, this.userRole);
-                this.saveMessage(this.userName, text, this.userRole);
+                const message = {
+                    author: this.state.userName,
+                    role: this.state.userRole,
+                    content: text,
+                    timestamp: Date.now()
+                };
+
+                this.state.messages.push(message);
+                this.renderMessage(message);
+                this.persistMessages();
                 
                 input.value = '';
+                input.focus();
 
-                // Simulate response from the other user
-                if (this.userRole === 'streamer') {
-                    // If streamer sends message, simulate viewer response
-                    setTimeout(() => {
-                        this.simulateViewerMessage(text);
-                    }, 1500 + Math.random() * 2000);
-                } else {
-                    // If viewer sends message, simulate streamer response
-                    setTimeout(() => {
-                        this.simulateStreamerMessage(text);
-                    }, 1500 + Math.random() * 2000);
-                }
+                // Smart auto-response
+                this.scheduleAutoResponse(text);
             }
 
-            displayMessage(username, text, role) {
-                const chatMessages = document.getElementById('chatMessages');
-                const now = new Date();
-                const timeStr = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
-
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'message';
-                msgDiv.innerHTML = `
-                    <div class="msg-header">
-                        <span class="msg-user ${role}">${this.escapeHtml(username)}</span>
-                        ${role === 'streamer' ? '<span class="msg-badge">STR</span>' : ''}
-                        <span class="msg-time">${timeStr}</span>
-                    </div>
-                    <div class="msg-text">${this.escapeHtml(text)}</div>
-                `;
-
-                chatMessages.appendChild(msgDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-
-            addSystemMessage(text) {
-                const chatMessages = document.getElementById('chatMessages');
-                const div = document.createElement('div');
-                div.className = 'system-msg';
-                div.textContent = text;
-                chatMessages.appendChild(div);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-
-            saveMessage(username, text, role) {
-                const roomData = JSON.parse(localStorage.getItem(`room_${this.roomCode}`));
-                if (roomData) {
-                    if (!roomData.messages) roomData.messages = [];
-                    roomData.messages.push({
-                        user: username,
-                        text: text,
-                        role: role,
-                        time: new Date().toISOString()
-                    });
-                    localStorage.setItem(`room_${this.roomCode}`, JSON.stringify(roomData));
-                }
-            }
-
-            // ==================== Simulation ====================
-            simulateViewerJoin(viewerName) {
-                this.addSystemMessage(`👋 ${viewerName} به لایو پیوست`);
-                document.getElementById('viewerCountDisplay').textContent = '🟢 2 نفر';
+            renderMessage(msg) {
+                const list = document.getElementById('chatMessageList');
+                const time = new Date(msg.timestamp).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
                 
-                // Simulate first message from viewer
+                const bubble = document.createElement('div');
+                bubble.className = 'message-bubble';
+                bubble.innerHTML = `
+                    <div class="message-meta">
+                        <span class="message-author ${msg.role}">${this.escapeHTML(msg.author)}</span>
+                        <span class="author-badge badge-${msg.role}">${msg.role === 'host' ? 'HOST' : 'GUEST'}</span>
+                        <span class="message-timestamp">${time}</span>
+                    </div>
+                    <div class="message-content">${this.escapeHTML(msg.content)}</div>
+                `;
+                
+                list.appendChild(bubble);
+                list.scrollTop = list.scrollHeight;
+            }
+
+            broadcastSystemMessage(text) {
+                const list = document.getElementById('chatMessageList');
+                const notif = document.createElement('div');
+                notif.className = 'system-notification';
+                notif.textContent = text;
+                list.appendChild(notif);
+                list.scrollTop = list.scrollHeight;
+            }
+
+            scheduleAutoResponse(incomingMessage) {
+                const delay = this.config.autoResponseDelay.min + 
+                             Math.random() * (this.config.autoResponseDelay.max - this.config.autoResponseDelay.min);
+                
                 setTimeout(() => {
-                    this.displayMessage(viewerName, 'سلام ابوالفضل! لایو رو دیدم، عالیه 🎉', 'viewer');
-                    this.saveMessage(viewerName, 'سلام ابوالفضل! لایو رو دیدم، عالیه 🎉', 'viewer');
-                }, 2000);
+                    const response = this.generateSmartResponse(incomingMessage);
+                    const msg = {
+                        author: this.state.peerName,
+                        role: this.state.userRole === 'host' ? 'guest' : 'host',
+                        content: response,
+                        timestamp: Date.now()
+                    };
+                    this.state.messages.push(msg);
+                    this.renderMessage(msg);
+                    this.persistMessages();
+                }, delay);
             }
 
-            simulateViewerMessage(streamerMsg) {
-                const responses = [
-                    'درسته! 👍',
-                    'جالبه، ادامه بده 🚀',
-                    'متوجه شدم 👌',
-                    'باحاله! 😎',
-                    'دقیقاً موافقم 💯',
-                    'حرفه‌ای داری کار می‌کنی 🔥',
-                    'میشه بیشتر توضیح بدی؟ 🤔',
-                    'آها! الان فهمیدم ✨'
+            generateSmartResponse(message) {
+                const lower = message.toLowerCase();
+                
+                const responseMap = [
+                    { keywords: ['سلام', 'خوبی', 'چطوری'], responses: ['سلام! خوبم مرسی 🙌', 'سلاممم! لایو عالیه ✨', 'هی! خوبم، تو چطوری؟ 😊'] },
+                    { keywords: ['کد', 'برنامه', 'code'], responses: ['کدت خیلی تمیزه! 👨‍💻', 'از چه فریم‌ورکی استفاده می‌کنی؟', 'معماریش عالیه! 💪'] },
+                    { keywords: ['صدا', 'میکروفون', 'audio'], responses: ['صدا واضحه! 👍', 'یه کم میکروفون رو نزدیک‌تر کن', 'صدات عالی میاد 🎙️'] },
+                    { keywords: ['دوربین', 'تصویر', 'camera'], responses: ['تصویر با کیفیت هستش', 'دوربینت خوب میندازه 📹', 'نور خوبه! ✨'] },
+                    { keywords: ['سرعت', 'لگ', 'lag'], responses: ['اینجا لگ ندارم، روانه', 'سرعت نت خوبه 👌', 'همه چی smooth میاد'] },
                 ];
-                const response = responses[Math.floor(Math.random() * responses.length)];
-                this.displayMessage('مهدیار', response, 'viewer');
-                this.saveMessage('مهدیار', response, 'viewer');
-            }
 
-            simulateStreamerMessage(viewerMsg) {
-                const responses = [
-                    'مرسی! 🙏',
-                    'خوشحالم که دوست داری',
-                    'چشم، حتماً',
-                    'نظر لطفتونه',
-                    'باشه، ادامه میدم',
-                    'سوالی داری بپرس'
+                for (const pattern of responseMap) {
+                    if (pattern.keywords.some(kw => lower.includes(kw))) {
+                        return pattern.responses[Math.floor(Math.random() * pattern.responses.length)];
+                    }
+                }
+
+                const genericResponses = [
+                    'درسته! 👍', 'عالیه، ادامه بده 🚀', 'متوجه شدم 👌',
+                    'باحاله! 😎', 'حرفه‌ای داری کار می‌کنی 🔥',
+                    'میشه بیشتر توضیح بدی؟ 🤔', 'دقیقاً موافقم 💯',
+                    'آها! الان گرفتم ✨', 'چقدر جالب! 🤩'
                 ];
-                const response = responses[Math.floor(Math.random() * responses.length)];
-                const streamerName = document.getElementById('roomStreamerName').textContent;
-                this.displayMessage(streamerName, response, 'streamer');
-                this.saveMessage(streamerName, response, 'streamer');
+                return genericResponses[Math.floor(Math.random() * genericResponses.length)];
             }
 
-            // ==================== Utility ====================
-            updateRoomData(data) {
-                const roomData = JSON.parse(localStorage.getItem(`room_${this.roomCode}`));
-                if (roomData) {
-                    Object.assign(roomData, data);
-                    localStorage.setItem(`room_${this.roomCode}`, JSON.stringify(roomData));
+            simulateGuestArrival(guestName) {
+                this.state.peerName = guestName;
+                this.updateParticipantCount(2);
+                this.broadcastSystemMessage(`👋 ${guestName} به لایو پیوست`);
+                
+                setTimeout(() => {
+                    const greeting = {
+                        author: guestName,
+                        role: 'guest',
+                        content: `سلام ${this.state.userName}! لایو رو دیدم، عالیه 🎉`,
+                        timestamp: Date.now()
+                    };
+                    this.state.messages.push(greeting);
+                    this.renderMessage(greeting);
+                    this.persistMessages();
+                }, 1500);
+            }
+
+            // ============ UI UPDATES ============
+            activateStreamRoom() {
+                document.getElementById('entryScreen').classList.add('concealed');
+                document.getElementById('streamRoom').classList.add('engaged');
+            }
+
+            deactivateStreamRoom() {
+                document.getElementById('entryScreen').classList.remove('concealed');
+                document.getElementById('streamRoom').classList.remove('engaged');
+                document.getElementById('hostName').disabled = false;
+                document.getElementById('inviteShowcase').style.display = 'none';
+                document.getElementById('inviteCodeDisplay').textContent = '------';
+                document.getElementById('chatMessageList').innerHTML = '';
+            }
+
+            updateRoomUI() {
+                document.getElementById('hostNameDisplay').textContent = 
+                    this.state.userRole === 'host' ? this.state.userName : this.state.peerName;
+                document.getElementById('hostAvatar').textContent = 
+                    (this.state.userRole === 'host' ? this.state.userName : this.state.peerName).charAt(0);
+                document.getElementById('roomCodeBadge').textContent = `Room: ${this.state.roomCode}`;
+                document.getElementById('liveBadge').style.display = 'inline-flex';
+                document.getElementById('screenShareBtn').style.display = 
+                    this.state.userRole === 'host' ? 'inline-flex' : 'none';
+            }
+
+            updateParticipantCount(count) {
+                document.getElementById('participantCounter').textContent = `🟢 ${count} شرکت‌کننده`;
+            }
+
+            // ============ TIMER ============
+            startStreamTimer() {
+                this.state.streamStartTime = Date.now();
+                document.getElementById('streamTimer').style.display = 'block';
+                
+                this.state.timerInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - this.state.streamStartTime) / 1000);
+                    const h = Math.floor(elapsed / 3600).toString().padStart(2, '0');
+                    const m = Math.floor((elapsed % 3600) / 60).toString().padStart(2, '0');
+                    const s = (elapsed % 60).toString().padStart(2, '0');
+                    document.getElementById('timerValue').textContent = `${h}:${m}:${s}`;
+                }, 1000);
+            }
+
+            stopStreamTimer() {
+                if (this.state.timerInterval) {
+                    clearInterval(this.state.timerInterval);
+                    this.state.timerInterval = null;
+                }
+                document.getElementById('streamTimer').style.display = 'none';
+            }
+
+            // ============ PERSISTENCE ============
+            persistRoomData(data) {
+                localStorage.setItem(`cyberstream_room_${data.code}`, JSON.stringify(data));
+            }
+
+            retrieveRoomData(code) {
+                const raw = localStorage.getItem(`cyberstream_room_${code}`);
+                return raw ? JSON.parse(raw) : null;
+            }
+
+            updateRoomData(updates) {
+                const data = this.retrieveRoomData(this.state.roomCode);
+                if (data) {
+                    Object.assign(data, updates);
+                    this.persistRoomData(data);
                 }
             }
 
-            showToast(message) {
-                const container = document.getElementById('toastContainer');
+            persistMessages() {
+                this.updateRoomData({ messages: this.state.messages });
+            }
+
+            // ============ UTILITIES ============
+            generateRoomCode() {
+                return Math.floor(100000 + Math.random() * 900000).toString();
+            }
+
+            resetState() {
+                this.state.roomCode = null;
+                this.state.userRole = null;
+                this.state.userName = null;
+                this.state.peerName = null;
+                this.state.messages = [];
+                this.stopAllMedia();
+            }
+
+            dispatchToast(message) {
+                const hub = document.getElementById('toastHub');
                 const toast = document.createElement('div');
-                toast.className = 'toast';
+                toast.className = 'toast-item';
                 toast.textContent = message;
-                container.appendChild(toast);
+                hub.appendChild(toast);
                 setTimeout(() => {
                     toast.style.opacity = '0';
-                    toast.style.transition = 'opacity 0.3s';
+                    toast.style.transform = 'translateY(-20px)';
+                    toast.style.transition = 'all 0.3s ease';
                     setTimeout(() => toast.remove(), 300);
-                }, 3000);
+                }, 3500);
             }
 
-            createParticles() {
-                const container = document.getElementById('particles');
-                for (let i = 0; i < 30; i++) {
+            generateParticleField() {
+                const container = document.getElementById('particleField');
+                const colors = ['#00f0ff', '#b400ff', '#ff2d95', '#00ff88'];
+                for (let i = 0; i < 40; i++) {
                     const p = document.createElement('div');
                     p.className = 'particle';
                     p.style.left = Math.random() * 100 + '%';
-                    p.style.animationDuration = (Math.random() * 10 + 8) + 's';
-                    p.style.animationDelay = Math.random() * 10 + 's';
+                    p.style.animationDuration = (Math.random() * 12 + 8) + 's';
+                    p.style.animationDelay = Math.random() * 12 + 's';
                     p.style.width = (Math.random() * 3 + 1) + 'px';
                     p.style.height = p.style.width;
+                    p.style.background = colors[Math.floor(Math.random() * colors.length)];
                     container.appendChild(p);
                 }
             }
 
-            escapeHtml(text) {
+            registerGlobalEvents() {
+                document.getElementById('chatInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.broadcastMessage();
+                    }
+                });
+            }
+
+            escapeHTML(str) {
                 const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-                return text.replace(/[&<>"']/g, m => map[m]);
+                return str.replace(/[&<>"']/g, m => map[m]);
             }
 
             log(message) {
-                console.log(`[CyberStream] ${message}`);
+                console.log(`%c[CyberStream]%c ${message}`, 'color: #00f0ff; font-weight: bold;', 'color: #b8b8e0;');
             }
         }
 
-        // ==================== Initialize ====================
-        const app = new CyberStream();
+        // ============ GLOBAL INSTANCE ============
+        const engine = new CyberStreamEngine();
 
-        // ==================== Global Functions ====================
-        function switchTab(tab) {
-            document.getElementById('tabCreate').classList.toggle('active', tab === 'create');
-            document.getElementById('tabJoin').classList.toggle('active', tab === 'join');
-            document.getElementById('createForm').style.display = tab === 'create' ? 'block' : 'none';
-            document.getElementById('joinForm').style.display = tab === 'join' ? 'block' : 'none';
+        // ============ GLOBAL HANDLERS ============
+        function switchToHostTab() {
+            document.getElementById('tabHost').classList.add('active');
+            document.getElementById('tabGuest').classList.remove('active');
+            document.getElementById('hostForm').style.display = 'block';
+            document.getElementById('guestForm').style.display = 'none';
         }
 
-        function createRoom() { app.createRoom(); }
-        function startStreaming() { app.startStreaming(); }
-        function joinRoom() { app.joinRoom(); }
-        function leaveRoom() { app.leaveRoom(); }
-        function startScreenCapture() { app.startScreenCapture(); }
-        function sendMessage() { app.sendMessage(); }
+        function switchToGuestTab() {
+            document.getElementById('tabGuest').classList.add('active');
+            document.getElementById('tabHost').classList.remove('active');
+            document.getElementById('guestForm').style.display = 'block';
+            document.getElementById('hostForm').style.display = 'none';
+        }
+
+        function createStreamRoom() { engine.createRoom(); }
+        function enterStreamRoom() { engine.enterAsHost(); }
+        function joinStreamRoom() { engine.joinAsGuest(); }
+        function exitStreamRoom() { engine.exitRoom(); }
+        function broadcastMessage() { engine.broadcastMessage(); }
+        function toggleMicrophone() { engine.toggleMicrophone(); }
+        function toggleCamera() { engine.toggleCamera(); }
+        function toggleScreenShare() { engine.toggleScreenShare(); }
         
-        function handleChatEnter(event) {
+        function handleChatKeyPress(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
-                app.sendMessage();
+                engine.broadcastMessage();
             }
         }
 
         function copyInviteCode() {
-            const code = document.getElementById('inviteCode').textContent;
+            const code = document.getElementById('inviteCodeDisplay').textContent;
             navigator.clipboard.writeText(code).then(() => {
-                app.showToast('📋 کد دعوت کپی شد! برای مهدیار بفرست');
+                engine.dispatchToast('📋 کد دعوت کپی شد');
             });
         }
     </script>
