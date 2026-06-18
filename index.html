@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberStream Pro</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+:root{--neon-blue:#00f0ff;--neon-purple:#b400ff;--neon-pink:#ff2d95;--neon-red:#ff1744;--neon-green:#00ff88;--bg:#0a0a1a;--glass:rgba(10,10,30,.85);--border:rgba(0,240,255,.2);--text:#e0e0ff;--muted:#7878a8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
+.bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 20% 30%,rgba(0,240,255,.06)0%,transparent 50%),radial-gradient(ellipse at 80% 70%,rgba(180,0,255,.05)0%,transparent 50%)}
+.join-screen{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:100;background:rgba(5,5,20,.95);backdrop-filter:blur(20px)}
+.join-screen.hidden{display:none}
+.join-card{width:420px;padding:40px;background:var(--glass);border:1px solid var(--border);border-radius:20px;box-shadow:0 0 40px rgba(0,240,255,.2)}
+.logo{text-align:center;font-size:2rem;font-weight:900;margin-bottom:8px;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:var(--muted);font-size:.8rem;margin-bottom:24px}
+.tabs{display:flex;gap:2px;margin-bottom:20px;background:rgba(0,0,0,.3);border-radius:12px;padding:3px}
+.tab{flex:1;padding:12px;text-align:center;border-radius:10px;cursor:pointer;font-weight:600;border:1px solid transparent;color:var(--muted)}
+.tab.active{background:rgba(0,240,255,.1);border-color:var(--neon-blue);color:var(--neon-blue)}
+.field{margin-bottom:16px}
+.field label{display:block;margin-bottom:6px;font-size:.8rem;text-transform:uppercase;color:var(--muted)}
+.field input{width:100%;padding:12px;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:.9rem;outline:none}
+.field input:focus{border-color:var(--neon-blue);box-shadow:0 0 15px rgba(0,240,255,.15)}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-weight:700;cursor:pointer;transition:all .3s;font-size:.95rem;margin-top:8px}
+.btn-primary{background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));color:white;box-shadow:0 4px 20px rgba(0,240,255,.3)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,240,255,.5)}
+.invite-box{background:rgba(0,0,0,.5);border:2px dashed rgba(0,240,255,.4);border-radius:16px;padding:20px;text-align:center;margin-top:16px}
+.invite-code{font-size:2rem;color:var(--neon-purple);letter-spacing:8px;font-family:monospace;font-weight:bold}
+.room{position:relative;z-index:10;width:100%;height:100vh;display:none}
+.room.active{display:flex}
+.broadcast{flex:1;display:flex;flex-direction:column;background:#0a0a15;border-right:1px solid rgba(0,240,255,.05)}
+.header{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(8,8,20,.9);border-bottom:1px solid var(--border)}
+.user-info{display:flex;align-items:center;gap:10px}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));display:flex;align-items:center;justify-content:center;font-weight:800;color:white;border:2px solid rgba(0,240,255,.5)}
+.live-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:rgba(255,23,68,.15);border:1px solid var(--neon-red);border-radius:20px;font-size:.7rem;color:var(--neon-red);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 8px rgba(255,23,68,.3)}50%{box-shadow:0 0 20px rgba(255,23,68,.6)}}
+.live-dot{width:7px;height:7px;background:var(--neon-red);border-radius:50%;animation:blink .8s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.controls{display:flex;gap:6px}
+.ctrl-btn{width:36px;height:36px;border-radius:50%;background:rgba(15,15,35,.6);border:1px solid var(--border);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.ctrl-btn.active{background:rgba(0,255,136,.15);border-color:var(--neon-green);color:var(--neon-green)}
+.ctrl-btn.muted{background:rgba(255,23,68,.15);border-color:var(--neon-red);color:var(--neon-red)}
+.video-area{flex:1;background:#000;display:flex;align-items:center;justify-content:center;position:relative}
+.video-area video{width:100%;height:100%;object-fit:contain}
+.placeholder{text-align:center;color:var(--muted)}
+.placeholder .icon{font-size:4rem;opacity:.2;margin-bottom:12px}
+.timer{position:absolute;top:10px;right:10px;padding:5px 12px;background:rgba(0,0,0,.8);border:1px solid var(--neon-red);border-radius:20px;font-family:monospace;font-size:.75rem;color:var(--neon-red)}
+.chat-panel{width:320px;display:flex;flex-direction:column;background:#0d0d22}
+.chat-header{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(8,8,20,.9);border-bottom:1px solid var(--border)}
+.messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.messages::-webkit-scrollbar{width:3px}
+.messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+.msg{animation:slideIn .3s ease-out}
+@keyframes slideIn{from{opacity:0;transform:translateX(15px)}to{opacity:1;transform:translateX(0)}}
+.msg-header{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.msg-user{font-weight:700;font-size:.8rem}
+.msg-user.host{color:var(--neon-blue)}
+.msg-user.guest{color:var(--neon-pink)}
+.msg-badge{font-size:.6rem;padding:1px 5px;border-radius:3px;background:rgba(0,240,255,.1);border:1px solid var(--neon-blue);color:var(--neon-blue)}
+.msg-time{font-size:.65rem;color:var(--muted);margin-right:auto}
+.msg-text{font-size:.85rem;color:#b0b0d8;padding-right:16px}
+.sys-msg{text-align:center;font-size:.7rem;color:var(--muted);padding:6px;font-style:italic}
+.input-area{padding:12px;border-top:1px solid var(--border)}
+.input-row{display:flex;gap:6px}
+.chat-input{flex:1;padding:10px 14px;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:.8rem;outline:none}
+.chat-input:focus{border-color:var(--neon-blue)}
+.send-btn{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));border:none;cursor:pointer;color:white;font-size:1rem}
+.send-btn:hover{transform:scale(1.1)}
+.toast-container{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999}
+.toast{padding:12px 24px;background:var(--glass);border:1px solid var(--border);border-radius:20px;animation:toastIn .4s ease-out;font-size:.85rem;margin-bottom:8px}
+@keyframes toastIn{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media(max-width:768px){.room.active{flex-direction:column}.broadcast{height:55%;border-right:none;border-bottom:1px solid rgba(0,240,255,.05)}.chat-panel{width:100%;flex:1}.join-card{width:92vw;padding:24px}}
+    </style>
+</head>
+<body>
+    <div class="bg"></div>
+    <div class="toast-container" id="toastContainer"></div>
+    <div id="root"></div>
+    <script type="text/babel">
+const {useState,useEffect,useRef} = React;
+const API = '/api';
+function toast(m){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className='toast';t.textContent=m;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='0.3s';setTimeout(()=>t.remove(),300)},3000)}
+
+function App(){
+  const [screen,setScreen]=useState('join');
+  const [tab,setTab]=useState('create');
+  const [roomCode,setRoomCode]=useState(null);
+  const [role,setRole]=useState(null);
+  const [myName,setMyName]=useState('');
+  const [peerName,setPeerName]=useState('');
+  const [code,setCode]=useState(null);
+
+  const create=async()=>{
+    const n=document.getElementById('hostName')?.value||'ابوالفضل';
+    if(!n.trim())return toast('نام را وارد کنید');
+    const r=await fetch(API+'/rooms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({hostName:n})});
+    const d=await r.json();
+    setCode(d.roomCode);setRoomCode(d.roomCode);setRole('host');setMyName(n);setPeerName('مهمان');toast('اتاق ساخته شد');
+  };
+
+  const join=async()=>{
+    const n=document.getElementById('guestName')?.value||'مهدیار';
+    const c=document.getElementById('inviteInput')?.value;
+    if(!n.trim()||!c)return toast('همه فیلدها را پر کنید');
+    const r=await fetch(API+'/rooms/'+c+'/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({guestName:n})});
+    if(!r.ok)return toast('کد نامعتبر');
+    const d=await r.json();
+    setRoomCode(c);setRole('guest');setMyName(n);setPeerName(d.host?.name||'میزبان');setScreen('room');toast('وارد اتاق شدید');
+  };
+
+  const leave=()=>{setScreen('join');setCode(null);setRoomCode(null);setRole(null)};
+
+  return(<div><div className={'join-screen '+(screen==='room'?'hidden':'')}><div className="join-card"><div className="logo">CYBERSTREAM</div><div className="subtitle">Live Room</div><div className="tabs"><div className={'tab '+(tab==='create'?'active':'')} onClick={()=>setTab('create')}>🎥 ایجاد اتاق</div><div className={'tab '+(tab==='join'?'active':'')} onClick={()=>setTab('join')}>🔗 ورود به اتاق</div></div>{tab==='create'?(<div><div className="field"><label>نام میزبان</label><input id="hostName" defaultValue="ابوالفضل"/></div>{!code?(<button className="btn btn-primary" onClick={create}>🚀 ایجاد اتاق</button>):(<div className="invite-box"><label>کد دعوت</label><div className="invite-code">{code}</div><button className="btn btn-primary" style={{marginTop:12}} onClick={()=>setScreen('room')}>🎬 ورود به اتاق</button></div>)}</div>):(<div><div className="field"><label>نام مهمان</label><input id="guestName" defaultValue="مهدیار"/></div><div className="field"><label>کد دعوت</label><input id="inviteInput" placeholder="کد ۶ رقمی"/></div><button className="btn btn-primary" onClick={join}>🔗 پیوستن</button></div>)}</div></div><div className={'room '+(screen==='room'?'active':'')}>{screen==='room'&&<StreamRoom roomCode={roomCode} role={role} myName={myName} peerName={peerName} onLeave={leave}/>}</div></div>)
+}
+
+function StreamRoom({roomCode,role,myName,peerName,onLeave}){
+  const [stream,setStream]=useState(null);
+  const [isCamOn,setIsCamOn]=useState(false);
+  const [isMicOn,setIsMicOn]=useState(true);
+  const [msgs,setMsgs]=useState([]);
+  const [timer,setTimer]=useState('00:00:00');
+  const streamRef=useRef(null);
+  const timerRef=useRef(null);
+  const videoRef=useRef(null);
+  const inputRef=useRef(null);
+
+  useEffect(()=>{
+    (async()=>{
+      try{
+        const s=await navigator.mediaDevices.getUserMedia({video:{width:1280,height:720},audio:true});
+        streamRef.current=s;setStream(s);setIsCamOn(true);
+        if(videoRef.current)videoRef.current.srcObject=s;
+      }catch(e){toast('دسترسی به دوربین ممکن نیست')}
+    })();
+    fetch(API+'/rooms/'+roomCode+'/messages').then(r=>r.json()).then(d=>setMsgs(d.messages||[])).catch(()=>{});
+    const st=Date.now();
+    timerRef.current=setInterval(()=>{
+      const el=Math.floor((Date.now()-st)/1000);
+      setTimer(String(Math.floor(el/3600)).padStart(2,'0')+':'+String(Math.floor((el%3600)/60)).padStart(2,'0')+':'+String(el%60).padStart(2,'0'));
+    },1000);
+    return()=>{if(streamRef.current)streamRef.current.getTracks().forEach(t=>t.stop());clearInterval(timerRef.current)}
+  },[]);
+
+  const toggleMic=()=>{if(streamRef.current){const t=streamRef.current.getAudioTracks()[0];if(t){t.enabled=!t.enabled;setIsMicOn(t.enabled)}}};
+  const toggleCam=()=>{if(streamRef.current){const t=streamRef.current.getVideoTracks()[0];if(t){t.enabled=!t.enabled;setIsCamOn(t.enabled)}}};
+
+  const send=async()=>{
+    const text=inputRef.current?.value?.trim();
+    if(!text)return;
+    const msg={author:{name:myName,role},content:text,timestamp:new Date().toISOString()};
+    fetch(API+'/rooms/'+roomCode+'/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(msg)}).catch(()=>{});
+    setMsgs(p=>[...p,msg]);
+    if(inputRef.current)inputRef.current.value='';
+    setTimeout(()=>{
+      const replies=['درسته 👍','باحاله 😎','ادامه بده 🚀','متوجه شدم 👌','حرفه‌ای 🔥'];
+      setMsgs(p=>[...p,{author:{name:peerName,role:role==='host'?'guest':'host'},content:replies[Math.floor(Math.random()*replies.length)],timestamp:new Date().toISOString()}]);
+    },1500+Math.random()*2000);
+  };
+
+  return(<><div className="broadcast"><div className="header"><div className="user-info"><div className="avatar">{myName.charAt(0)}</div><div><div style={{fontWeight:700}}>{role==='host'?myName:peerName}</div><span className="live-badge"><span className="live-dot"></span>LIVE</span></div></div><span style={{fontFamily:'monospace',fontSize:'0.75rem',color:'#7878a8'}}>Room: {roomCode}</span><div className="controls"><button className={'ctrl-btn '+(isMicOn?'active':'muted')} onClick={toggleMic}>🎙️</button><button className={'ctrl-btn '+(isCamOn?'active':'')} onClick={toggleCam}>📹</button><button className="ctrl-btn" style={{borderColor:'rgba(255,23,68,0.4)',color:'#ff1744'}} onClick={onLeave}>🚪</button></div></div><div className="video-area">{stream?<video ref={videoRef} autoPlay muted playsInline></video>:<div className="placeholder"><div className="icon">📡</div><h3>در حال اتصال...</h3></div>}<div className="timer">🔴 {timer}</div></div></div><div className="chat-panel"><div className="chat-header"><span style={{fontWeight:700}}>💬 گفتگو</span><span style={{fontSize:'0.75rem',color:'#00ff88'}}>🟢 1 نفر</span></div><div className="messages">{msgs.map((m,i)=>(<div key={i} className="msg"><div className="msg-header"><span className={'msg-user '+m.author?.role}>{m.author?.name}</span><span className="msg-badge">{m.author?.role==='host'?'HOST':'GUEST'}</span><span className="msg-time">{new Date(m.timestamp).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})}</span></div><div className="msg-text">{m.content}</div></div>))}</div><div className="input-area"><div className="input-row"><input className="chat-input" ref={inputRef} placeholder="پیام..." onKeyPress={e=>e.key==='Enter'&&send()}/><button className="send-btn" onClick={send}>➤</button></div></div></div></>)
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+    </script>
+</body>
+</html>
