@@ -1,1 +1,73 @@
+/* تم سایبرپانک */
+:root {
+    --neon-blue: #00f0ff;
+    --neon-pink: #ff2d95;
+    --neon-purple: #b300ff;
+    --neon-green: #00ff41;
+    --bg-dark: #0a0a0f;
+    --bg-card: #14141e;
+    --glow: 0 0 15px rgba(0, 240, 255, 0.3);
+    --border-sharp: 2px solid var(--neon-blue);
+}
 
+.cyber-header {
+    background: var(--bg-card);
+    border-bottom: 2px solid var(--neon-purple);
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-shadow: 0 0 10px var(--neon-blue);
+}
+.cyber-header span {
+    color: var(--neon-pink);
+    font-weight: bold;
+    font-size: 18px;
+}
+.cyber-header .online {
+    color: var(--neon-green);
+    font-size: 12px;
+}
+
+.cyber-input {
+    background: transparent;
+    border: 1px solid var(--neon-purple);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 0;
+    font-family: 'JetBrains Mono', monospace;
+    outline: none;
+    width: 100%;
+}
+.cyber-input:focus {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+}
+
+.cyber-btn {
+    background: var(--neon-blue);
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    transition: 0.3s;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+.cyber-btn:hover {
+    background: var(--neon-pink);
+    box-shadow: 0 0 30px var(--neon-pink);
+}
+
+.cyber-card {
+    background: var(--bg-card);
+    border: 1px solid var(--neon-purple);
+    padding: 16px;
+    margin: 8px 0;
+    box-shadow: 0 0 20px rgba(179, 0, 255, 0.1);
+}
+
+.cyber-text-glow {
+    text-shadow: 0 0 10px var(--neon-blue);
+}
