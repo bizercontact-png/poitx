@@ -24,7 +24,6 @@
         body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
         .bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; background: radial-gradient(ellipse at 20% 30%, rgba(0,240,255,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, rgba(180,0,255,0.05) 0%, transparent 50%); }
         
-        /* Join Screen */
         .join-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 100; background: rgba(5,5,20,0.95); backdrop-filter: blur(20px); }
         .join-screen.hidden { display: none; }
         .join-card { width: 420px; padding: 40px; background: var(--glass); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 0 40px rgba(0,240,255,0.2); }
@@ -43,7 +42,6 @@
         .invite-box { background: rgba(0,0,0,0.5); border: 2px dashed rgba(0,240,255,0.4); border-radius: 16px; padding: 20px; text-align: center; margin-top: 16px; }
         .invite-code { font-size: 2rem; color: var(--neon-purple); letter-spacing: 8px; font-family: monospace; font-weight: bold; }
 
-        /* Room */
         .room { position: relative; z-index: 10; width: 100%; height: 100vh; display: none; }
         .room.active { display: flex; }
         .broadcast { flex: 1; display: flex; flex-direction: column; background: #0a0a15; border-right: 1px solid rgba(0,240,255,0.05); }
@@ -64,7 +62,6 @@
         .placeholder .icon { font-size: 4rem; opacity: 0.2; margin-bottom: 12px; }
         .timer { position: absolute; top: 10px; right: 10px; padding: 5px 12px; background: rgba(0,0,0,0.8); border: 1px solid var(--neon-red); border-radius: 20px; font-family: monospace; font-size: 0.75rem; color: var(--neon-red); }
         
-        /* Chat */
         .chat-panel { width: 320px; display: flex; flex-direction: column; background: #0d0d22; }
         .chat-header { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: rgba(8,8,20,0.9); border-bottom: 1px solid var(--border); }
         .messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
@@ -87,10 +84,16 @@
         .send-btn { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); border: none; cursor: pointer; color: white; font-size: 1rem; }
         .send-btn:hover { transform: scale(1.1); }
         
-        /* Toast */
         .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; }
         .toast { padding: 12px 24px; background: var(--glass); border: 1px solid var(--border); border-radius: 20px; animation: toastIn 0.4s ease-out; font-size: 0.85rem; margin-bottom: 8px; }
         @keyframes toastIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .room.active { flex-direction: column; }
+            .broadcast { height: 55%; border-right: none; border-bottom: 1px solid rgba(0,240,255,0.05); }
+            .chat-panel { width: 100%; flex: 1; }
+            .join-card { width: 92vw; padding: 24px; }
+        }
     </style>
 </head>
 <body>
@@ -99,8 +102,12 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef, useCallback } = React;
-        const API = 'http://localhost:5000/api';
+        const { useState, useEffect, useRef } = React;
+        
+        // API URL - Auto-detect Vercel environment
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api'
+            : 'https://YOUR_BACKEND_URL.vercel.app/api'; // Replace with your backend URL
 
         function showToast(msg) {
             const c = document.getElementById('toastContainer');
@@ -123,14 +130,22 @@
             const handleCreate = async () => {
                 const name = document.getElementById('hostName')?.value || 'ابوالفضل';
                 if (!name.trim()) return showToast('⚠️ نام را وارد کنید');
-                const res = await fetch(`${API}/rooms`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ hostName: name }) });
-                const data = await res.json();
-                setGeneratedCode(data.roomCode);
-                setRoomCode(data.roomCode);
-                setRole('host');
-                setMyName(name);
-                setPeerName('مهمان');
-                showToast('✅ اتاق ساخته شد');
+                try {
+                    const res = await fetch(`${API_BASE}/rooms`, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify({ hostName: name }) 
+                    });
+                    const data = await res.json();
+                    setGeneratedCode(data.roomCode);
+                    setRoomCode(data.roomCode);
+                    setRole('host');
+                    setMyName(name);
+                    setPeerName('مهمان');
+                    showToast('✅ اتاق ساخته شد');
+                } catch (e) {
+                    showToast('❌ خطا در اتصال به سرور');
+                }
             };
 
             const handleJoin = async () => {
@@ -138,7 +153,12 @@
                 const code = document.getElementById('inviteInput')?.value;
                 if (!name.trim() || !code) return showToast('⚠️ همه فیلدها را پر کنید');
                 try {
-                    const res = await fetch(`${API}/rooms/${code}/join`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guestName: name }) });
+                    const res = await fetch(`${API_BASE}/rooms/${code}/join`, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify({ guestName: name }) 
+                    });
+                    if (!res.ok) throw new Error();
                     const data = await res.json();
                     setRoomCode(code);
                     setRole('guest');
@@ -146,10 +166,17 @@
                     setPeerName(data.host);
                     setScreen('room');
                     showToast('✅ وارد اتاق شدید');
-                } catch (e) { showToast('❌ کد نامعتبر'); }
+                } catch (e) { 
+                    showToast('❌ کد نامعتبر'); 
+                }
             };
 
-            const handleLeave = () => { setScreen('join'); setGeneratedCode(null); setRoomCode(null); setRole(null); };
+            const handleLeave = () => { 
+                setScreen('join'); 
+                setGeneratedCode(null); 
+                setRoomCode(null); 
+                setRole(null); 
+            };
 
             return (
                 <div>
@@ -211,13 +238,22 @@
                         if (videoRef.current) videoRef.current.srcObject = s;
                     } catch (e) { showToast('⚠️ دسترسی به دوربین ممکن نیست'); }
                 })();
-                fetch(`${API}/rooms/${roomCode}/messages`).then(r => r.json()).then(setMessages).catch(() => {});
+                
+                fetch(`${API_BASE}/rooms/${roomCode}/messages`)
+                    .then(r => r.json())
+                    .then(setMessages)
+                    .catch(() => {});
+                
                 const start = Date.now();
                 timerRef.current = setInterval(() => {
                     const el = Math.floor((Date.now() - start) / 1000);
                     setTimer(`${String(Math.floor(el/3600)).padStart(2,'0')}:${String(Math.floor((el%3600)/60)).padStart(2,'0')}:${String(el%60).padStart(2,'0')}`);
                 }, 1000);
-                return () => { if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop()); clearInterval(timerRef.current); };
+                
+                return () => { 
+                    if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop()); 
+                    clearInterval(timerRef.current); 
+                };
             }, []);
 
             const toggleMic = () => {
@@ -238,12 +274,25 @@
                 const text = inputRef.current?.value?.trim();
                 if (!text) return;
                 const msg = { author: myName, role, text, timestamp: new Date().toISOString() };
-                await fetch(`${API}/rooms/${roomCode}/messages`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(msg) });
+                try {
+                    await fetch(`${API_BASE}/rooms/${roomCode}/messages`, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify(msg) 
+                    });
+                } catch(e) {}
+                
                 setMessages(prev => [...prev, msg]);
                 if (inputRef.current) inputRef.current.value = '';
+                
                 setTimeout(() => {
-                    const replies = ['درسته 👍', 'باحاله 😎', 'ادامه بده 🚀', 'متوجه شدم 👌'];
-                    setMessages(prev => [...prev, { author: peerName, role: role === 'host' ? 'guest' : 'host', text: replies[Math.floor(Math.random()*replies.length)], timestamp: new Date().toISOString() }]);
+                    const replies = ['درسته 👍', 'باحاله 😎', 'ادامه بده 🚀', 'متوجه شدم 👌', 'حرفه‌ای 🔥'];
+                    setMessages(prev => [...prev, { 
+                        author: peerName, 
+                        role: role === 'host' ? 'guest' : 'host', 
+                        text: replies[Math.floor(Math.random()*replies.length)], 
+                        timestamp: new Date().toISOString() 
+                    }]);
                 }, 1500 + Math.random() * 2000);
             };
 
