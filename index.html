@@ -3,105 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberStream - Desktop Live Streaming Platform</title>
+    <title>CyberStream Live - Room Based Streaming</title>
     <style>
-        /* ==================== CSS Custom Properties ==================== */
+        /* ==================== Design System ==================== */
         :root {
-            /* Neon Colors */
             --neon-pink: #ff2d95;
             --neon-blue: #00f0ff;
             --neon-purple: #b400ff;
             --neon-green: #00ff88;
             --neon-yellow: #ffee00;
-            --neon-orange: #ff6600;
             --neon-red: #ff1744;
-            --neon-cyan: #00e5ff;
             
-            /* Background Layers */
             --bg-abyss: #050510;
             --bg-deep: #0a0a1a;
             --bg-surface: #0f0f25;
             --bg-elevated: #151530;
-            --bg-overlay: rgba(10, 10, 30, 0.9);
-            
-            /* Glass Effects */
             --glass-light: rgba(15, 15, 40, 0.6);
             --glass-medium: rgba(10, 10, 30, 0.8);
             --glass-heavy: rgba(5, 5, 20, 0.95);
             
-            /* Borders */
-            --border-dim: rgba(0, 240, 255, 0.06);
             --border-subtle: rgba(0, 240, 255, 0.12);
             --border-default: rgba(0, 240, 255, 0.2);
             --border-bright: rgba(0, 240, 255, 0.4);
             --border-active: rgba(0, 240, 255, 0.7);
             
-            /* Text Hierarchy */
             --text-primary: #e8e8ff;
             --text-secondary: #b0b0d8;
             --text-muted: #7878a8;
-            --text-dim: #505078;
             
-            /* Shadows & Glows */
             --shadow-blue: 0 0 30px rgba(0, 240, 255, 0.3);
             --shadow-pink: 0 0 30px rgba(255, 45, 149, 0.3);
-            --shadow-purple: 0 0 30px rgba(180, 0, 255, 0.3);
             --shadow-red: 0 0 30px rgba(255, 23, 68, 0.4);
             
-            /* Spacing Scale */
-            --space-1: 4px;
-            --space-2: 8px;
-            --space-3: 12px;
-            --space-4: 16px;
-            --space-5: 20px;
-            --space-6: 24px;
-            --space-8: 32px;
-            --space-10: 40px;
-            --space-12: 48px;
-            --space-16: 64px;
-            
-            /* Border Radius */
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 14px;
-            --radius-xl: 18px;
-            --radius-2xl: 24px;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
             --radius-full: 9999px;
             
-            /* Animation Durations */
-            --duration-instant: 100ms;
-            --duration-fast: 200ms;
-            --duration-normal: 300ms;
-            --duration-slow: 500ms;
-            --duration-glacial: 1000ms;
-            
-            /* Easing Functions */
-            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-            --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            
-            /* Typography */
             --font-body: 'Vazirmatn', system-ui, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
             --font-display: 'Orbitron', sans-serif;
-            
-            /* Layout */
-            --sidebar-width: 320px;
-            --header-height: 64px;
         }
 
-        /* ==================== Global Reset ==================== */
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            font-size: 16px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: var(--font-body);
@@ -115,147 +60,345 @@
 
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
 
-        /* ==================== Background Effects ==================== */
-        .cyber-background {
+        /* ==================== Background ==================== */
+        .cyber-bg {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             pointer-events: none;
             z-index: 0;
         }
 
-        .bg-gradient-layer {
+        .bg-gradient {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             background: 
-                radial-gradient(ellipse at 20% 20%, rgba(0, 240, 255, 0.06) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 60%, rgba(180, 0, 255, 0.06) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 80%, rgba(255, 45, 149, 0.04) 0%, transparent 50%);
-            animation: gradientShift 15s ease-in-out infinite;
+                radial-gradient(ellipse at 15% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 70%, rgba(180, 0, 255, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 45, 149, 0.04) 0%, transparent 60%);
+            animation: bgPulse 12s ease-in-out infinite;
         }
 
-        @keyframes gradientShift {
+        @keyframes bgPulse {
             0%, 100% { opacity: 0.7; }
-            25% { opacity: 1; }
-            50% { opacity: 0.8; }
-            75% { opacity: 0.9; }
+            50% { opacity: 1; }
         }
 
-        .bg-grid-layer {
+        .bg-grid {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             background-image: 
-                linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridPan 25s linear infinite;
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 20s linear infinite;
         }
 
-        @keyframes gridPan {
+        @keyframes gridMove {
             0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
+            100% { transform: translate(60px, 60px); }
         }
 
-        .bg-particles {
+        .particles-layer {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
         }
 
         .particle {
             position: absolute;
             border-radius: 50%;
             background: var(--neon-blue);
-            box-shadow: 0 0 8px var(--neon-blue);
-            animation: floatUp linear infinite;
+            box-shadow: 0 0 10px var(--neon-blue);
+            animation: float linear infinite;
             opacity: 0;
         }
 
-        @keyframes floatUp {
-            0% {
-                transform: translateY(100vh) scale(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.8;
-            }
-            90% {
-                opacity: 0.4;
-            }
-            100% {
-                transform: translateY(-10vh) scale(1.5);
-                opacity: 0;
-            }
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
         }
 
-        /* ==================== Main Layout ==================== */
-        .app-layout {
+        /* ==================== Join Screen ==================== */
+        .join-screen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            background: var(--glass-heavy);
+            backdrop-filter: blur(30px);
+            transition: all 0.5s ease;
+        }
+
+        .join-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.1);
+        }
+
+        .join-card {
+            width: 480px;
+            padding: 40px;
+            background: var(--glass-medium);
+            border: 1px solid var(--border-bright);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-blue);
+            animation: cardGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes cardGlow {
+            0%, 100% { box-shadow: 0 0 30px rgba(0, 240, 255, 0.3); }
+            50% { box-shadow: 0 0 50px rgba(0, 240, 255, 0.5), 0 0 80px rgba(0, 240, 255, 0.2); }
+        }
+
+        .join-logo {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: logoGlitch 5s infinite;
+        }
+
+        @keyframes logoGlitch {
+            0%, 92%, 100% { transform: translate(0); }
+            93% { transform: translate(-2px, 1px); }
+            95% { transform: translate(2px, -1px); }
+            97% { transform: translate(-1px, 2px); }
+            99% { transform: translate(1px, -2px); }
+        }
+
+        .join-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            font-family: var(--font-mono);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-lg);
+            padding: 4px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+
+        .tab.active {
+            background: rgba(0, 240, 255, 0.15);
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+        }
+
+        .form-input::placeholder {
+            color: #484868;
+        }
+
+        .invite-code-display {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px dashed var(--neon-purple);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .invite-code {
+            font-family: var(--font-mono);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--neon-purple);
+            letter-spacing: 8px;
+            text-shadow: 0 0 20px rgba(180, 0, 255, 0.5);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 240, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border-bright);
+            color: var(--text-primary);
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        .copy-btn {
+            background: rgba(180, 0, 255, 0.2);
+            border: 1px solid var(--neon-purple);
+            color: var(--neon-purple);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: rgba(180, 0, 255, 0.3);
+            box-shadow: 0 0 15px rgba(180, 0, 255, 0.3);
+        }
+
+        /* ==================== Stream Room ==================== */
+        .room-container {
             position: relative;
             z-index: 10;
             width: 100%;
             height: 100%;
             display: flex;
-            gap: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
         }
 
-        /* ==================== Stream Area ==================== */
+        .room-container.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Stream Area */
         .stream-area {
             flex: 1;
             display: flex;
             flex-direction: column;
-            position: relative;
             background: var(--bg-deep);
-            border-right: 1px solid var(--border-dim);
+            border-right: 1px solid var(--border-subtle);
         }
 
         .stream-header {
-            height: var(--header-height);
+            height: 64px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 var(--space-6);
+            padding: 0 24px;
             background: var(--glass-heavy);
             border-bottom: 1px solid var(--border-subtle);
             backdrop-filter: blur(20px);
         }
 
+        .room-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .room-id {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 12px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--border-subtle);
+        }
+
         .streamer-info {
             display: flex;
             align-items: center;
-            gap: var(--space-4);
+            gap: 12px;
         }
 
         .streamer-avatar {
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 1.2rem;
             color: white;
             border: 2px solid var(--border-bright);
-            box-shadow: var(--shadow-blue);
-        }
-
-        .streamer-details h3 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            font-family: var(--font-display);
-            letter-spacing: 1px;
         }
 
         .live-badge {
             display: inline-flex;
             align-items: center;
-            gap: var(--space-1);
-            padding: var(--space-1) var(--space-3);
+            gap: 4px;
+            padding: 4px 12px;
             background: rgba(255, 23, 68, 0.2);
             border: 1px solid var(--neon-red);
             border-radius: var(--radius-full);
@@ -283,149 +426,104 @@
             50% { opacity: 0.3; }
         }
 
-        .viewer-count {
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
         .stream-controls {
             display: flex;
-            gap: var(--space-3);
-            align-items: center;
+            gap: 8px;
         }
 
-        .control-btn {
-            padding: var(--space-3) var(--space-5);
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             background: var(--glass-light);
             border: 1px solid var(--border-default);
-            border-radius: var(--radius-lg);
-            color: var(--text-primary);
-            cursor: pointer;
-            transition: all var(--duration-fast) var(--ease-smooth);
-            font-family: var(--font-body);
-            font-size: 0.85rem;
             display: flex;
             align-items: center;
-            gap: var(--space-2);
-            white-space: nowrap;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+            font-size: 1.1rem;
         }
 
-        .control-btn:hover {
+        .icon-btn:hover {
             border-color: var(--border-bright);
-            box-shadow: var(--shadow-blue);
-            transform: translateY(-1px);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
         }
 
-        .control-btn.start-stream {
-            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(0, 200, 255, 0.1));
-            border-color: var(--neon-blue);
-            box-shadow: var(--shadow-blue);
-        }
-
-        .control-btn.stop-stream {
-            background: linear-gradient(135deg, rgba(255, 23, 68, 0.2), rgba(255, 45, 149, 0.1));
+        .icon-btn.danger {
             border-color: var(--neon-red);
-            box-shadow: var(--shadow-red);
+            color: var(--neon-red);
+        }
+
+        .icon-btn.danger:hover {
+            box-shadow: 0 0 20px rgba(255, 23, 68, 0.4);
         }
 
         .stream-container {
             flex: 1;
             position: relative;
-            background: var(--bg-abyss);
+            background: #000;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
         }
 
-        .stream-preview {
+        .stream-video {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            border: 1px solid var(--border-dim);
         }
 
         .stream-placeholder {
             text-align: center;
-            color: var(--text-dim);
-        }
-
-        .stream-placeholder .icon {
-            font-size: 5rem;
-            margin-bottom: var(--space-4);
-            opacity: 0.5;
-        }
-
-        .stream-placeholder h3 {
-            font-family: var(--font-display);
-            font-size: 1.5rem;
-            margin-bottom: var(--space-2);
-            letter-spacing: 2px;
-        }
-
-        .stream-placeholder p {
-            font-size: 0.9rem;
             color: var(--text-muted);
         }
 
-        .recording-indicator {
-            position: absolute;
-            top: var(--space-4);
-            right: var(--space-4);
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            padding: var(--space-2) var(--space-4);
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid var(--neon-red);
-            border-radius: var(--radius-full);
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            color: var(--neon-red);
-            animation: livePulse 2s infinite;
+        .stream-placeholder .icon {
+            font-size: 6rem;
+            opacity: 0.3;
+            margin-bottom: 20px;
         }
 
-        /* ==================== Chat Sidebar ==================== */
+        /* Chat Sidebar */
         .chat-sidebar {
-            width: var(--sidebar-width);
+            width: 340px;
             display: flex;
             flex-direction: column;
             background: var(--bg-surface);
-            border-left: 1px solid var(--border-dim);
         }
 
-        .chat-sidebar-header {
-            height: var(--header-height);
+        .chat-header {
+            height: 64px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 var(--space-4);
+            padding: 0 20px;
             background: var(--glass-heavy);
             border-bottom: 1px solid var(--border-subtle);
             backdrop-filter: blur(20px);
+            justify-content: space-between;
         }
 
         .chat-title {
             font-family: var(--font-display);
-            font-size: 1rem;
             font-weight: 700;
             letter-spacing: 1px;
         }
 
-        .online-users {
+        .viewer-count {
             font-family: var(--font-mono);
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--neon-green);
         }
 
         .chat-messages {
             flex: 1;
             overflow-y: auto;
-            padding: var(--space-4);
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: var(--space-3);
+            gap: 12px;
         }
 
         .chat-messages::-webkit-scrollbar {
@@ -441,97 +539,82 @@
             border-radius: var(--radius-full);
         }
 
-        .chat-message {
-            animation: messageSlideIn 0.3s ease-out;
+        .message {
+            animation: slideIn 0.3s ease-out;
         }
 
-        @keyframes messageSlideIn {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
-        .message-header {
+        .msg-header {
             display: flex;
             align-items: center;
-            gap: var(--space-2);
-            margin-bottom: var(--space-1);
+            gap: 8px;
+            margin-bottom: 4px;
         }
 
-        .message-username {
+        .msg-user {
             font-weight: 700;
             font-size: 0.85rem;
         }
 
-        .message-username.streamer {
-            color: var(--neon-blue);
-        }
+        .msg-user.streamer { color: var(--neon-blue); }
+        .msg-user.viewer { color: var(--neon-pink); }
 
-        .message-username.viewer {
-            color: var(--neon-pink);
-        }
-
-        .message-badge {
-            font-size: 0.65rem;
+        .msg-badge {
+            font-size: 0.6rem;
             padding: 2px 6px;
             border-radius: var(--radius-sm);
-            font-weight: 700;
-        }
-
-        .badge-streamer {
             background: rgba(0, 240, 255, 0.2);
-            color: var(--neon-blue);
             border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
         }
 
-        .message-time {
+        .msg-time {
             font-family: var(--font-mono);
             font-size: 0.65rem;
-            color: var(--text-dim);
+            color: var(--text-muted);
             margin-right: auto;
         }
 
-        .message-text {
+        .msg-text {
             font-size: 0.9rem;
-            line-height: 1.5;
             color: var(--text-secondary);
-            padding-right: var(--space-6);
+            padding-right: 24px;
+            line-height: 1.5;
         }
 
-        .system-message {
+        .system-msg {
             text-align: center;
             font-size: 0.75rem;
             color: var(--text-muted);
-            padding: var(--space-2);
+            padding: 8px;
             font-style: italic;
         }
 
         .chat-input-area {
-            padding: var(--space-4);
+            padding: 16px;
             border-top: 1px solid var(--border-subtle);
             background: var(--glass-heavy);
         }
 
         .chat-input-wrapper {
             display: flex;
-            gap: var(--space-2);
+            gap: 8px;
         }
 
         .chat-input {
             flex: 1;
-            padding: var(--space-3) var(--space-4);
+            padding: 12px 16px;
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--border-default);
             border-radius: var(--radius-full);
             color: var(--text-primary);
             font-family: var(--font-body);
             font-size: 0.85rem;
-            transition: all var(--duration-fast) var(--ease-smooth);
+            transition: all 0.2s ease;
             outline: none;
         }
 
@@ -540,14 +623,14 @@
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
         }
 
-        .chat-send-btn {
+        .send-btn {
             width: 44px;
             height: 44px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
             border: none;
             cursor: pointer;
-            transition: all var(--duration-fast) var(--ease-smooth);
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -556,612 +639,543 @@
             box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
         }
 
-        .chat-send-btn:hover {
+        .send-btn:hover {
             transform: scale(1.1);
             box-shadow: 0 6px 25px rgba(0, 240, 255, 0.5);
         }
 
-        .chat-send-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* ==================== Recording Controls Panel ==================== */
-        .recording-panel {
-            position: absolute;
-            bottom: var(--space-4);
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            display: flex;
-            gap: var(--space-3);
-            padding: var(--space-3) var(--space-5);
-            background: var(--glass-medium);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border-default);
-            border-radius: var(--radius-2xl);
-            z-index: 50;
+            z-index: 9999;
         }
 
-        .recording-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            transition: all var(--duration-fast) var(--ease-smooth);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            color: white;
-            position: relative;
+        .toast {
+            padding: 12px 24px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-bright);
+            border-radius: var(--radius-full);
+            animation: toastIn 0.3s ease-out;
+            font-size: 0.9rem;
         }
 
-        .btn-record {
-            background: linear-gradient(135deg, var(--neon-red), #d50000);
-            box-shadow: var(--shadow-red);
-            animation: recordPulse 2s infinite;
-        }
-
-        @keyframes recordPulse {
-            0%, 100% { box-shadow: 0 0 15px rgba(255, 23, 68, 0.4); }
-            50% { box-shadow: 0 0 35px rgba(255, 23, 68, 0.8); }
-        }
-
-        .btn-pause {
-            background: var(--glass-light);
-            border: 1px solid var(--border-default);
-        }
-
-        .btn-stop {
-            background: var(--glass-light);
-            border: 1px solid var(--border-default);
-        }
-
-        .btn-download {
-            background: linear-gradient(135deg, var(--neon-green), #00c853);
-            box-shadow: var(--glow-green);
-        }
-
-        .recording-timer {
-            font-family: var(--font-mono);
-            font-size: 1.1rem;
-            color: var(--neon-red);
-            display: flex;
-            align-items: center;
-            padding: 0 var(--space-4);
-        }
-
-        /* ==================== Responsive Design ==================== */
-        @media (max-width: 1024px) {
-            .chat-sidebar {
-                width: 280px;
-            }
+        @keyframes toastIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         @media (max-width: 768px) {
-            .app-layout {
+            .room-container {
                 flex-direction: column;
             }
-            
-            .stream-area {
-                height: 60%;
-                border-right: none;
-                border-bottom: 1px solid var(--border-dim);
-            }
-            
             .chat-sidebar {
                 width: 100%;
                 flex: 1;
-                border-left: none;
             }
-            
-            .stream-controls {
-                gap: var(--space-2);
-            }
-            
-            .control-btn {
-                padding: var(--space-2) var(--space-3);
-                font-size: 0.75rem;
+            .join-card {
+                width: 90vw;
+                padding: 24px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Background Effects -->
-    <div class="cyber-background">
-        <div class="bg-gradient-layer"></div>
-        <div class="bg-grid-layer"></div>
-        <div class="bg-particles" id="particlesContainer"></div>
+    <!-- Background -->
+    <div class="cyber-bg">
+        <div class="bg-gradient"></div>
+        <div class="bg-grid"></div>
+        <div class="particles-layer" id="particles"></div>
     </div>
 
-    <!-- Main Application -->
-    <div class="app-layout">
-        <!-- Stream Area (Left Side) -->
-        <div class="stream-area">
-            <!-- Stream Header -->
-            <div class="stream-header">
-                <div class="streamer-info">
-                    <div class="streamer-avatar">ا</div>
-                    <div class="streamer-details">
-                        <h3>ابوالفضل</h3>
-                        <span class="live-badge" id="liveBadge" style="display: none;">
-                            <span class="live-dot"></span>
-                            LIVE
-                        </span>
-                    </div>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Join/Create Screen -->
+    <div class="join-screen" id="joinScreen">
+        <div class="join-card">
+            <div class="join-logo">CYBERSTREAM</div>
+            <div class="join-subtitle">Live Streaming Platform</div>
+            
+            <div class="tabs">
+                <div class="tab active" id="tabCreate" onclick="switchTab('create')">🎥 ایجاد لایو جدید</div>
+                <div class="tab" id="tabJoin" onclick="switchTab('join')">🔗 پیوستن به لایو</div>
+            </div>
+
+            <!-- Create Room Form -->
+            <div id="createForm">
+                <div class="form-group">
+                    <label class="form-label">نام شما (استریمر)</label>
+                    <input type="text" class="form-input" id="streamerName" placeholder="مثلاً: ابوالفضل" value="ابوالفضل">
                 </div>
+                <button class="btn btn-primary" onclick="createRoom()">
+                    🚀 ایجاد لایو و دریافت کد دعوت
+                </button>
                 
-                <div class="stream-controls">
-                    <span class="viewer-count" id="viewerCount">👤 1 بیننده</span>
-                    <button class="control-btn start-stream" id="startStreamBtn" onclick="startScreenShare()">
-                        🎥 شروع استریم
-                    </button>
-                    <button class="control-btn stop-stream" id="stopStreamBtn" onclick="stopScreenShare()" style="display: none;">
-                        ⏹️ توقف استریم
+                <div class="invite-code-display" id="inviteCodeDisplay" style="display: none; margin-top: 20px;">
+                    <label class="form-label">🔑 کد دعوت لایو</label>
+                    <div class="invite-code" id="inviteCode">------</div>
+                    <button class="copy-btn" onclick="copyInviteCode()">📋 کپی کد دعوت</button>
+                    <p style="margin-top: 12px; font-size: 0.8rem; color: var(--text-muted);">
+                        این کد رو برای مهدیار بفرست تا بیاد لایو
+                    </p>
+                    <button class="btn btn-primary" style="margin-top: 12px;" onclick="startStreaming()">
+                        🎥 شروع استریم دسکتاپ
                     </button>
                 </div>
             </div>
 
-            <!-- Stream Container -->
-            <div class="stream-container" id="streamContainer">
-                <video class="stream-preview" id="streamVideo" autoplay muted playsinline style="display: none;"></video>
-                <div class="stream-placeholder" id="streamPlaceholder">
-                    <div class="icon">🖥️</div>
-                    <h3>CyberStream Pro</h3>
-                    <p>برای شروع استریم دسکتاپ کلیک کنید</p>
+            <!-- Join Room Form -->
+            <div id="joinForm" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">نام شما (بیننده)</label>
+                    <input type="text" class="form-input" id="viewerName" placeholder="مثلاً: مهدیار" value="مهدیار">
                 </div>
-                
-                <!-- Recording Timer (hidden initially) -->
-                <div class="recording-indicator" id="recordingIndicator" style="display: none;">
-                    🔴 <span id="recordingTimer">00:00</span>
+                <div class="form-group">
+                    <label class="form-label">کد دعوت</label>
+                    <input type="text" class="form-input" id="inviteCodeInput" placeholder="کد ۶ رقمی رو وارد کن">
+                </div>
+                <button class="btn btn-primary" onclick="joinRoom()">
+                    🔗 پیوستن به لایو
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stream Room (Hidden initially) -->
+    <div class="room-container" id="roomContainer">
+        <!-- Stream Area -->
+        <div class="stream-area">
+            <div class="stream-header">
+                <div class="room-info">
+                    <div class="streamer-info">
+                        <div class="streamer-avatar" id="roomAvatar">ا</div>
+                        <div>
+                            <div id="roomStreamerName" style="font-weight: 700;">ابوالفضل</div>
+                            <span class="live-badge">
+                                <span class="live-dot"></span> LIVE
+                            </span>
+                        </div>
+                    </div>
+                    <span class="room-id" id="roomIdDisplay">Room: ------</span>
+                </div>
+                <div class="stream-controls">
+                    <button class="icon-btn" id="startStreamBtn" onclick="startScreenCapture()" title="شروع اشتراک صفحه">🖥️</button>
+                    <button class="icon-btn danger" onclick="leaveRoom()" title="خروج">🚪</button>
+                </div>
+            </div>
+
+            <div class="stream-container">
+                <video class="stream-video" id="streamVideo" autoplay muted playsinline style="display: none;"></video>
+                <div class="stream-placeholder" id="streamPlaceholder">
+                    <div class="icon">📡</div>
+                    <h3 id="placeholderText">در انتظار استریم...</h3>
                 </div>
             </div>
         </div>
 
-        <!-- Chat Sidebar (Right Side) -->
+        <!-- Chat Sidebar -->
         <div class="chat-sidebar">
-            <!-- Chat Header -->
-            <div class="chat-sidebar-header">
+            <div class="chat-header">
                 <span class="chat-title">💬 چت زنده</span>
-                <span class="online-users" id="onlineUsers">🟢 1 آنلاین</span>
+                <span class="viewer-count" id="viewerCountDisplay">🟢 1 نفر</span>
             </div>
-
-            <!-- Chat Messages -->
-            <div class="chat-messages" id="chatMessages">
-                <div class="system-message">
-                    🚀 به CyberStream خوش آمدید
-                </div>
-            </div>
-
-            <!-- Chat Input -->
+            <div class="chat-messages" id="chatMessages"></div>
             <div class="chat-input-area">
                 <div class="chat-input-wrapper">
-                    <input 
-                        type="text" 
-                        class="chat-input" 
-                        id="chatInput" 
-                        placeholder="پیام خود را بنویسید..."
-                        onkeypress="handleChatKeyPress(event)"
-                    >
-                    <button class="chat-send-btn" onclick="sendChatMessage()">
-                        ➤
-                    </button>
+                    <input type="text" class="chat-input" id="chatInput" placeholder="نظرت رو بنویس..." onkeypress="handleChatEnter(event)">
+                    <button class="send-btn" onclick="sendMessage()">➤</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // ==================== CyberStream Core Application ====================
-        class CyberStreamApp {
+        // ==================== CyberStream Core ====================
+        class CyberStream {
             constructor() {
-                // Application State
-                this.state = {
-                    isStreaming: false,
-                    isRecording: false,
-                    isPaused: false,
-                    mediaStream: null,
-                    mediaRecorder: null,
-                    recordedChunks: [],
-                    recordingStartTime: null,
-                    recordingTimerInterval: null,
-                    currentUser: {
-                        name: 'ابوالفضل',
-                        role: 'streamer'
-                    },
-                    viewer: {
-                        name: 'مهدیار',
-                        role: 'viewer'
-                    }
-                };
-
-                // Initialize application
-                this.init();
+                this.roomCode = null;
+                this.userRole = null; // 'streamer' or 'viewer'
+                this.userName = null;
+                this.mediaStream = null;
+                this.isStreaming = false;
+                
+                this.createParticles();
             }
 
-            init() {
-                this.createParticles();
-                this.setupAutoResponse();
-                this.addSystemMessage('سیستم آماده به کار است');
+            // ==================== Room Management ====================
+            createRoom() {
+                const name = document.getElementById('streamerName').value.trim();
+                if (!name) {
+                    this.showToast('⚠️ لطفاً نام خود را وارد کنید');
+                    return;
+                }
+
+                // Generate unique 6-digit room code
+                this.roomCode = Math.floor(100000 + Math.random() * 900000).toString();
+                this.userRole = 'streamer';
+                this.userName = name;
+
+                // Store room data in localStorage (simulating server)
+                const roomData = {
+                    code: this.roomCode,
+                    streamer: name,
+                    createdAt: new Date().toISOString(),
+                    isLive: false,
+                    messages: []
+                };
+                localStorage.setItem(`room_${this.roomCode}`, JSON.stringify(roomData));
+
+                // Show invite code
+                document.getElementById('inviteCode').textContent = this.roomCode;
+                document.getElementById('inviteCodeDisplay').style.display = 'block';
+                document.getElementById('streamerName').disabled = true;
+
+                this.showToast('✅ لایو با موفقیت ایجاد شد!');
+                this.log(`Room created: ${this.roomCode} by ${name}`);
+            }
+
+            startStreaming() {
+                document.getElementById('joinScreen').classList.add('hidden');
+                document.getElementById('roomContainer').classList.add('active');
                 
-                // Welcome message from viewer (simulating Mehdiar joining)
+                // Update room UI
+                document.getElementById('roomAvatar').textContent = this.userName.charAt(0);
+                document.getElementById('roomStreamerName').textContent = this.userName;
+                document.getElementById('roomIdDisplay').textContent = `Room: ${this.roomCode}`;
+                
+                // Add system message
+                this.addSystemMessage(`🚀 ${this.userName} لایو رو شروع کرد`);
+                this.addSystemMessage(`🔑 کد دعوت: ${this.roomCode}`);
+
+                // Mark room as live
+                this.updateRoomData({ isLive: true });
+
+                // Simulate viewer joining (Mehdiar)
                 setTimeout(() => {
-                    this.addMessage('مهدیار', 'سلام ابوالفضل! آماده‌ی استریم هستی؟ 😎', 'viewer');
-                }, 1500);
+                    this.simulateViewerJoin('مهدیار');
+                }, 3000);
+            }
+
+            joinRoom() {
+                const name = document.getElementById('viewerName').value.trim();
+                const code = document.getElementById('inviteCodeInput').value.trim();
+
+                if (!name || !code) {
+                    this.showToast('⚠️ لطفاً نام و کد دعوت را وارد کنید');
+                    return;
+                }
+
+                // Check if room exists
+                const roomData = JSON.parse(localStorage.getItem(`room_${code}`));
+                if (!roomData) {
+                    this.showToast('❌ کد دعوت معتبر نیست');
+                    return;
+                }
+
+                this.roomCode = code;
+                this.userRole = 'viewer';
+                this.userName = name;
+
+                // Join the room
+                document.getElementById('joinScreen').classList.add('hidden');
+                document.getElementById('roomContainer').classList.add('active');
+                
+                document.getElementById('roomAvatar').textContent = roomData.streamer.charAt(0);
+                document.getElementById('roomStreamerName').textContent = roomData.streamer;
+                document.getElementById('roomIdDisplay').textContent = `Room: ${code}`;
+                document.getElementById('placeholderText').textContent = 'در انتظار استریم استریمر...';
+                
+                // Hide start stream button for viewer
+                document.getElementById('startStreamBtn').style.display = 'none';
+
+                // Add system messages
+                this.addSystemMessage(`👋 ${name} به لایو پیوست`);
+                
+                // Show existing messages
+                if (roomData.messages && roomData.messages.length > 0) {
+                    roomData.messages.forEach(msg => {
+                        this.displayMessage(msg.user, msg.text, msg.role);
+                    });
+                }
+
+                // If streamer is already live, simulate receiving stream
+                if (roomData.isLive) {
+                    this.addSystemMessage('🔴 استریمر در حال پخش است...');
+                }
+
+                this.showToast('✅ با موفقیت به لایو پیوستید!');
+            }
+
+            leaveRoom() {
+                if (this.mediaStream) {
+                    this.mediaStream.getTracks().forEach(track => track.stop());
+                    this.mediaStream = null;
+                }
+
+                this.addSystemMessage(`👋 ${this.userName} از لایو خارج شد`);
+
+                if (this.userRole === 'streamer') {
+                    this.updateRoomData({ isLive: false });
+                }
+
+                // Reset UI
+                document.getElementById('roomContainer').classList.remove('active');
+                document.getElementById('joinScreen').classList.remove('hidden');
+                document.getElementById('streamVideo').style.display = 'none';
+                document.getElementById('streamPlaceholder').style.display = 'block';
+                document.getElementById('startStreamBtn').style.display = 'inline-flex';
+                document.getElementById('chatMessages').innerHTML = '';
+                
+                // Reset forms
+                document.getElementById('streamerName').disabled = false;
+                document.getElementById('inviteCodeDisplay').style.display = 'none';
+                document.getElementById('inviteCode').textContent = '------';
+
+                this.roomCode = null;
+                this.userRole = null;
+                this.userName = null;
+                this.isStreaming = false;
             }
 
             // ==================== Screen Capture ====================
-            async startScreenShare() {
+            async startScreenCapture() {
+                if (this.userRole !== 'streamer') return;
+
                 try {
-                    // Request screen capture with audio
                     const stream = await navigator.mediaDevices.getDisplayMedia({
-                        video: {
-                            cursor: 'always',
-                            displaySurface: 'monitor',
-                            logicalSurface: true
-                        },
-                        audio: {
-                            echoCancellation: true,
-                            noiseSuppression: true,
-                            sampleRate: 44100
-                        }
+                        video: { cursor: 'always' },
+                        audio: true
                     });
 
-                    this.state.mediaStream = stream;
-                    this.state.isStreaming = true;
+                    this.mediaStream = stream;
+                    this.isStreaming = true;
 
-                    // Display stream in video element
-                    const videoElement = document.getElementById('streamVideo');
-                    videoElement.srcObject = stream;
-                    videoElement.style.display = 'block';
-                    
-                    // Hide placeholder
+                    const video = document.getElementById('streamVideo');
+                    video.srcObject = stream;
+                    video.style.display = 'block';
                     document.getElementById('streamPlaceholder').style.display = 'none';
-                    
-                    // Show live badge
-                    document.getElementById('liveBadge').style.display = 'inline-flex';
-                    
-                    // Update buttons
                     document.getElementById('startStreamBtn').style.display = 'none';
-                    document.getElementById('stopStreamBtn').style.display = 'inline-flex';
-                    
-                    // Start recording automatically
-                    this.startRecording(stream);
-                    
-                    // Notify in chat
-                    this.addSystemMessage('🔴 استریم شروع شد - ابوالفضل در حال اشتراک‌گذاری دسکتاپ است');
-                    this.addMessage('مهدیار', 'اوه! استریم شروع شد، صفحه‌ات رو می‌بینم 🖥️', 'viewer');
-                    
-                    // Update viewer count
-                    document.getElementById('viewerCount').textContent = '👤 2 بیننده';
-                    document.getElementById('onlineUsers').textContent = '🟢 2 آنلاین';
 
-                    // Handle stream stop by user
+                    this.addSystemMessage('🖥️ استریمر صفحه نمایش خود را به اشتراک گذاشت');
+                    this.updateRoomData({ isLive: true });
+
+                    // Handle stream stop
                     stream.getVideoTracks()[0].addEventListener('ended', () => {
-                        this.stopScreenShare();
+                        this.stopScreenCapture();
                     });
 
                 } catch (error) {
-                    console.error('Error capturing screen:', error);
-                    this.addSystemMessage('❌ خطا در شروع استریم: ' + error.message);
+                    this.showToast('❌ خطا در اشتراک‌گذاری صفحه: ' + error.message);
                 }
             }
 
-            stopScreenShare() {
-                // Stop all tracks
-                if (this.state.mediaStream) {
-                    this.state.mediaStream.getTracks().forEach(track => track.stop());
-                    this.state.mediaStream = null;
+            stopScreenCapture() {
+                if (this.mediaStream) {
+                    this.mediaStream.getTracks().forEach(track => track.stop());
+                    this.mediaStream = null;
                 }
 
-                // Stop recording
-                if (this.state.isRecording) {
-                    this.stopRecording();
-                }
-
-                this.state.isStreaming = false;
-
-                // Hide video
-                const videoElement = document.getElementById('streamVideo');
-                videoElement.srcObject = null;
-                videoElement.style.display = 'none';
-                
-                // Show placeholder
+                this.isStreaming = false;
+                document.getElementById('streamVideo').style.display = 'none';
                 document.getElementById('streamPlaceholder').style.display = 'block';
-                
-                // Hide live badge
-                document.getElementById('liveBadge').style.display = 'none';
-                
-                // Update buttons
                 document.getElementById('startStreamBtn').style.display = 'inline-flex';
-                document.getElementById('stopStreamBtn').style.display = 'none';
                 
-                // Update viewer count
-                document.getElementById('viewerCount').textContent = '👤 1 بیننده';
-                document.getElementById('onlineUsers').textContent = '🟢 1 آنلاین';
-                
-                // Notify in chat
-                this.addSystemMessage('⏹️ استریم به پایان رسید');
-                this.addMessage('مهدیار', 'استریم تموم شد؟ چقدر جالب بود! 😍', 'viewer');
-            }
-
-            // ==================== Recording Functions ====================
-            startRecording(stream) {
-                this.state.recordedChunks = [];
-                
-                // Check for supported MIME types
-                let mimeType = 'video/webm;codecs=vp9';
-                if (!MediaRecorder.isTypeSupported(mimeType)) {
-                    mimeType = 'video/webm;codecs=vp8';
-                    if (!MediaRecorder.isTypeSupported(mimeType)) {
-                        mimeType = 'video/webm';
-                    }
-                }
-
-                const mediaRecorder = new MediaRecorder(stream, {
-                    mimeType: mimeType,
-                    videoBitsPerSecond: 5000000 // 5 Mbps for quality
-                });
-
-                mediaRecorder.ondataavailable = (event) => {
-                    if (event.data && event.data.size > 0) {
-                        this.state.recordedChunks.push(event.data);
-                    }
-                };
-
-                mediaRecorder.onstop = () => {
-                    this.saveRecording();
-                };
-
-                mediaRecorder.start(1000); // Collect data every second
-                this.state.mediaRecorder = mediaRecorder;
-                this.state.isRecording = true;
-                this.state.recordingStartTime = Date.now();
-                
-                // Start timer
-                this.startRecordingTimer();
-                
-                // Show recording indicator
-                document.getElementById('recordingIndicator').style.display = 'flex';
-                
-                this.addSystemMessage('🔴 ضبط شروع شد');
-            }
-
-            pauseRecording() {
-                if (this.state.mediaRecorder && this.state.mediaRecorder.state === 'recording') {
-                    this.state.mediaRecorder.pause();
-                    this.state.isPaused = true;
-                    this.stopRecordingTimer();
-                    this.addSystemMessage('⏸️ ضبط متوقف شد');
-                }
-            }
-
-            resumeRecording() {
-                if (this.state.mediaRecorder && this.state.mediaRecorder.state === 'paused') {
-                    this.state.mediaRecorder.resume();
-                    this.state.isPaused = false;
-                    this.startRecordingTimer();
-                    this.addSystemMessage('▶️ ضبط از سر گرفته شد');
-                }
-            }
-
-            stopRecording() {
-                if (this.state.mediaRecorder && this.state.mediaRecorder.state !== 'inactive') {
-                    this.state.mediaRecorder.stop();
-                    this.state.isRecording = false;
-                    this.state.isPaused = false;
-                    this.stopRecordingTimer();
-                    
-                    // Hide recording indicator
-                    document.getElementById('recordingIndicator').style.display = 'none';
-                }
-            }
-
-            saveRecording() {
-                if (this.state.recordedChunks.length === 0) return;
-
-                const blob = new Blob(this.state.recordedChunks, { type: 'video/webm' });
-                const url = URL.createObjectURL(blob);
-                
-                // Create download link
-                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                const filename = `CyberStream_Recording_${timestamp}.webm`;
-                
-                // Auto-download
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                
-                // Cleanup
-                URL.revokeObjectURL(url);
-                this.state.recordedChunks = [];
-                
-                this.addSystemMessage('💾 ضبط با موفقیت ذخیره شد: ' + filename);
-                this.addMessage('مهدیار', 'عالیه! ضبط رو دانلود کردم 🎬', 'viewer');
-            }
-
-            startRecordingTimer() {
-                const updateTimer = () => {
-                    if (!this.state.recordingStartTime) return;
-                    
-                    const elapsed = Math.floor((Date.now() - this.state.recordingStartTime) / 1000);
-                    const hours = Math.floor(elapsed / 3600);
-                    const minutes = Math.floor((elapsed % 3600) / 60);
-                    const seconds = elapsed % 60;
-                    
-                    const timerStr = [
-                        hours.toString().padStart(2, '0'),
-                        minutes.toString().padStart(2, '0'),
-                        seconds.toString().padStart(2, '0')
-                    ].join(':');
-                    
-                    document.getElementById('recordingTimer').textContent = timerStr;
-                };
-
-                updateTimer();
-                this.state.recordingTimerInterval = setInterval(updateTimer, 1000);
-            }
-
-            stopRecordingTimer() {
-                if (this.state.recordingTimerInterval) {
-                    clearInterval(this.state.recordingTimerInterval);
-                    this.state.recordingTimerInterval = null;
-                }
+                this.addSystemMessage('⏹️ استریمر اشتراک صفحه را متوقف کرد');
+                this.updateRoomData({ isLive: false });
             }
 
             // ==================== Chat System ====================
-            addMessage(username, text, role) {
+            sendMessage() {
+                const input = document.getElementById('chatInput');
+                const text = input.value.trim();
+                
+                if (!text) return;
+
+                this.displayMessage(this.userName, text, this.userRole);
+                this.saveMessage(this.userName, text, this.userRole);
+                
+                input.value = '';
+
+                // Simulate response from the other user
+                if (this.userRole === 'streamer') {
+                    // If streamer sends message, simulate viewer response
+                    setTimeout(() => {
+                        this.simulateViewerMessage(text);
+                    }, 1500 + Math.random() * 2000);
+                } else {
+                    // If viewer sends message, simulate streamer response
+                    setTimeout(() => {
+                        this.simulateStreamerMessage(text);
+                    }, 1500 + Math.random() * 2000);
+                }
+            }
+
+            displayMessage(username, text, role) {
                 const chatMessages = document.getElementById('chatMessages');
                 const now = new Date();
                 const timeStr = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
-                
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'chat-message';
-                
-                const isStreamer = role === 'streamer';
-                
-                messageDiv.innerHTML = `
-                    <div class="message-header">
-                        <span class="message-username ${isStreamer ? 'streamer' : 'viewer'}">${username}</span>
-                        ${isStreamer ? '<span class="message-badge badge-streamer">STR</span>' : ''}
-                        <span class="message-time">${timeStr}</span>
+
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message';
+                msgDiv.innerHTML = `
+                    <div class="msg-header">
+                        <span class="msg-user ${role}">${this.escapeHtml(username)}</span>
+                        ${role === 'streamer' ? '<span class="msg-badge">STR</span>' : ''}
+                        <span class="msg-time">${timeStr}</span>
                     </div>
-                    <div class="message-text">${this.escapeHtml(text)}</div>
+                    <div class="msg-text">${this.escapeHtml(text)}</div>
                 `;
-                
-                chatMessages.appendChild(messageDiv);
+
+                chatMessages.appendChild(msgDiv);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
 
             addSystemMessage(text) {
                 const chatMessages = document.getElementById('chatMessages');
                 const div = document.createElement('div');
-                div.className = 'system-message';
+                div.className = 'system-msg';
                 div.textContent = text;
                 chatMessages.appendChild(div);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
 
-            sendChatMessage() {
-                const input = document.getElementById('chatInput');
-                const text = input.value.trim();
-                
-                if (!text) return;
-                
-                // Add as streamer message
-                this.addMessage('ابوالفضل', text, 'streamer');
-                input.value = '';
-                
-                // Simulate viewer response (Mehdiar)
-                this.scheduleViewerResponse(text);
+            saveMessage(username, text, role) {
+                const roomData = JSON.parse(localStorage.getItem(`room_${this.roomCode}`));
+                if (roomData) {
+                    if (!roomData.messages) roomData.messages = [];
+                    roomData.messages.push({
+                        user: username,
+                        text: text,
+                        role: role,
+                        time: new Date().toISOString()
+                    });
+                    localStorage.setItem(`room_${this.roomCode}`, JSON.stringify(roomData));
+                }
             }
 
-            scheduleViewerResponse(streamerMessage) {
-                const responseDelay = 1000 + Math.random() * 3000;
+            // ==================== Simulation ====================
+            simulateViewerJoin(viewerName) {
+                this.addSystemMessage(`👋 ${viewerName} به لایو پیوست`);
+                document.getElementById('viewerCountDisplay').textContent = '🟢 2 نفر';
                 
+                // Simulate first message from viewer
                 setTimeout(() => {
-                    const responses = this.generateViewerResponse(streamerMessage);
-                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                    this.addMessage('مهدیار', randomResponse, 'viewer');
-                }, responseDelay);
+                    this.displayMessage(viewerName, 'سلام ابوالفضل! لایو رو دیدم، عالیه 🎉', 'viewer');
+                    this.saveMessage(viewerName, 'سلام ابوالفضل! لایو رو دیدم، عالیه 🎉', 'viewer');
+                }, 2000);
             }
 
-            generateViewerResponse(message) {
-                const lowerMsg = message.toLowerCase();
-                
-                if (lowerMsg.includes('سلام') || lowerMsg.includes('خوبی')) {
-                    return ['سلام! خیلی خوبم، مرسی 🙌', 'سلاممم! استریم عالی شده ✨', 'سلام ابوالفضل! منتظر استریمت بودم'];
-                }
-                
-                if (lowerMsg.includes('چطور') || lowerMsg.includes('چطوره')) {
-                    return ['عالیه! خیلی با کیفیت می‌بینم 🎯', 'فوق‌العاده‌ست! ادامه بده 💪', 'صفحه‌ات رو واضح می‌بینم'];
-                }
-                
-                if (lowerMsg.includes('کد') || lowerMsg.includes('برنامه')) {
-                    return ['وااای این کد چقدر تمیز نوشته شده 😍', 'از چه معماری استفاده کردی؟', 'بهینه‌ست! آفرین 👏'];
-                }
-                
-                return [
+            simulateViewerMessage(streamerMsg) {
+                const responses = [
                     'درسته! 👍',
                     'جالبه، ادامه بده 🚀',
-                    'متوجه شدم، خوب توضیح دادی 👌',
-                    'آها! الان فهمیدم 😎',
-                    'باحاله! بیشتر بگو 🎉',
-                    'دقیقاً! موافقم 💯',
+                    'متوجه شدم 👌',
+                    'باحاله! 😎',
+                    'دقیقاً موافقم 💯',
                     'حرفه‌ای داری کار می‌کنی 🔥',
-                    'این قسمت رو دوباره توضیح میدی؟ 🤔'
+                    'میشه بیشتر توضیح بدی؟ 🤔',
+                    'آها! الان فهمیدم ✨'
                 ];
+                const response = responses[Math.floor(Math.random() * responses.length)];
+                this.displayMessage('مهدیار', response, 'viewer');
+                this.saveMessage('مهدیار', response, 'viewer');
             }
 
-            setupAutoResponse() {
-                // Random viewer comments every 30-60 seconds
-                setInterval(() => {
-                    if (this.state.isStreaming) {
-                        const randomComments = [
-                            'هنوز دارم می‌بینمت، عالی پیش میری 🎯',
-                            'صفحه‌ات خیلی تمیزه! چطور مرتب نگهش میداری؟',
-                            'میشه یه بار دیگه اون قسمت رو نشون بدی؟ 🙏',
-                            'این قسمت خیلی جالب بود 🔥',
-                            'چقدر سریع تایپ می‌کنی! 😲',
-                            'صدات واضح میاد، تنظیمات میکروفون عالیه',
-                            'اینو ببینم چطور حلش کردی 👀'
-                        ];
-                        
-                        const random = randomComments[Math.floor(Math.random() * randomComments.length)];
-                        if (Math.random() > 0.5) { // 50% chance
-                            this.addMessage('مهدیار', random, 'viewer');
-                        }
-                    }
-                }, 35000);
+            simulateStreamerMessage(viewerMsg) {
+                const responses = [
+                    'مرسی! 🙏',
+                    'خوشحالم که دوست داری',
+                    'چشم، حتماً',
+                    'نظر لطفتونه',
+                    'باشه، ادامه میدم',
+                    'سوالی داری بپرس'
+                ];
+                const response = responses[Math.floor(Math.random() * responses.length)];
+                const streamerName = document.getElementById('roomStreamerName').textContent;
+                this.displayMessage(streamerName, response, 'streamer');
+                this.saveMessage(streamerName, response, 'streamer');
             }
 
-            handleChatKeyPress(event) {
-                if (event.key === 'Enter' && !event.shiftKey) {
-                    event.preventDefault();
-                    this.sendChatMessage();
+            // ==================== Utility ====================
+            updateRoomData(data) {
+                const roomData = JSON.parse(localStorage.getItem(`room_${this.roomCode}`));
+                if (roomData) {
+                    Object.assign(roomData, data);
+                    localStorage.setItem(`room_${this.roomCode}`, JSON.stringify(roomData));
                 }
             }
 
-            // ==================== Utility Functions ====================
+            showToast(message) {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = message;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.3s';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
             createParticles() {
-                const container = document.getElementById('particlesContainer');
-                const colors = ['var(--neon-blue)', 'var(--neon-purple)', 'var(--neon-pink)', 'var(--neon-cyan)'];
-                
-                for (let i = 0; i < 35; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    particle.style.left = Math.random() * 100 + '%';
-                    particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
-                    particle.style.animationDelay = Math.random() * 10 + 's';
-                    particle.style.width = (Math.random() * 3 + 1) + 'px';
-                    particle.style.height = particle.style.width;
-                    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                    container.appendChild(particle);
+                const container = document.getElementById('particles');
+                for (let i = 0; i < 30; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'particle';
+                    p.style.left = Math.random() * 100 + '%';
+                    p.style.animationDuration = (Math.random() * 10 + 8) + 's';
+                    p.style.animationDelay = Math.random() * 10 + 's';
+                    p.style.width = (Math.random() * 3 + 1) + 'px';
+                    p.style.height = p.style.width;
+                    container.appendChild(p);
                 }
             }
 
             escapeHtml(text) {
-                const map = {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#039;'
-                };
+                const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
                 return text.replace(/[&<>"']/g, m => map[m]);
+            }
+
+            log(message) {
+                console.log(`[CyberStream] ${message}`);
             }
         }
 
-        // ==================== Global Functions for HTML ====================
-        const app = new CyberStreamApp();
+        // ==================== Initialize ====================
+        const app = new CyberStream();
 
-        function startScreenShare() { app.startScreenShare(); }
-        function stopScreenShare() { app.stopScreenShare(); }
-        function sendChatMessage() { app.sendChatMessage(); }
-        function handleChatKeyPress(event) { app.handleChatKeyPress(event); }
+        // ==================== Global Functions ====================
+        function switchTab(tab) {
+            document.getElementById('tabCreate').classList.toggle('active', tab === 'create');
+            document.getElementById('tabJoin').classList.toggle('active', tab === 'join');
+            document.getElementById('createForm').style.display = tab === 'create' ? 'block' : 'none';
+            document.getElementById('joinForm').style.display = tab === 'join' ? 'block' : 'none';
+        }
+
+        function createRoom() { app.createRoom(); }
+        function startStreaming() { app.startStreaming(); }
+        function joinRoom() { app.joinRoom(); }
+        function leaveRoom() { app.leaveRoom(); }
+        function startScreenCapture() { app.startScreenCapture(); }
+        function sendMessage() { app.sendMessage(); }
+        
+        function handleChatEnter(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                app.sendMessage();
+            }
+        }
+
+        function copyInviteCode() {
+            const code = document.getElementById('inviteCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                app.showToast('📋 کد دعوت کپی شد! برای مهدیار بفرست');
+            });
+        }
     </script>
 </body>
 </html>
