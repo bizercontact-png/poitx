@@ -4,19 +4,802 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POITX CHAT — سایبرپانک</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/cyberpunk.css">
-    <link rel="stylesheet" href="assets/css/responsive.css">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0a0a0f;
+            color: #c0c0c0;
+            font-family: 'JetBrains Mono', monospace;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00f0ff;
+            border-radius: 2px;
+        }
+
+        /* ===== APP CONTAINER ===== */
+        #app {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            max-height: 800px;
+            background: #14141e;
+            border-left: 2px solid #00f0ff;
+            border-right: 2px solid #b300ff;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 60px rgba(0, 240, 255, 0.08);
+            overflow: hidden;
+        }
+
+        /* ===== CYBER HEADER ===== */
+        .cyber-header {
+            background: #0a0a0f;
+            border-bottom: 2px solid #b300ff;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px rgba(179, 0, 255, 0.1);
+        }
+        .cyber-header .title {
+            color: #00f0ff;
+            font-weight: 700;
+            font-size: 18px;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+            letter-spacing: 1px;
+        }
+        .cyber-header .title span {
+            color: #ff2d95;
+        }
+        .cyber-header .toggle-btn {
+            color: #00f0ff;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 4px 12px;
+            border: 1px solid #00f0ff;
+            border-radius: 4px;
+            transition: 0.3s;
+            background: transparent;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .cyber-header .toggle-btn:hover {
+            background: #00f0ff;
+            color: #000;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+        }
+
+        /* ===== VIEW CONTAINER ===== */
+        #viewContainer {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: radial-gradient(ellipse at 50% 0%, rgba(0, 240, 255, 0.02) 0%, transparent 70%);
+        }
+
+        /* ===== MESSAGES ===== */
+        .msg {
+            background: #1a1a2e;
+            border-left: 3px solid #00f0ff;
+            padding: 10px 14px;
+            margin-bottom: 6px;
+            border-radius: 0 8px 8px 0;
+            animation: fadeIn 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.05);
+        }
+        .msg-self {
+            border-left-color: #ff2d95;
+            background: rgba(255, 45, 149, 0.05);
+            text-align: right;
+            border-radius: 8px 0 0 8px;
+            border-left: none;
+            border-right: 3px solid #ff2d95;
+        }
+        .msg .sender {
+            font-size: 11px;
+            color: #00f0ff;
+            font-weight: 700;
+        }
+        .msg-self .sender {
+            color: #ff2d95;
+        }
+        .msg .time {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+            text-align: left;
+        }
+        .msg-self .time {
+            text-align: right;
+        }
+        .msg .text {
+            font-size: 14px;
+            margin-top: 2px;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        /* ===== INBOX ITEMS ===== */
+        .inbox-item {
+            background: #1a1a2e;
+            border: 1px solid #b300ff;
+            padding: 10px 14px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+            box-shadow: 0 0 15px rgba(179, 0, 255, 0.05);
+        }
+        .inbox-item .name {
+            color: #00f0ff;
+            font-size: 14px;
+        }
+        .inbox-item .meta {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+        .inbox-item .del-btn {
+            background: transparent;
+            border: 1px solid #ff2d95;
+            color: #ff2d95;
+            padding: 2px 12px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            transition: 0.3s;
+            border-radius: 4px;
+        }
+        .inbox-item .del-btn:hover {
+            background: #ff2d95;
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 45, 149, 0.3);
+        }
+
+        /* ===== INPUT AREA ===== */
+        .input-area {
+            border-top: 1px solid #00f0ff;
+            padding: 8px 12px;
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+            background: #0a0a0f;
+            box-shadow: 0 -5px 20px rgba(0, 240, 255, 0.05);
+        }
+        .input-area input[type="text"] {
+            flex: 1;
+            background: transparent;
+            border: 1px solid #b300ff;
+            color: #fff;
+            padding: 10px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+            border-radius: 0;
+        }
+        .input-area input[type="text"]:focus {
+            border-color: #00f0ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+        }
+        .input-area .send-btn {
+            background: #00f0ff;
+            color: #000;
+            border: none;
+            padding: 10px 18px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 16px;
+            border-radius: 0;
+        }
+        .input-area .send-btn:hover {
+            background: #ff2d95;
+            box-shadow: 0 0 30px rgba(255, 45, 149, 0.3);
+        }
+        .input-area .file-label {
+            color: #00f0ff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            font-size: 18px;
+            border: 1px solid #b300ff;
+            transition: 0.3s;
+        }
+        .input-area .file-label:hover {
+            border-color: #00f0ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+        }
+        .input-area input[type="file"] {
+            display: none;
+        }
+
+        /* ===== AUTH PAGE ===== */
+        .auth-page {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 24px;
+            text-align: center;
+        }
+        .auth-page h1 {
+            color: #00f0ff;
+            font-size: 32px;
+            text-shadow: 0 0 40px rgba(0, 240, 255, 0.2);
+            margin-bottom: 8px;
+        }
+        .auth-page h1 span {
+            color: #ff2d95;
+        }
+        .auth-page .sub {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .auth-page .cyber-input {
+            width: 100%;
+            max-width: 320px;
+            background: transparent;
+            border: 1px solid #b300ff;
+            color: #fff;
+            padding: 12px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+            margin-bottom: 12px;
+            border-radius: 0;
+        }
+        .auth-page .cyber-input:focus {
+            border-color: #00f0ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+        }
+        .auth-page .cyber-btn {
+            width: 100%;
+            max-width: 320px;
+            background: #00f0ff;
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 16px;
+            border-radius: 0;
+            margin-top: 4px;
+        }
+        .auth-page .cyber-btn:hover {
+            background: #ff2d95;
+            box-shadow: 0 0 30px rgba(255, 45, 149, 0.3);
+        }
+        .auth-page .code-section {
+            width: 100%;
+            max-width: 320px;
+            display: none;
+            margin-top: 8px;
+        }
+        .auth-page .toast {
+            color: #00ff41;
+            font-size: 13px;
+            margin-top: 12px;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+        }
+        .auth-page .toast.error {
+            color: #ff2d95;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            color: #444;
+            text-align: center;
+            padding: 40px 0;
+            font-size: 14px;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes glowPulse {
+            0%,
+            100% {
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+        .glow-pulse {
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            #app {
+                max-width: 100%;
+                max-height: 100vh;
+                border-left: none;
+                border-right: none;
+                border-radius: 0;
+            }
+            .cyber-header .title {
+                font-size: 16px;
+            }
+            .auth-page h1 {
+                font-size: 26px;
+            }
+        }
+        @media (max-width: 400px) {
+            .cyber-header .title {
+                font-size: 14px;
+            }
+            .cyber-header .toggle-btn {
+                font-size: 11px;
+                padding: 2px 10px;
+            }
+            .input-area input[type="text"] {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+            .input-area .send-btn {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+        }
+    </style>
 </head>
 <body>
+
     <div id="app">
-        <!-- محتوای اپلیکیشن توسط جاوااسکریپت لود می‌شود -->
+        <!-- ============================================================ -->
+        <!-- هدر (توسط جاوااسکریپت مدیریت می‌شود) -->
+        <!-- ============================================================ -->
+        <div id="headerContainer"></div>
+
+        <!-- ============================================================ -->
+        <!-- محتوای اصلی (توسط جاوااسکریپت مدیریت می‌شود) -->
+        <!-- ============================================================ -->
+        <div id="viewContainer"></div>
+
+        <!-- ============================================================ -->
+        <!-- نوار ورودی (توسط جاوااسکریپت مدیریت می‌شود) -->
+        <!-- ============================================================ -->
+        <div id="inputContainer"></div>
     </div>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/auth.js"></script>
-    <script src="assets/js/chat.js"></script>
-    <script src="assets/js/inbox.js"></script>
-    <script src="assets/js/app.js"></script>
+
+    <script>
+        // ================================================================
+        //  1. STATE
+        // ================================================================
+        const state = {
+            isLoggedIn: false,
+            phone: '',
+            messages: [],
+            inbox: [],
+            partner: 'مهدیار',
+            view: 'chat', // 'chat' | 'inbox'
+        };
+
+        // ================================================================
+        //  2. UTILITY FUNCTIONS
+        // ================================================================
+        function getTime() {
+            const d = new Date();
+            return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+        }
+
+        function generateId() {
+            return 'id-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+        }
+
+        function showToast(msg, type) {
+            const colors = {
+                success: '#00ff41',
+                error: '#ff2d95',
+                info: '#00f0ff'
+            };
+            const bg = {
+                success: 'rgba(0,255,65,0.1)',
+                error: 'rgba(255,45,149,0.1)',
+                info: 'rgba(0,240,255,0.1)'
+            };
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #14141e;
+                color: ${colors[type] || '#fff'};
+                border: 1px solid ${colors[type] || '#fff'};
+                padding: 10px 24px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 13px;
+                z-index: 9999;
+                box-shadow: 0 0 40px rgba(0,0,0,0.8);
+                animation: fadeIn 0.3s ease;
+                border-radius: 0;
+                text-align: center;
+                max-width: 90%;
+            `;
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+
+        // ================================================================
+        //  3. RENDER FUNCTIONS
+        // ================================================================
+
+        // 3.1 HEADER
+        function renderHeader() {
+            const container = document.getElementById('headerContainer');
+            if (!state.isLoggedIn) {
+                container.innerHTML = '';
+                return;
+            }
+            container.innerHTML = `
+                <div class="cyber-header">
+                    <div class="title">⚡ POIT<span>X</span></div>
+                    <button class="toggle-btn" id="viewToggle">
+                        ${state.view === 'chat' ? '📂 صندوق' : '💬 چت'}
+                    </button>
+                </div>
+            `;
+            const toggle = document.getElementById('viewToggle');
+            if (toggle) {
+                toggle.addEventListener('click', () => {
+                    state.view = state.view === 'chat' ? 'inbox' : 'chat';
+                    renderAll();
+                });
+            }
+        }
+
+        // 3.2 AUTH PAGE
+        function renderAuthPage() {
+            const container = document.getElementById('viewContainer');
+            container.innerHTML = `
+                <div class="auth-page">
+                    <h1>🔐 POIT<span>X</span></h1>
+                    <div class="sub">ورود به شبکه سایبر</div>
+                    <input type="text" id="phoneInput" class="cyber-input" placeholder="شماره تلفن" value="09123456789">
+                    <div class="code-section" id="codeSection">
+                        <input type="text" id="codeInput" class="cyber-input" placeholder="کد ۶ رقمی">
+                        <button class="cyber-btn" id="verifyBtn">✅ تأیید کد</button>
+                    </div>
+                    <button class="cyber-btn" id="loginBtn">📱 دریافت کد</button>
+                    <div id="authToast" class="toast"></div>
+                </div>
+            `;
+            document.getElementById('inputContainer').innerHTML = '';
+
+            // Events
+            let currentCode = '';
+
+            document.getElementById('loginBtn').addEventListener('click', () => {
+                const phone = document.getElementById('phoneInput').value.trim();
+                if (phone.length < 10) {
+                    const toast = document.getElementById('authToast');
+                    toast.textContent = '❌ شماره نامعتبر است';
+                    toast.className = 'toast error';
+                    return;
+                }
+                state.phone = phone;
+                currentCode = String(Math.floor(100000 + Math.random() * 900000));
+                localStorage.setItem('poitx_code', currentCode);
+                localStorage.setItem('poitx_phone', phone);
+                document.getElementById('codeSection').style.display = 'block';
+                document.getElementById('loginBtn').textContent = '🔄 ارسال مجدد';
+                const toast = document.getElementById('authToast');
+                toast.textContent = '📱 کد: ' + currentCode + ' (برای تست)';
+                toast.className = 'toast';
+                showToast('📱 کد ارسال شد: ' + currentCode, 'info');
+            });
+
+            document.getElementById('verifyBtn').addEventListener('click', () => {
+                const entered = document.getElementById('codeInput').value.trim();
+                const stored = localStorage.getItem('poitx_code');
+                if (entered === stored) {
+                    state.isLoggedIn = true;
+                    showToast('✅ تأیید شد!', 'success');
+                    renderAll();
+                } else {
+                    const toast = document.getElementById('authToast');
+                    toast.textContent = '❌ کد اشتباه است';
+                    toast.className = 'toast error';
+                }
+            });
+        }
+
+        // 3.3 CHAT VIEW
+        function renderChatView() {
+            const container = document.getElementById('viewContainer');
+            if (!state.isLoggedIn) return;
+
+            let html = `
+                <div style="flex:1; display:flex; flex-direction:column; height:100%;">
+                    <div class="cyber-header" style="border-bottom:2px solid #b300ff; padding:8px 12px; background:transparent; box-shadow:none;">
+                        <span style="color:#ff2d95; font-size:14px; font-weight:700;">⚡ ${state.partner}</span>
+                        <span style="color:#00ff41; font-size:11px;">🟢 آنلاین</span>
+                    </div>
+                    <div id="messageArea" style="flex:1; overflow-y:auto; padding:4px 0; display:flex; flex-direction:column; gap:2px;">
+            `;
+
+            if (state.messages.length === 0) {
+                html += `<div class="empty-state">✨ هیچ پیامی وجود ندارد</div>`;
+            } else {
+                state.messages.forEach(msg => {
+                    const isSelf = msg.sender === 'شما';
+                    html += `
+                        <div class="msg ${isSelf ? 'msg-self' : ''}">
+                            <div class="sender">${msg.sender}</div>
+                            <div class="text">${msg.text}</div>
+                            <div class="time">${msg.time}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            html += `
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+            // اسکرول به پایین
+            const area = document.getElementById('messageArea');
+            if (area) area.scrollTop = area.scrollHeight;
+
+            // Input
+            renderChatInput();
+        }
+
+        // 3.4 CHAT INPUT
+        function renderChatInput() {
+            const container = document.getElementById('inputContainer');
+            if (!state.isLoggedIn) return;
+            container.innerHTML = `
+                <div class="input-area">
+                    <input type="text" id="messageInput" placeholder="پیام...">
+                    <label class="file-label" id="fileLabel">📎
+                        <input type="file" id="fileInput">
+                    </label>
+                    <button class="send-btn" id="sendBtn">➤</button>
+                </div>
+            `;
+
+            // Send message
+            document.getElementById('sendBtn').addEventListener('click', () => {
+                const input = document.getElementById('messageInput');
+                sendMessage(input.value);
+                input.value = '';
+            });
+
+            document.getElementById('messageInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const input = document.getElementById('messageInput');
+                    sendMessage(input.value);
+                    input.value = '';
+                }
+            });
+
+            // File upload
+            document.getElementById('fileInput').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    addFile(file);
+                }
+                e.target.value = '';
+            });
+        }
+
+        // 3.5 INBOX VIEW
+        function renderInboxView() {
+            const container = document.getElementById('viewContainer');
+            if (!state.isLoggedIn) return;
+
+            let html = `
+                <div style="flex:1; display:flex; flex-direction:column; height:100%;">
+                    <div class="cyber-header" style="border-bottom:2px solid #b300ff; padding:8px 12px; background:transparent; box-shadow:none;">
+                        <span style="color:#00f0ff; font-size:14px; font-weight:700;">📂 صندوق</span>
+                        <span style="color:#888; font-size:11px;">${state.inbox.length} فایل</span>
+                    </div>
+                    <div id="inboxList" style="flex:1; overflow-y:auto; padding:4px 0; display:flex; flex-direction:column; gap:2px;">
+            `;
+
+            if (state.inbox.length === 0) {
+                html += `<div class="empty-state">📭 صندوق خالی است</div>`;
+            } else {
+                state.inbox.forEach((file, index) => {
+                    html += `
+                        <div class="inbox-item">
+                            <div>
+                                <div class="name">📄 ${file.name}</div>
+                                <div class="meta">${file.size} bytes • ${file.date}</div>
+                            </div>
+                            <button class="del-btn" data-index="${index}">🗑️</button>
+                        </div>
+                    `;
+                });
+            }
+
+            html += `
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+
+            // Delete events
+            document.querySelectorAll('.del-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = parseInt(btn.dataset.index);
+                    state.inbox.splice(idx, 1);
+                    showToast('🗑️ فایل حذف شد', 'info');
+                    renderAll();
+                });
+            });
+
+            // Input (hide for inbox)
+            document.getElementById('inputContainer').innerHTML = '';
+        }
+
+        // ================================================================
+        //  4. CORE ACTIONS
+        // ================================================================
+
+        function sendMessage(text) {
+            if (!state.isLoggedIn) return;
+            const trimmed = text.trim();
+            if (!trimmed) return;
+
+            const msg = {
+                id: generateId(),
+                sender: 'شما',
+                text: trimmed,
+                time: getTime()
+            };
+            state.messages.push(msg);
+
+            // Simulate partner reply
+            setTimeout(() => {
+                const replies = [
+                    '📡 پیام دریافت شد.',
+                    'در تاریکی سایبر...',
+                    '⚡ تأیید شد.',
+                    '🔮 ادامه بده.',
+                    '💬 دریافت کردم.'
+                ];
+                const reply = {
+                    id: generateId(),
+                    sender: state.partner,
+                    text: replies[Math.floor(Math.random() * replies.length)],
+                    time: getTime()
+                };
+                state.messages.push(reply);
+                renderAll();
+            }, 800 + Math.random() * 1200);
+
+            renderAll();
+        }
+
+        function addFile(file) {
+            if (!state.isLoggedIn) return;
+            const entry = {
+                id: generateId(),
+                name: file.name,
+                size: file.size,
+                type: file.type || 'unknown',
+                date: new Date().toLocaleString()
+            };
+            state.inbox.push(entry);
+            showToast(`📁 فایل ${file.name} در صندوق ذخیره شد`, 'success');
+            renderAll();
+        }
+
+        // ================================================================
+        //  5. RENDER ALL
+        // ================================================================
+
+        function renderAll() {
+            if (!state.isLoggedIn) {
+                renderAuthPage();
+                renderHeader();
+                return;
+            }
+
+            renderHeader();
+
+            // چک کردن view و رندر مناسب
+            if (state.view === 'chat') {
+                renderChatView();
+            } else {
+                renderInboxView();
+            }
+
+            // اگر در چت هستیم، input قبلاً توسط renderChatView رندر شده
+            // اگر در inbox هستیم، input خالی است
+            if (state.view === 'chat') {
+                // input قبلاً رندر شده
+            } else {
+                document.getElementById('inputContainer').innerHTML = '';
+            }
+        }
+
+        // ================================================================
+        //  6. INIT
+        // ================================================================
+
+        // Check localStorage
+        const savedPhone = localStorage.getItem('poitx_phone');
+        const savedCode = localStorage.getItem('poitx_code');
+        if (savedPhone && savedCode) {
+            state.isLoggedIn = true;
+            state.phone = savedPhone;
+            // Add some demo messages
+            if (state.messages.length === 0) {
+                state.messages.push({
+                    id: generateId(),
+                    sender: 'مهدیار',
+                    text: 'سلام! به شبکه سایبر خوش آمدی. ⚡',
+                    time: getTime()
+                });
+                state.messages.push({
+                    id: generateId(),
+                    sender: 'شما',
+                    text: 'سلام مهدیار!',
+                    time: getTime()
+                });
+                state.messages.push({
+                    id: generateId(),
+                    sender: 'مهدیار',
+                    text: '🔮 آماده‌ای برای کاوش در تاریکی دیجیتال؟',
+                    time: getTime()
+                });
+            }
+        }
+
+        renderAll();
+
+        // Make state accessible for debugging
+        window.__state = state;
+    </script>
+
 </body>
 </html>
