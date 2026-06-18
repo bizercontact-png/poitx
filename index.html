@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POITX CHAT — سایبرپانک</title>
+    <title>POITX — صنعت سایبر</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* ===== RESET ===== */
+        /* ===== RESET صنعتی ===== */
         * {
             margin: 0;
             padding: 0;
@@ -22,223 +22,293 @@
             align-items: center;
             overflow: hidden;
         }
+
+        /* ===== اسکرول صنعتی ===== */
         ::-webkit-scrollbar {
-            width: 4px;
+            width: 6px;
         }
         ::-webkit-scrollbar-track {
             background: #0a0a0f;
+            border-left: 1px solid #1a1a2e;
         }
         ::-webkit-scrollbar-thumb {
             background: #00f0ff;
-            border-radius: 2px;
+            border-radius: 0;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
         }
 
-        /* ===== APP CONTAINER ===== */
+        /* ===== کانتینر اصلی ===== */
         #app {
             width: 100%;
-            max-width: 480px;
+            max-width: 520px;
             height: 100vh;
-            max-height: 800px;
-            background: #14141e;
-            border-left: 2px solid #00f0ff;
-            border-right: 2px solid #b300ff;
+            max-height: 820px;
+            background: #0a0a0f;
+            border-left: 3px solid #00f0ff;
+            border-right: 3px solid #b300ff;
             display: flex;
             flex-direction: column;
             position: relative;
-            box-shadow: 0 0 60px rgba(0, 240, 255, 0.08);
+            box-shadow: 0 0 80px rgba(0, 240, 255, 0.06);
             overflow: hidden;
         }
 
-        /* ===== CYBER HEADER ===== */
+        /* ===== هدر صنعتی ===== */
         .cyber-header {
             background: #0a0a0f;
             border-bottom: 2px solid #b300ff;
-            padding: 12px 16px;
+            padding: 10px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-shrink: 0;
-            box-shadow: 0 0 20px rgba(179, 0, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(179, 0, 255, 0.08);
+            position: relative;
+        }
+        .cyber-header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: repeating-linear-gradient(90deg, #00f0ff 0px, #00f0ff 4px, transparent 4px, transparent 8px);
+            opacity: 0.3;
         }
         .cyber-header .title {
             color: #00f0ff;
             font-weight: 700;
             font-size: 18px;
-            text-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-            letter-spacing: 1px;
+            text-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+            letter-spacing: 2px;
         }
         .cyber-header .title span {
             color: #ff2d95;
         }
+        .cyber-header .badge {
+            color: #ff2d95;
+            font-size: 10px;
+            border: 1px solid #ff2d95;
+            padding: 2px 10px;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
         .cyber-header .toggle-btn {
             color: #00f0ff;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
-            padding: 4px 12px;
+            padding: 4px 14px;
             border: 1px solid #00f0ff;
-            border-radius: 4px;
             transition: 0.3s;
             background: transparent;
             font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.05);
         }
         .cyber-header .toggle-btn:hover {
             background: #00f0ff;
             color: #000;
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
         }
 
-        /* ===== VIEW CONTAINER ===== */
+        /* ===== ویو کانتینر ===== */
         #viewContainer {
             flex: 1;
             overflow-y: auto;
             padding: 8px 12px;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
             background: radial-gradient(ellipse at 50% 0%, rgba(0, 240, 255, 0.02) 0%, transparent 70%);
+            position: relative;
+        }
+        #viewContainer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(0deg, rgba(0, 240, 255, 0.01) 0px, rgba(0, 240, 255, 0.01) 2px, transparent 2px, transparent 6px);
+            pointer-events: none;
+            opacity: 0.3;
         }
 
-        /* ===== MESSAGES ===== */
+        /* ===== پیام صنعتی ===== */
         .msg {
-            background: #1a1a2e;
+            background: #0f0f1a;
             border-left: 3px solid #00f0ff;
             padding: 10px 14px;
-            margin-bottom: 6px;
-            border-radius: 0 8px 8px 0;
-            animation: fadeIn 0.3s ease;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.05);
+            margin-bottom: 4px;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.03);
+            position: relative;
+            animation: fadeIn 0.25s ease;
+        }
+        .msg::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: repeating-linear-gradient(90deg, #00f0ff 0px, #00f0ff 2px, transparent 2px, transparent 6px);
+            opacity: 0.15;
         }
         .msg-self {
             border-left-color: #ff2d95;
-            background: rgba(255, 45, 149, 0.05);
-            text-align: right;
-            border-radius: 8px 0 0 8px;
+            background: rgba(255, 45, 149, 0.04);
             border-left: none;
             border-right: 3px solid #ff2d95;
+            text-align: right;
+        }
+        .msg-self::after {
+            background: repeating-linear-gradient(90deg, #ff2d95 0px, #ff2d95 2px, transparent 2px, transparent 6px);
         }
         .msg .sender {
-            font-size: 11px;
+            font-size: 10px;
             color: #00f0ff;
             font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.8;
         }
         .msg-self .sender {
             color: #ff2d95;
-        }
-        .msg .time {
-            font-size: 10px;
-            color: #666;
-            margin-top: 4px;
-            text-align: left;
-        }
-        .msg-self .time {
-            text-align: right;
         }
         .msg .text {
             font-size: 14px;
             margin-top: 2px;
             word-wrap: break-word;
-            line-height: 1.5;
+            line-height: 1.6;
+            letter-spacing: 0.3px;
+        }
+        .msg .time {
+            font-size: 9px;
+            color: #444;
+            margin-top: 4px;
+            text-align: left;
+            letter-spacing: 0.5px;
+        }
+        .msg-self .time {
+            text-align: right;
         }
 
-        /* ===== INBOX ITEMS ===== */
+        /* ===== صندوق صنعتی ===== */
         .inbox-item {
-            background: #1a1a2e;
-            border: 1px solid #b300ff;
+            background: #0f0f1a;
+            border: 1px solid #1a1a2e;
             padding: 10px 14px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            animation: fadeIn 0.3s ease;
-            box-shadow: 0 0 15px rgba(179, 0, 255, 0.05);
+            animation: fadeIn 0.25s ease;
+            border-left: 3px solid #b300ff;
         }
         .inbox-item .name {
             color: #00f0ff;
-            font-size: 14px;
+            font-size: 13px;
+            letter-spacing: 0.5px;
         }
         .inbox-item .meta {
-            font-size: 11px;
-            color: #666;
+            font-size: 10px;
+            color: #555;
             margin-top: 2px;
+            letter-spacing: 0.3px;
         }
         .inbox-item .del-btn {
             background: transparent;
             border: 1px solid #ff2d95;
             color: #ff2d95;
-            padding: 2px 12px;
+            padding: 2px 14px;
             cursor: pointer;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
+            font-size: 11px;
             transition: 0.3s;
-            border-radius: 4px;
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(255, 45, 149, 0.05);
         }
         .inbox-item .del-btn:hover {
             background: #ff2d95;
             color: #000;
-            box-shadow: 0 0 20px rgba(255, 45, 149, 0.3);
+            box-shadow: 0 0 30px rgba(255, 45, 149, 0.15);
         }
 
-        /* ===== INPUT AREA ===== */
+        /* ===== نوار ورودی صنعتی ===== */
         .input-area {
-            border-top: 1px solid #00f0ff;
+            border-top: 2px solid #1a1a2e;
             padding: 8px 12px;
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-shrink: 0;
             background: #0a0a0f;
-            box-shadow: 0 -5px 20px rgba(0, 240, 255, 0.05);
+            position: relative;
+        }
+        .input-area::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: repeating-linear-gradient(90deg, #b300ff 0px, #b300ff 4px, transparent 4px, transparent 8px);
+            opacity: 0.2;
         }
         .input-area input[type="text"] {
             flex: 1;
-            background: transparent;
-            border: 1px solid #b300ff;
-            color: #fff;
+            background: #0a0a0f;
+            border: 1px solid #1a1a2e;
+            color: #c0c0c0;
             padding: 10px 14px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
+            font-size: 13px;
             outline: none;
             transition: 0.3s;
-            border-radius: 0;
+            letter-spacing: 0.3px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
         }
         .input-area input[type="text"]:focus {
             border-color: #00f0ff;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.04), inset 0 0 20px rgba(0, 0, 0, 0.5);
         }
         .input-area .send-btn {
-            background: #00f0ff;
-            color: #000;
-            border: none;
-            padding: 10px 18px;
+            background: #0a0a0f;
+            color: #00f0ff;
+            border: 1px solid #00f0ff;
+            padding: 10px 16px;
             font-weight: 700;
             font-family: 'JetBrains Mono', monospace;
             cursor: pointer;
             transition: 0.3s;
-            font-size: 16px;
-            border-radius: 0;
+            font-size: 14px;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.02);
+            letter-spacing: 1px;
         }
         .input-area .send-btn:hover {
-            background: #ff2d95;
-            box-shadow: 0 0 30px rgba(255, 45, 149, 0.3);
+            background: #00f0ff;
+            color: #000;
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.1);
         }
         .input-area .file-label {
-            color: #00f0ff;
+            color: #b300ff;
             cursor: pointer;
             display: flex;
             align-items: center;
-            padding: 0 8px;
-            font-size: 18px;
-            border: 1px solid #b300ff;
+            padding: 0 10px;
+            font-size: 16px;
+            border: 1px solid #1a1a2e;
             transition: 0.3s;
+            background: #0a0a0f;
         }
         .input-area .file-label:hover {
-            border-color: #00f0ff;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+            border-color: #b300ff;
+            box-shadow: 0 0 20px rgba(179, 0, 255, 0.05);
         }
         .input-area input[type="file"] {
             display: none;
         }
 
-        /* ===== AUTH PAGE ===== */
+        /* ===== صفحه احراز هویت صنعتی ===== */
         .auth-page {
             flex: 1;
             display: flex;
@@ -247,117 +317,123 @@
             align-items: center;
             padding: 40px 24px;
             text-align: center;
+            position: relative;
+        }
+        .auth-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(0deg, rgba(0, 240, 255, 0.01) 0px, rgba(0, 240, 255, 0.01) 2px, transparent 2px, transparent 6px);
+            pointer-events: none;
+            opacity: 0.3;
         }
         .auth-page h1 {
             color: #00f0ff;
-            font-size: 32px;
-            text-shadow: 0 0 40px rgba(0, 240, 255, 0.2);
-            margin-bottom: 8px;
+            font-size: 34px;
+            text-shadow: 0 0 50px rgba(0, 240, 255, 0.1);
+            margin-bottom: 4px;
+            letter-spacing: 4px;
         }
         .auth-page h1 span {
             color: #ff2d95;
         }
         .auth-page .sub {
-            color: #888;
-            font-size: 14px;
+            color: #555;
+            font-size: 12px;
             margin-bottom: 30px;
+            letter-spacing: 2px;
         }
         .auth-page .cyber-input {
             width: 100%;
             max-width: 320px;
-            background: transparent;
-            border: 1px solid #b300ff;
-            color: #fff;
+            background: #0a0a0f;
+            border: 1px solid #1a1a2e;
+            color: #c0c0c0;
             padding: 12px 16px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
+            font-size: 13px;
             outline: none;
             transition: 0.3s;
-            margin-bottom: 12px;
-            border-radius: 0;
+            margin-bottom: 10px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
         }
         .auth-page .cyber-input:focus {
             border-color: #00f0ff;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.04), inset 0 0 20px rgba(0, 0, 0, 0.5);
         }
         .auth-page .cyber-btn {
             width: 100%;
             max-width: 320px;
-            background: #00f0ff;
-            color: #000;
-            border: none;
+            background: #0a0a0f;
+            color: #00f0ff;
+            border: 1px solid #00f0ff;
             padding: 12px;
             font-weight: 700;
             font-family: 'JetBrains Mono', monospace;
             cursor: pointer;
             transition: 0.3s;
-            font-size: 16px;
-            border-radius: 0;
+            font-size: 14px;
+            letter-spacing: 2px;
             margin-top: 4px;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.02);
         }
         .auth-page .cyber-btn:hover {
-            background: #ff2d95;
-            box-shadow: 0 0 30px rgba(255, 45, 149, 0.3);
+            background: #00f0ff;
+            color: #000;
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.1);
         }
         .auth-page .code-section {
             width: 100%;
             max-width: 320px;
             display: none;
-            margin-top: 8px;
+            margin-top: 6px;
         }
         .auth-page .toast {
             color: #00ff41;
-            font-size: 13px;
+            font-size: 12px;
             margin-top: 12px;
-            text-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
+            letter-spacing: 0.5px;
         }
         .auth-page .toast.error {
             color: #ff2d95;
         }
 
-        /* ===== EMPTY STATE ===== */
+        /* ===== خالی ===== */
         .empty-state {
-            color: #444;
+            color: #333;
             text-align: center;
             padding: 40px 0;
-            font-size: 14px;
+            font-size: 13px;
+            letter-spacing: 1px;
+            opacity: 0.6;
         }
 
-        /* ===== ANIMATIONS ===== */
+        /* ===== انیمیشن‌ها ===== */
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(8px);
+                transform: translateY(4px);
             }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        @keyframes glowPulse {
-            0%,
-            100% {
-                opacity: 0.6;
-            }
-            50% {
-                opacity: 1;
-            }
-        }
-        .glow-pulse {
-            animation: glowPulse 2s ease-in-out infinite;
-        }
 
-        /* ===== RESPONSIVE ===== */
+        /* ===== ریسپانسیو صنعتی ===== */
         @media (max-width: 600px) {
             #app {
                 max-width: 100%;
                 max-height: 100vh;
                 border-left: none;
                 border-right: none;
-                border-radius: 0;
             }
             .cyber-header .title {
-                font-size: 16px;
+                font-size: 15px;
             }
             .auth-page h1 {
                 font-size: 26px;
@@ -365,19 +441,22 @@
         }
         @media (max-width: 400px) {
             .cyber-header .title {
-                font-size: 14px;
+                font-size: 13px;
             }
             .cyber-header .toggle-btn {
-                font-size: 11px;
+                font-size: 10px;
                 padding: 2px 10px;
             }
             .input-area input[type="text"] {
-                font-size: 12px;
+                font-size: 11px;
                 padding: 8px 10px;
             }
             .input-area .send-btn {
-                font-size: 14px;
+                font-size: 12px;
                 padding: 8px 12px;
+            }
+            .msg .text {
+                font-size: 12px;
             }
         }
     </style>
@@ -385,25 +464,14 @@
 <body>
 
     <div id="app">
-        <!-- ============================================================ -->
-        <!-- هدر (توسط جاوااسکریپت مدیریت می‌شود) -->
-        <!-- ============================================================ -->
         <div id="headerContainer"></div>
-
-        <!-- ============================================================ -->
-        <!-- محتوای اصلی (توسط جاوااسکریپت مدیریت می‌شود) -->
-        <!-- ============================================================ -->
         <div id="viewContainer"></div>
-
-        <!-- ============================================================ -->
-        <!-- نوار ورودی (توسط جاوااسکریپت مدیریت می‌شود) -->
-        <!-- ============================================================ -->
         <div id="inputContainer"></div>
     </div>
 
     <script>
         // ================================================================
-        //  1. STATE
+        //  STATE
         // ================================================================
         const state = {
             isLoggedIn: false,
@@ -411,11 +479,11 @@
             messages: [],
             inbox: [],
             partner: 'مهدیار',
-            view: 'chat', // 'chat' | 'inbox'
+            view: 'chat',
         };
 
         // ================================================================
-        //  2. UTILITY FUNCTIONS
+        //  UTILITY
         // ================================================================
         function getTime() {
             const d = new Date();
@@ -427,35 +495,19 @@
         }
 
         function showToast(msg, type) {
-            const colors = {
-                success: '#00ff41',
-                error: '#ff2d95',
-                info: '#00f0ff'
-            };
-            const bg = {
-                success: 'rgba(0,255,65,0.1)',
-                error: 'rgba(255,45,149,0.1)',
-                info: 'rgba(0,240,255,0.1)'
-            };
+            const colors = { success: '#00ff41', error: '#ff2d95', info: '#00f0ff' };
             const toast = document.createElement('div');
             toast.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #14141e;
-                color: ${colors[type] || '#fff'};
-                border: 1px solid ${colors[type] || '#fff'};
-                padding: 10px 24px;
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 13px;
-                z-index: 9999;
-                box-shadow: 0 0 40px rgba(0,0,0,0.8);
-                animation: fadeIn 0.3s ease;
-                border-radius: 0;
-                text-align: center;
-                max-width: 90%;
-            `;
+                        position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                        background: #0a0a0f; color: ${colors[type] || '#fff'};
+                        border: 1px solid ${colors[type] || '#fff'};
+                        padding: 8px 24px; font-family: 'JetBrains Mono', monospace;
+                        font-size: 12px; z-index: 9999;
+                        box-shadow: 0 0 40px rgba(0,0,0,0.9);
+                        animation: fadeIn 0.3s ease;
+                        letter-spacing: 0.5px;
+                        max-width: 90%;
+                    `;
             toast.textContent = msg;
             document.body.appendChild(toast);
             setTimeout(() => {
@@ -466,10 +518,9 @@
         }
 
         // ================================================================
-        //  3. RENDER FUNCTIONS
+        //  RENDER
         // ================================================================
 
-        // 3.1 HEADER
         function renderHeader() {
             const container = document.getElementById('headerContainer');
             if (!state.isLoggedIn) {
@@ -477,49 +528,43 @@
                 return;
             }
             container.innerHTML = `
-                <div class="cyber-header">
-                    <div class="title">⚡ POIT<span>X</span></div>
-                    <button class="toggle-btn" id="viewToggle">
-                        ${state.view === 'chat' ? '📂 صندوق' : '💬 چت'}
-                    </button>
-                </div>
-            `;
-            const toggle = document.getElementById('viewToggle');
-            if (toggle) {
-                toggle.addEventListener('click', () => {
-                    state.view = state.view === 'chat' ? 'inbox' : 'chat';
-                    renderAll();
-                });
-            }
+                        <div class="cyber-header">
+                            <div class="title">⚡ POIT<span>X</span></div>
+                            <div class="badge">v.0.1</div>
+                            <button class="toggle-btn" id="viewToggle">
+                                ${state.view === 'chat' ? '📂 صندوق' : '💬 چت'}
+                            </button>
+                        </div>
+                    `;
+            document.getElementById('viewToggle').addEventListener('click', () => {
+                state.view = state.view === 'chat' ? 'inbox' : 'chat';
+                renderAll();
+            });
         }
 
-        // 3.2 AUTH PAGE
         function renderAuthPage() {
             const container = document.getElementById('viewContainer');
             container.innerHTML = `
-                <div class="auth-page">
-                    <h1>🔐 POIT<span>X</span></h1>
-                    <div class="sub">ورود به شبکه سایبر</div>
-                    <input type="text" id="phoneInput" class="cyber-input" placeholder="شماره تلفن" value="09123456789">
-                    <div class="code-section" id="codeSection">
-                        <input type="text" id="codeInput" class="cyber-input" placeholder="کد ۶ رقمی">
-                        <button class="cyber-btn" id="verifyBtn">✅ تأیید کد</button>
-                    </div>
-                    <button class="cyber-btn" id="loginBtn">📱 دریافت کد</button>
-                    <div id="authToast" class="toast"></div>
-                </div>
-            `;
+                        <div class="auth-page">
+                            <h1>🔐 POIT<span>X</span></h1>
+                            <div class="sub">ورود به شبکه صنعتی</div>
+                            <input type="text" id="phoneInput" class="cyber-input" placeholder="شماره تلفن" value="09123456789">
+                            <div class="code-section" id="codeSection">
+                                <input type="text" id="codeInput" class="cyber-input" placeholder="کد ۶ رقمی">
+                                <button class="cyber-btn" id="verifyBtn">✅ تأیید کد</button>
+                            </div>
+                            <button class="cyber-btn" id="loginBtn">📡 دریافت کد</button>
+                            <div id="authToast" class="toast"></div>
+                        </div>
+                    `;
             document.getElementById('inputContainer').innerHTML = '';
 
-            // Events
             let currentCode = '';
-
             document.getElementById('loginBtn').addEventListener('click', () => {
                 const phone = document.getElementById('phoneInput').value.trim();
                 if (phone.length < 10) {
-                    const toast = document.getElementById('authToast');
-                    toast.textContent = '❌ شماره نامعتبر است';
-                    toast.className = 'toast error';
+                    document.getElementById('authToast').textContent = '❌ شماره نامعتبر است';
+                    document.getElementById('authToast').className = 'toast error';
                     return;
                 }
                 state.phone = phone;
@@ -528,10 +573,9 @@
                 localStorage.setItem('poitx_phone', phone);
                 document.getElementById('codeSection').style.display = 'block';
                 document.getElementById('loginBtn').textContent = '🔄 ارسال مجدد';
-                const toast = document.getElementById('authToast');
-                toast.textContent = '📱 کد: ' + currentCode + ' (برای تست)';
-                toast.className = 'toast';
-                showToast('📱 کد ارسال شد: ' + currentCode, 'info');
+                document.getElementById('authToast').textContent = '📡 کد: ' + currentCode;
+                document.getElementById('authToast').className = 'toast';
+                showToast('📡 کد: ' + currentCode, 'info');
             });
 
             document.getElementById('verifyBtn').addEventListener('click', () => {
@@ -539,73 +583,67 @@
                 const stored = localStorage.getItem('poitx_code');
                 if (entered === stored) {
                     state.isLoggedIn = true;
-                    showToast('✅ تأیید شد!', 'success');
+                    showToast('✅ تأیید شد', 'success');
                     renderAll();
                 } else {
-                    const toast = document.getElementById('authToast');
-                    toast.textContent = '❌ کد اشتباه است';
-                    toast.className = 'toast error';
+                    document.getElementById('authToast').textContent = '❌ کد اشتباه است';
+                    document.getElementById('authToast').className = 'toast error';
                 }
             });
         }
 
-        // 3.3 CHAT VIEW
         function renderChatView() {
             const container = document.getElementById('viewContainer');
             if (!state.isLoggedIn) return;
 
             let html = `
-                <div style="flex:1; display:flex; flex-direction:column; height:100%;">
-                    <div class="cyber-header" style="border-bottom:2px solid #b300ff; padding:8px 12px; background:transparent; box-shadow:none;">
-                        <span style="color:#ff2d95; font-size:14px; font-weight:700;">⚡ ${state.partner}</span>
-                        <span style="color:#00ff41; font-size:11px;">🟢 آنلاین</span>
-                    </div>
-                    <div id="messageArea" style="flex:1; overflow-y:auto; padding:4px 0; display:flex; flex-direction:column; gap:2px;">
-            `;
+                        <div style="flex:1; display:flex; flex-direction:column; height:100%;">
+                            <div style="border-bottom:1px solid #1a1a2e; padding:6px 0; margin-bottom:4px; display:flex; justify-content:space-between;">
+                                <span style="color:#ff2d95; font-size:11px; letter-spacing:1px;">⚡ ${state.partner}</span>
+                                <span style="color:#00ff41; font-size:9px;">🟢 آنلاین</span>
+                            </div>
+                            <div id="messageArea" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:2px;">
+                    `;
 
             if (state.messages.length === 0) {
-                html += `<div class="empty-state">✨ هیچ پیامی وجود ندارد</div>`;
+                html += `<div class="empty-state">⏳ هیچ پیامی وجود ندارد</div>`;
             } else {
-                state.messages.forEach(msg => {
-                    const isSelf = msg.sender === 'شما';
-                    html += `
-                        <div class="msg ${isSelf ? 'msg-self' : ''}">
-                            <div class="sender">${msg.sender}</div>
-                            <div class="text">${msg.text}</div>
-                            <div class="time">${msg.time}</div>
-                        </div>
-                    `;
-                });
+                // فقط آخرین پیام رو نمایش بده
+                const lastMsg = state.messages[state.messages.length - 1];
+                const isSelf = lastMsg.sender === 'شما';
+                html += `
+                            <div class="msg ${isSelf ? 'msg-self' : ''}">
+                                <div class="sender">${lastMsg.sender}</div>
+                                <div class="text">${lastMsg.text}</div>
+                                <div class="time">${lastMsg.time}</div>
+                            </div>
+                        `;
             }
 
             html += `
-                    </div>
-                </div>
-            `;
+                            </div>
+                        </div>
+                    `;
             container.innerHTML = html;
-            // اسکرول به پایین
             const area = document.getElementById('messageArea');
             if (area) area.scrollTop = area.scrollHeight;
 
-            // Input
             renderChatInput();
         }
 
-        // 3.4 CHAT INPUT
         function renderChatInput() {
             const container = document.getElementById('inputContainer');
             if (!state.isLoggedIn) return;
             container.innerHTML = `
-                <div class="input-area">
-                    <input type="text" id="messageInput" placeholder="پیام...">
-                    <label class="file-label" id="fileLabel">📎
-                        <input type="file" id="fileInput">
-                    </label>
-                    <button class="send-btn" id="sendBtn">➤</button>
-                </div>
-            `;
+                        <div class="input-area">
+                            <input type="text" id="messageInput" placeholder="پیام...">
+                            <label class="file-label" id="fileLabel">📎
+                                <input type="file" id="fileInput">
+                            </label>
+                            <button class="send-btn" id="sendBtn">➤</button>
+                        </div>
+                    `;
 
-            // Send message
             document.getElementById('sendBtn').addEventListener('click', () => {
                 const input = document.getElementById('messageInput');
                 sendMessage(input.value);
@@ -620,7 +658,6 @@
                 }
             });
 
-            // File upload
             document.getElementById('fileInput').addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file) {
@@ -630,43 +667,41 @@
             });
         }
 
-        // 3.5 INBOX VIEW
         function renderInboxView() {
             const container = document.getElementById('viewContainer');
             if (!state.isLoggedIn) return;
 
             let html = `
-                <div style="flex:1; display:flex; flex-direction:column; height:100%;">
-                    <div class="cyber-header" style="border-bottom:2px solid #b300ff; padding:8px 12px; background:transparent; box-shadow:none;">
-                        <span style="color:#00f0ff; font-size:14px; font-weight:700;">📂 صندوق</span>
-                        <span style="color:#888; font-size:11px;">${state.inbox.length} فایل</span>
-                    </div>
-                    <div id="inboxList" style="flex:1; overflow-y:auto; padding:4px 0; display:flex; flex-direction:column; gap:2px;">
-            `;
+                        <div style="flex:1; display:flex; flex-direction:column; height:100%;">
+                            <div style="border-bottom:1px solid #1a1a2e; padding:6px 0; margin-bottom:4px; display:flex; justify-content:space-between;">
+                                <span style="color:#00f0ff; font-size:11px; letter-spacing:1px;">📂 صندوق</span>
+                                <span style="color:#555; font-size:10px;">${state.inbox.length} فایل</span>
+                            </div>
+                            <div id="inboxList" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:2px;">
+                    `;
 
             if (state.inbox.length === 0) {
                 html += `<div class="empty-state">📭 صندوق خالی است</div>`;
             } else {
                 state.inbox.forEach((file, index) => {
                     html += `
-                        <div class="inbox-item">
-                            <div>
-                                <div class="name">📄 ${file.name}</div>
-                                <div class="meta">${file.size} bytes • ${file.date}</div>
-                            </div>
-                            <button class="del-btn" data-index="${index}">🗑️</button>
-                        </div>
-                    `;
+                                <div class="inbox-item">
+                                    <div>
+                                        <div class="name">📄 ${file.name}</div>
+                                        <div class="meta">${file.size} bytes • ${file.date}</div>
+                                    </div>
+                                    <button class="del-btn" data-index="${index}">🗑️</button>
+                                </div>
+                            `;
                 });
             }
 
             html += `
-                    </div>
-                </div>
-            `;
+                            </div>
+                        </div>
+                    `;
             container.innerHTML = html;
 
-            // Delete events
             document.querySelectorAll('.del-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const idx = parseInt(btn.dataset.index);
@@ -676,12 +711,11 @@
                 });
             });
 
-            // Input (hide for inbox)
             document.getElementById('inputContainer').innerHTML = '';
         }
 
         // ================================================================
-        //  4. CORE ACTIONS
+        //  ACTIONS
         // ================================================================
 
         function sendMessage(text) {
@@ -689,52 +723,49 @@
             const trimmed = text.trim();
             if (!trimmed) return;
 
-            const msg = {
+            // حذف پیام قبلی و اضافه کردن پیام جدید
+            state.messages = [];
+            state.messages.push({
                 id: generateId(),
                 sender: 'شما',
                 text: trimmed,
                 time: getTime()
-            };
-            state.messages.push(msg);
+            });
 
-            // Simulate partner reply
+            // شبیه‌سازی پاسخ مهدیار (با تأخیر)
             setTimeout(() => {
                 const replies = [
-                    '📡 پیام دریافت شد.',
-                    'در تاریکی سایبر...',
-                    '⚡ تأیید شد.',
+                    '📡 دریافت شد.',
+                    '⚡ تأیید.',
                     '🔮 ادامه بده.',
                     '💬 دریافت کردم.'
                 ];
-                const reply = {
+                state.messages.push({
                     id: generateId(),
                     sender: state.partner,
                     text: replies[Math.floor(Math.random() * replies.length)],
                     time: getTime()
-                };
-                state.messages.push(reply);
+                });
                 renderAll();
-            }, 800 + Math.random() * 1200);
+            }, 600 + Math.random() * 1000);
 
             renderAll();
         }
 
         function addFile(file) {
             if (!state.isLoggedIn) return;
-            const entry = {
+            state.inbox.push({
                 id: generateId(),
                 name: file.name,
                 size: file.size,
-                type: file.type || 'unknown',
                 date: new Date().toLocaleString()
-            };
-            state.inbox.push(entry);
-            showToast(`📁 فایل ${file.name} در صندوق ذخیره شد`, 'success');
+            });
+            showToast(`📁 فایل ${file.name} ذخیره شد`, 'success');
             renderAll();
         }
 
         // ================================================================
-        //  5. RENDER ALL
+        //  RENDER ALL
         // ================================================================
 
         function renderAll() {
@@ -743,62 +774,35 @@
                 renderHeader();
                 return;
             }
-
             renderHeader();
-
-            // چک کردن view و رندر مناسب
             if (state.view === 'chat') {
                 renderChatView();
             } else {
                 renderInboxView();
             }
-
-            // اگر در چت هستیم، input قبلاً توسط renderChatView رندر شده
-            // اگر در inbox هستیم، input خالی است
-            if (state.view === 'chat') {
-                // input قبلاً رندر شده
-            } else {
-                document.getElementById('inputContainer').innerHTML = '';
-            }
         }
 
         // ================================================================
-        //  6. INIT
+        //  INIT
         // ================================================================
 
-        // Check localStorage
         const savedPhone = localStorage.getItem('poitx_phone');
         const savedCode = localStorage.getItem('poitx_code');
         if (savedPhone && savedCode) {
             state.isLoggedIn = true;
             state.phone = savedPhone;
-            // Add some demo messages
+            // پیام خوش‌آمدگویی فقط یک بار
             if (state.messages.length === 0) {
                 state.messages.push({
                     id: generateId(),
                     sender: 'مهدیار',
-                    text: 'سلام! به شبکه سایبر خوش آمدی. ⚡',
-                    time: getTime()
-                });
-                state.messages.push({
-                    id: generateId(),
-                    sender: 'شما',
-                    text: 'سلام مهدیار!',
-                    time: getTime()
-                });
-                state.messages.push({
-                    id: generateId(),
-                    sender: 'مهدیار',
-                    text: '🔮 آماده‌ای برای کاوش در تاریکی دیجیتال؟',
+                    text: '⚡ به شبکه صنعتی خوش آمدی.',
                     time: getTime()
                 });
             }
         }
 
         renderAll();
-
-        // Make state accessible for debugging
-        window.__state = state;
     </script>
 
 </body>
